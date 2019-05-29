@@ -1,25 +1,19 @@
-module OTRecoding
-
-using LaTeXStrings
-using StatsPlots
-pgfplots()
-using Statistics
-
 include("utils.jl")
 include("OT_group.jl")
 include("OT_joint.jl")
+using LaTeXStrings;
+using StatsPlots; pgfplots()
+using Statistics;
 
 
 @enum Method group joint
 
 
-"""
-    compute_average_error_bound(path; norme=1)
-
-Compute a lower bound on the best average prediction error that one can
-obtain with a specific type of data sets
-path: path of the directory containing the data set
-"""
+################################################################################
+# Compute a lower bound on the best average prediction error that one can
+# obtain with a specific type of data sets
+# path: path of the directory containing the data set
+################################################################################
 function compute_average_error_bound(path, norme::Int64=1)
 
     files = readdir(path);
@@ -50,14 +44,12 @@ function compute_average_error_bound(path, norme::Int64=1)
     return errorboundA, errorboundB;
 end
 
-"""
-    empirical_estimator(path; norme=1)
-
-Get an empirical estimator of the distribution of Z conditional to Y and X
-on base A and reciprocally on base B
-obtain with a specific type of data sets
-path: path of the directory containing the data set
-"""
+################################################################################
+# Get an empirical estimator of the distribution of Z conditional to Y and X
+# on base A and reciprocally on base B
+# obtain with a specific type of data sets
+# path: path of the directory containing the data set
+################################################################################
 function empirical_estimator(path, norme::Int64=1)
 
     files = readdir(path);
@@ -120,28 +112,17 @@ function empirical_estimator(path, norme::Int64=1)
     end
 
     return empiricalZA, empiricalYB;
-
 end
 
-"""
-    run_directory(path, method; outname="result.out", 
-                                maxrelax=0.0, 
-                                lambda_reg=0.0, 
-                                nbfiles=0, 
-                                norme=0, 
-                                percent_closest=0.2)
-
- Run one given method on a given number of data files of a given directory
- The data files must be the only files with extension ".txt" in the directory
- path: name of the directory
- nbfiles: number of files considered, 0 if all the data files are tested
- norme : 1 or 2, norm used for distances in the space of covariates
- (see run_all_methods for the description of other parameters)
-"""
-function run_directory(path, method::Method, outname::String="result.out", 
-                       maxrelax::Float64=0.0, lambda_reg::Float64=0.0, 
-                       nbfiles::Int64=0, norme::Int64=0, 
-                       percent_closest::Float64=0.2)
+################################################################################
+# Run one given method on a given number of data files of a given directory
+# The data files must be the only files with extension ".txt" in the directory
+# path: name of the directory
+# nbfiles: number of files considered, 0 if all the data files are tested
+# norme : 1 or 2, norm used for distances in the space of covariates
+# (see run_all_methods for the description of other parameters)
+################################################################################
+function run_directory(path, method::Method, outname::String="result.out", maxrelax::Float64=0.0, lambda_reg::Float64=0.0, nbfiles::Int64=0, norme::Int64=0, percent_closest::Float64=0.2)
 
     println("\n#################################################################")
     println("RUN ONE METHOD ON THE FILES OF ONE DIRECTORY ")
@@ -204,16 +185,11 @@ end
 
 
 
-"""
-    run_benchmark(path, method, maxrelax=0.0, lambda_reg=0.0, norme=0, 
-                  percent_closest=0.2)
-
- Run one method on the complete benchmark
- path: path of the directory including the benchmark
-"""
-function run_benchmark(path, method::Method, maxrelax::Float64=0.0, 
-                       lambda_reg::Float64=0.0, norme::Int64=0, i
-                       percent_closest::Float64=0.2)
+################################################################################
+# Run one method on the complete benchmark
+# path: path of the directory including the benchmark
+################################################################################
+function run_benchmark(path, method::Method, maxrelax::Float64=0.0, lambda_reg::Float64=0.0, norme::Int64=0, percent_closest::Float64=0.2)
 
     println("\n#################################################################")
     println("RUN ONE METHOD ON THE COMPLETE BENCHMARK ")
@@ -474,16 +450,13 @@ function test_params_group(bench_path, nbfiles::Int64=1, norme::Int64=1)
     end
 end
 
-
-"""
-    test_params_joint(bench_path, nbfiles=1, norme=1)
-
-Run the transport of covariates and outcomes with a range of parameters for
-relaxation and regularization
-bench_path: name of the benchmark directory
-nbfiles: number of files considered per directory of the bench, 0 for all
-norme : 1 or 2, norm used for distances in the space of covariates
-"""
+################################################################################
+# Run the transport of covariates and outcomes with a range of parameters for
+# relaxation and regularization
+# bench_path: name of the benchmark directory
+# nbfiles: number of files considered per directory of the bench, 0 for all
+# norme : 1 or 2, norm used for distances in the space of covariates
+################################################################################
 function test_params_joint(bench_path, nbfiles::Int64=1, norme::Int64=1)
 
     println("\n#################################################################")
@@ -571,4 +544,3 @@ function test_ncds(file_name)
     println("Error with relaxed joint = ",1/2.0*sum(abs.(tab.-effjointrelax))/sum(tab));
     return tab,effgroup,effgrouprelax,effjoint,effjointrelax
 end
-end # module
