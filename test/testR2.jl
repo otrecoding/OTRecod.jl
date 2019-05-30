@@ -1,5 +1,6 @@
 using MultivariateStats
 using Distributions, PDMats
+using Printf
 
 tabR2 = [0.01, 0.05, 0.1, 0.9];
 
