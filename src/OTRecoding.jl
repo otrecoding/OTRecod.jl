@@ -1,17 +1,18 @@
 module OTRecoding
 
 using LaTeXStrings
+using Statistics
+using JuMP, Gurobi, Cbc, Clp
+using Printf
 using StatsPlots
 pgfplots()
-using Statistics
 
 include("utils.jl")
 include("OT_group.jl")
 include("OT_joint.jl")
 include("plot_functions.jl")
 
-
-@enum Method group joint
+@enum Meth group joint
 
 
 """
@@ -139,7 +140,7 @@ end
  norme : 1 or 2, norm used for distances in the space of covariates
  (see run_all_methods for the description of other parameters)
 """
-function run_directory(path, method::Method, outname::String="result.out", 
+function run_directory(path, method::Meth, outname::String="result.out", 
                        maxrelax::Float64=0.0, lambda_reg::Float64=0.0, 
                        nbfiles::Int64=0, norme::Int64=0, 
                        percent_closest::Float64=0.2)
@@ -212,7 +213,7 @@ end
  Run one method on the complete benchmark
  path: path of the directory including the benchmark
 """
-function run_benchmark(path, method::Method, maxrelax::Float64=0.0, 
+function run_benchmark(path, method::Meth, maxrelax::Float64=0.0, 
                        lambda_reg::Float64=0.0, norme::Int64=0,
                        percent_closest::Float64=0.2)
 

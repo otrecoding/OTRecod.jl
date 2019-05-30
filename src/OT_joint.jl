@@ -1,12 +1,3 @@
-using JuMP
-using Gurobi
-# using Ipopt
-using Cbc
-using Clp
-using Base
-include("utils.jl")
-
-
 """
 Model where we directly compute the distribution of the outcomes for each
 individual or for sets of indviduals that similar values of covariates
@@ -43,8 +34,8 @@ function OT_joint(inst::Instance, maxrelax::Float64=0.0, lambda_reg::Float64=0.0
     Zobserv = copy(inst.Zobserv);
 
     # Create a model for the optimal transport of individuals
-    modelA = Model(with_optimizer(Gurobi.Optimizer,LogToConsole=0,Method=2,Crossover=0));#ClpSolver(LogLevel=0)); #
-    modelB = Model(with_optimizer(Gurobi.Optimizer,LogToConsole=0,Method=2,Crossover=0));#Model(with_optimizer(Clp.Optimizer,LogLevel=0));
+    modelA = Model(with_optimizer(Gurobi.Optimizer,LogToConsole=0,Meth=2,Crossover=0));#ClpSolver(LogLevel=0)); #
+    modelB = Model(with_optimizer(Gurobi.Optimizer,LogToConsole=0,Meth=2,Crossover=0));#Model(with_optimizer(Clp.Optimizer,LogLevel=0));
 
 
     ###########################################################################
