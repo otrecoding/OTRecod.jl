@@ -1,5 +1,5 @@
 using JuMP
-using Gurobi
+#using Gurobi
 using Cbc
 using Clp
 # using Ipopt
@@ -9,12 +9,10 @@ include("utils.jl")
 @enum IndivFromGroup sequential optimal
 
 
-
-###############################################################################
-# Sequentially assign the modality of the individuals to that of the closest
-# neighbor in the other base until the joint probability values are met
-###############################################################################
-
+"""
+Sequentially assign the modality of the individuals to that of the closest
+neighbor in the other base until the joint probability values are met
+"""
 function individual_from_group_closest(inst::Instance, jointprobaA, jointprobaB, percent_closest::Float64=1.0)
 
     # Redefine A and B for the model
@@ -79,12 +77,11 @@ function individual_from_group_closest(inst::Instance, jointprobaA, jointprobaB,
     return YAtrans, YBtrans
 end
 
-###############################################################################
-# Solve an optimization problem to get the individual transport that minimizes
-# total distance while satisfying the joint probability computed by the model by
-# group
-###############################################################################
-
+"""
+Solve an optimization problem to get the individual transport that minimizes
+total distance while satisfying the joint probability computed by the model by
+group
+"""
 function individual_from_group_optimal(inst::Instance, jointprobaA, jointprobaB, percent_closest::Float64=1.0)
 
 
@@ -161,19 +158,21 @@ function individual_from_group_optimal(inst::Instance, jointprobaA, jointprobaB,
 end
 
 
-###############################################################################
-# Model of group transport
-# percent_closest: percent of closest neighbors taken in the computation of the
-#   costs
-# maxrelax: maximum percentage of deviation from expected probability masses
-# indiv_method: specifies the method used to get individual transport from
-#   group joint probabilities
-# full_disp: if true, write the transported value of each individual;
-#       otherwise, juste write the number of missed transports
-# solver_disp: if false, do not display the outputs of the solver
-###############################################################################
-
-function OT_group(inst::Instance, percent_closest::Float64=0.2, maxrelax::Float64=0.0, norme::Int64=0, indiv_method::IndivFromGroup=sequential, full_disp::Bool=false, solver_disp::Bool=false)
+"""
+Model of group transport
+percent_closest: percent of closest neighbors taken in the computation of the
+  costs
+maxrelax: maximum percentage of deviation from expected probability masses
+indiv_method: specifies the method used to get individual transport from
+  group joint probabilities
+full_disp: if true, write the transported value of each individual;
+      otherwise, juste write the number of missed transports
+solver_disp: if false, do not display the outputs of the solver
+"""
+function OT_group(inst::Instance, percent_closest::Float64=0.2, 
+                  maxrelax::Float64=0.0, norme::Int64=0, 
+                  indiv_method::IndivFromGroup=sequential, 
+                  full_disp::Bool=false, solver_disp::Bool=false)
 
     tstart = time()
 
