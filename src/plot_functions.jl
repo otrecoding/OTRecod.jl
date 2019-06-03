@@ -1,3 +1,5 @@
+export plot_benchmark, plot_scenario
+
 function plot_benchmark(datapath,outputpath,ymin=0.0, ymax=0.8)
 
     println("\n#################################################################")
