@@ -5,11 +5,6 @@ using Gurobi
 using Ipopt
 using Base
 
-include("utils.jl")
-include("transport_individual.jl")
-include("transport_group.jl")
-
-include("utils.jl")
 M=1000
 simul=[]
 results= spzeros(M,nf) 
