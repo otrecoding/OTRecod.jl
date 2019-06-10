@@ -6,23 +6,27 @@ using DataFrames
 
 @enum DataBase baseA baseB
 
-# Definition and initialization of an Instance structure
+export Instance
+
+"""
+Definition and initialization of an Instance structure
+"""
 struct Instance
-    name::AbstractString
-    nA::Int64
-    nB::Int64
-    Xobserv::Array{Float64,2}
-    Yobserv::Array{Int64,1}
-    Zobserv::Array{Int64,1}
-    D::Array{Float64,2}
-    Y::Array{Int64,1}
-    Z::Array{Int64,1}
-    indY::Dict{Int64,Array{Int64,1}}
-    indZ::Dict{Int64,Array{Int64,1}}
-    indXA:: Dict{Int64,Array{Int64}}; # indexes of subjects of A with given X value
-    indXB:: Dict{Int64,Array{Int64}}; # indexes of subjects of B with given X value
-    DA::Array{Float64,2}
-    DB::Array{Float64,2}
+    name    :: AbstractString
+    nA      :: Int64
+    nB      :: Int64
+    Xobserv :: Array{Float64,2}
+    Yobserv :: Array{Int64,1}
+    Zobserv :: Array{Int64,1}
+    D       :: Array{Float64,2}
+    Y       :: Array{Int64,1}
+    Z       :: Array{Int64,1}
+    indY    :: Dict{Int64,Array{Int64,1}}
+    indZ    :: Dict{Int64,Array{Int64,1}}
+    indXA   :: Dict{Int64,Array{Int64}}; # indexes of subjects of A with given X value
+    indXB   :: Dict{Int64,Array{Int64}}; # indexes of subjects of B with given X value
+    DA      :: Array{Float64,2}
+    DB      :: Array{Float64,2}
 
   function Instance(data_file, norme::Int64)
       data = readdlm(data_file, ' ')
