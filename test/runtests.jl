@@ -9,6 +9,8 @@ include("test_ncds.jl")
 
 run_directory("data", joint)
 
+#=
+
 tabR2 = [0.01, 0.05, 0.1, 0.9]
 
 # R2 instances
@@ -255,3 +257,5 @@ ssres  = sum((yp .- y).^2)
 R2     = 1 - ssres/sstot
 
 println("R2 = " , R2)
+
+=#
