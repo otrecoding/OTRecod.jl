@@ -7,12 +7,17 @@ using Printf
 using StatsPlots
 pgfplots()
 
+export run_directory
+
 include("utils.jl")
 include("OT_group.jl")
 include("OT_joint.jl")
 include("plot_functions.jl")
 
+export group, joint
+
 @enum Meth group joint
+
 
 
 """
