@@ -91,7 +91,7 @@ function individual_from_group_optimal(inst::Instance, jointprobaA, jointprobaB,
     # Create a model for the optimal transport of individuals
     # indiv = Model(solver=IpoptSolver(print_level=4))
     indiv = Model(with_optimizer(Clp.Optimizer,LogLevel=0))
-    # indiv = Model(solver=GurobiSolver(Meth=2,LogToConsole=0)); #Presolve=0,Meth=2,Crossover=0))
+    # indiv = Model(solver=GurobiSolver(Method=2,LogToConsole=0)); #Presolve=0,Method=2,Crossover=0))
 
 
     # Variables
@@ -195,7 +195,7 @@ function OT_group(inst::Instance, percent_closest::Float64=0.2,
 
     if maxrelax == 0.0
         # Create a model for the optimal transport of individuals
-        # group = Model(solver=GurobiSolver(Meth=2, LogToConsole=0));
+        # group = Model(solver=GurobiSolver(Method=2, LogToConsole=0));
         group = Model(with_optimizer(Clp.Optimizer));
 
         # Variables
@@ -249,10 +249,10 @@ function OT_group(inst::Instance, percent_closest::Float64=0.2,
     else
        # Create a model for the optimal transport of individuals
        groupA = Model(with_optimizer(Clp.Optimizer))
-       # groupA = Model(solver=GurobiSolver(Meth=2,LogToConsole=0))
+       # groupA = Model(solver=GurobiSolver(Method=2,LogToConsole=0))
        # Create a model for the optimal transport of individuals
        groupB = Model(with_optimizer(Clp.Optimizer))
-       # groupB = Model(solver=GurobiSolver(Meth=2,LogToConsole=0))
+       # groupB = Model(solver=GurobiSolver(Method=2,LogToConsole=0))
 
 
        # - transportA[y,z] : joint probability of modalities y and z if in base A

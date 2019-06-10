@@ -116,7 +116,7 @@ struct Instance
           indXB[nbX] = findall(distB[1,:] .< 0.1);
       end
 
-      file_name = base_name(data_file)
+      file_name = basename(data_file)
       new(file_name,nA, nB, Xobserv, Yobserv, Zobserv, D, Y, Z, indY, indZ, indXA, indXB, DA, DB)
   end
 end
