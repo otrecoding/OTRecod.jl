@@ -1,3 +1,5 @@
+export plot_benchmark, plot_scenario
+
 function plot_benchmark(datapath,outputpath,ymin=0.0, ymax=0.8)
 
     println("\n#################################################################")
@@ -128,29 +130,30 @@ end
 
 function plot_all_scenarios()
 
-    plot_scenario("../OutfilesJO", "SX", "group-basic", 0.0, 0.7)
-    plot_scenario("../OutfilesJO", "SX", "group-0.4-0.0", 0.0, 0.7)
-    plot_scenario("../OutfilesJO", "SX", "joint-basic", 0.0, 0.7)
-    plot_scenario("../OutfilesJO", "SX", "joint-0.4-0.1", 0.0, 0.7)
+    mkpath("OutfilesJO")
+    plot_scenario("OutfilesJO", "SX", "group-basic", 0.0, 0.7)
+    plot_scenario("OutfilesJO", "SX", "group-0.4-0.0", 0.0, 0.7)
+    plot_scenario("OutfilesJO", "SX", "joint-basic", 0.0, 0.7)
+    plot_scenario("OutfilesJO", "SX", "joint-0.4-0.1", 0.0, 0.7)
 
-    plot_scenario("../OutfilesJO", "SR", "group-basic", 0.0, 1.0)
-    plot_scenario("../OutfilesJO", "SR", "group-0.4-0.0", 0.0, 1.0)
-    plot_scenario("../OutfilesJO", "SR", "joint-basic", 0.0, 1.0)
-    plot_scenario("../OutfilesJO", "SR", "joint-0.4-0.1", 0.0, 1.0)
+    plot_scenario("OutfilesJO", "SR", "group-basic", 0.0, 1.0)
+    plot_scenario("OutfilesJO", "SR", "group-0.4-0.0", 0.0, 1.0)
+    plot_scenario("OutfilesJO", "SR", "joint-basic", 0.0, 1.0)
+    plot_scenario("OutfilesJO", "SR", "joint-0.4-0.1", 0.0, 1.0)
 
-    plot_scenario("../OutfilesJO", "Sa", "group-basic", 0.0, 0.6)
-    plot_scenario("../OutfilesJO", "Sa", "group-0.4-0.0", 0.0, 0.6)
-    plot_scenario("../OutfilesJO", "Sa", "joint-basic", 0.0, 0.6)
-    plot_scenario("../OutfilesJO", "Sa", "joint-0.4-0.1", 0.0, 0.6)
+    plot_scenario("OutfilesJO", "Sa", "group-basic", 0.0, 0.6)
+    plot_scenario("OutfilesJO", "Sa", "group-0.4-0.0", 0.0, 0.6)
+    plot_scenario("OutfilesJO", "Sa", "joint-basic", 0.0, 0.6)
+    plot_scenario("OutfilesJO", "Sa", "joint-0.4-0.1", 0.0, 0.6)
 
-    plot_scenario("../OutfilesJO", "SNL", "group-basic", 0.0, 0.7)
-    plot_scenario("../OutfilesJO", "SNL", "group-0.4-0.0", 0.0, 0.7)
-    plot_scenario("../OutfilesJO", "SNL", "joint-basic", 0.0, 0.7)
-    plot_scenario("../OutfilesJO", "SNL", "joint-0.4-0.1", 0.0, 0.7)
+    plot_scenario("OutfilesJO", "SNL", "group-basic", 0.0, 0.7)
+    plot_scenario("OutfilesJO", "SNL", "group-0.4-0.0", 0.0, 0.7)
+    plot_scenario("OutfilesJO", "SNL", "joint-basic", 0.0, 0.7)
+    plot_scenario("OutfilesJO", "SNL", "joint-0.4-0.1", 0.0, 0.7)
 
-    plot_scenario("../OutfilesJO/Sn", "Sn", "group-basic", 0.0, 0.8)
-    plot_scenario("../OutfilesJO/Sn", "Sn", "group-0.4-0.0", 0.0, 0.8)
-    plot_scenario("../OutfilesJO/Sn", "Sn", "joint-basic", 0.0, 0.8)
-    plot_scenario("../OutfilesJO/Sn", "Sn", "joint-0.4-0.1", 0.0, 0.8)
+    plot_scenario("OutfilesJO/Sn", "Sn", "group-basic", 0.0, 0.8)
+    plot_scenario("OutfilesJO/Sn", "Sn", "group-0.4-0.0", 0.0, 0.8)
+    plot_scenario("OutfilesJO/Sn", "Sn", "joint-basic", 0.0, 0.8)
+    plot_scenario("OutfilesJO/Sn", "Sn", "joint-0.4-0.1", 0.0, 0.8)
 
 end
