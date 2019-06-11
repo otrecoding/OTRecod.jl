@@ -2,7 +2,7 @@ module OTRecoding
 
 using LaTeXStrings
 using Statistics
-using JuMP, Gurobi, Cbc, Clp
+using JuMP, Cbc, Clp
 using Printf
 using StatsPlots
 pgfplots()

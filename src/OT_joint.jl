@@ -34,8 +34,8 @@ function OT_joint(inst::Instance, maxrelax::Float64=0.0, lambda_reg::Float64=0.0
     Zobserv = copy(inst.Zobserv);
 
     # Create a model for the optimal transport of individuals
-    modelA = Model(with_optimizer(Gurobi.Optimizer,LogToConsole=0,Method=2,Crossover=0));#ClpSolver(LogLevel=0)); #
-    modelB = Model(with_optimizer(Gurobi.Optimizer,LogToConsole=0,Method=2,Crossover=0));#Model(with_optimizer(Clp.Optimizer,LogLevel=0));
+    modelA = Model(with_optimizer(Clp.Optimizer,LogLevel=0));#ClpSolver(LogLevel=0)); #
+    modelB = Model(with_optimizer(Clp.Optimizer,LogLevel=0));#Model(with_optimizer(Clp.Optimizer,LogLevel=0));
 
 
     ###########################################################################
@@ -163,24 +163,6 @@ function OT_joint(inst::Instance, maxrelax::Float64=0.0, lambda_reg::Float64=0.0
             end
        end
    end
-
-   #deduce the individual distributions of probability for each individual
-   probaZindivA = Array{Float64,2}(undef, nA, length(Z));
-   probaYindivB = Array{Float64,2}(undef, nB, length(Y));
-   for x = 1:nbX
-       for i in indXA[x]
-           probaZindivA[i,:] = estimatorZA[x,Yobserv[i],:];
-       end
-       for i in indXB[x]
-           probaYindivB[i,:] = estimatorYB[x,:,Zobserv[i+nA]];
-       end
-   end
-
-
-
-   # Transport the Ylity that maximizes frequency
-   predZA = [findmax([probaZindivA[i,z]  for z in Z])[2] for i in A];
-   predYB = [findmax([probaYindivB[j,y]  for y in Y])[2] for j in B];
 
    # Display the solution
    # println("Solution of the joint probability transport");
