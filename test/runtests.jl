@@ -9,6 +9,15 @@ include("test_ncds.jl")
 
 run_directory("data", joint)
 
+outfile = "result.out"
+open(outfile,"r") do f
+    for line in eachline(f)
+        print(line)
+    end
+end
+
+@test true
+
 #=
 
 tabR2 = [0.01, 0.05, 0.1, 0.9]
