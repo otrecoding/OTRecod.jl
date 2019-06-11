@@ -24,6 +24,13 @@ and bring `OTRecoding` into scope:
 julia> using OTRecoding
 ```
 
+You can test the package with
+
+```julia
+julia>] # switch to pkg> mode
+pkg> test OTRecoding
+```
+
 Copyright © 2019 Jeremy Omer <jeremy.omer@insa-rennes.fr>.
 
 This program is free software: you can redistribute it and/or modify
