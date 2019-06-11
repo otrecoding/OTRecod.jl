@@ -1,6 +1,6 @@
 name = "OTRecoding"
 uuid = "ff01ed82-8208-11e9-3323-37e231d82657"
-authors = ["Pierre Navaro <pierre.navaro@math.cnrs.fr>"]
+authors = ["Jeremy Omer <jeremy.omer@insa-rennes.fr>"]
 version = "0.1.0"
 
 [deps]
