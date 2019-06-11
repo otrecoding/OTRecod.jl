@@ -392,13 +392,16 @@ mutable struct Solution
 end
 
 
-###############################################################################
 # Compute prediction errors in a solution
 ###############################################################################
-function compute_pred_error(inst::Instance, sol, proba_disp::Bool=true, mis_disp::Bool=false, full_disp::Bool=false)
+function compute_pred_error(inst::Instance, sol, proba_disp::Bool=false, mis_disp::Bool=false, full_disp::Bool=false)
 
     A = 1:inst.nA
     B = 1:inst.nB
+    Y = copy(inst.Y);
+    Z = copy(inst.Z);
+    indXA = copy(inst.indXA); indXB = copy(inst.indXB);
+    nbX = length(indXA);
 
     # display the transported and real modalities
     if full_disp
@@ -414,12 +417,27 @@ function compute_pred_error(inst::Instance, sol, proba_disp::Bool=true, mis_disp
     end
 
     # Count the number of mistakes in the transport
+    #deduce the individual distributions of probability for each individual from the distributions
+    probaZindivA = Array{Float64,2}(undef, inst.nA, length(Z));
+    probaYindivB = Array{Float64,2}(undef, inst.nB, length(Y));
+    for x = 1:nbX
+        for i in indXA[x]
+            probaZindivA[i,:] = sol.estimatorZA[x,inst.Yobserv[i],:];
+        end
+        for i in indXB[x]
+            probaYindivB[i,:] = sol.estimatorYB[x,:,inst.Zobserv[i+inst.nA]];
+        end
+    end
+
+    # Transport the modality that maximizes frequency
+    predZA = [findmax([probaZindivA[i,z]  for z in Z])[2] for i in A];
+    predYB = [findmax([probaYindivB[j,y]  for y in Y])[2] for j in B];
 
     # Base 1
     nbmisA = 0
     misA = []
     for i in A
-        if sol.predZA[i] != inst.Zobserv[i]
+        if predZA[i] != inst.Zobserv[i]
           nbmisA += 1
           push!(misA, i )
         end
@@ -429,7 +447,7 @@ function compute_pred_error(inst::Instance, sol, proba_disp::Bool=true, mis_disp
     nbmisB = 0
     misB = []
     for j in B
-        if sol.predYB[j] != inst.Yobserv[inst.nA+j]
+        if predYB[j] != inst.Yobserv[inst.nA+j]
           nbmisB += 1
           push!(misB, j)
         end
