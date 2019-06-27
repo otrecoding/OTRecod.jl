@@ -3,10 +3,14 @@
 
 
 """
+    individual_from_group_closest(inst, jointprobaA, 
+        jointprobaB, percent_closest=1.0)
+
 Sequentially assign the modality of the individuals to that of the closest
 neighbor in the other base until the joint probability values are met
 """
-function individual_from_group_closest(inst::Instance, jointprobaA, jointprobaB, percent_closest::Float64=1.0)
+function individual_from_group_closest(inst::Instance, jointprobaA, 
+    jointprobaB, percent_closest::Float64=1.0)
 
     # Redefine A and B for the model
     A = 1:inst.nA
@@ -20,7 +24,10 @@ function individual_from_group_closest(inst::Instance, jointprobaA, jointprobaB,
     freqY = [nbindY[y] / length(A) for y in Y]
     freqZ = [nbindZ[z] / length(B) for z in Z]
 
-    # In essence, assign to each individual the modality that is closest, where the distance from an individual to a modality is computed as the average distance to the individuals having this modality (in the other base)
+    # In essence, assign to each individual the modality that is closest, 
+    # where the distance from an individual to a modality is computed as 
+    # the average distance to the individuals having this modality (in the other base)
+
     YAtrans = Array{Int64,1}(undef,inst.nB);
     YBtrans = Array{Int64,1}(undef,inst.nA);
     Davg,DindivA, DindivB = average_distance_to_closest(inst, percent_closest);
@@ -71,11 +78,15 @@ function individual_from_group_closest(inst::Instance, jointprobaA, jointprobaB,
 end
 
 """
+    individual_from_group_optimal(inst, jointprobaA,
+         jointprobaB; percent_closest=1.0)
+
 Solve an optimization problem to get the individual transport that minimizes
 total distance while satisfying the joint probability computed by the model by
 group
 """
-function individual_from_group_optimal(inst::Instance, jointprobaA, jointprobaB, percent_closest::Float64=1.0)
+function individual_from_group_optimal(inst::Instance, jointprobaA, 
+                jointprobaB, percent_closest::Float64=1.0)
 
 
     # Redefine A and B for the model
@@ -152,15 +163,19 @@ end
 
 
 """
+    OT_group(inst, percent_closest=0.2, maxrelax=0.0, norme=0, 
+             indiv_method=sequential, full_disp=false, solver_disp=false)
+
 Model of group transport
 percent_closest: percent of closest neighbors taken in the computation of the
   costs
-maxrelax: maximum percentage of deviation from expected probability masses
-indiv_method: specifies the method used to get individual transport from
+
+- `maxrelax`: maximum percentage of deviation from expected probability masses
+- `indiv_method`: specifies the method used to get individual transport from
   group joint probabilities
-full_disp: if true, write the transported value of each individual;
+- `full_disp`: if true, write the transported value of each individual;
       otherwise, juste write the number of missed transports
-solver_disp: if false, do not display the outputs of the solver
+- `solver_disp`: if false, do not display the outputs of the solver
 """
 function OT_group(inst::Instance, percent_closest::Float64=0.2, 
                   maxrelax::Float64=0.0, norme::Int64=0, 
