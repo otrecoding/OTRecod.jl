@@ -7,34 +7,34 @@ In a Julia session switch to `pkg>` mode to add `NPSMC`:
 
 ```julia
 julia>] # switch to pkg> mode
-pkg> add https://gitlab.insa-rennes.fr/otrecoding/OTRecoding.jl
+pkg> add https://gitlab.insa-rennes.fr/otrecoding/OTRecod.jl
 ```
 
 Alternatively, you can achieve the above using the `Pkg` API:
 
 ```julia
 julia> using Pkg
-julia> pkg"add https://gitlab.insa-rennes.fr/otrecoding/OTRecoding.jl"
+julia> pkg"add https://gitlab.insa-rennes.fr/otrecoding/OTRecod.jl"
 ```
 
 When finished, make sure that you're back to the Julian prompt (`julia>`)
-and bring `OTRecoding` into scope:
+and bring `OTRecod` into scope:
 
 ```julia
-julia> using OTRecoding
+julia> using OTRecod
 ```
 
 You can test the package with
 
 ```julia
 julia>] # switch to pkg> mode
-pkg> test OTRecoding
+pkg> test OTRecod
 ```
 
 To run an example from a dataset
 
 ```julia
-julia> using OTRecoding
+julia> using OTRecod
 
 help?> run_directory
 search: run_directory

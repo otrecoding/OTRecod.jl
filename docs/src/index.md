@@ -1,3 +1,3 @@
-# OTRecoding.jl
+# OTRecod.jl
 
-Documentation for OTRecoding.jl
+Documentation for OTRecod.jl

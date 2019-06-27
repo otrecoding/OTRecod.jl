@@ -1,6 +1,6 @@
 # Helper functions
 
 ```@autodocs
-Modules = [OTRecoding]
+Modules = [OTRecod]
 Pages   = ["utils.jl"]
 ```
