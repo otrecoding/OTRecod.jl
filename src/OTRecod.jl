@@ -5,7 +5,7 @@ using Statistics
 using JuMP, Cbc, Clp
 using Printf
 using StatsPlots
-pgfplots()
+#pgfplots()
 
 export run_directory
 export group, joint
