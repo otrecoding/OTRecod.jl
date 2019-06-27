@@ -2,6 +2,6 @@
 
 
 ```@autodocs
-Modules = [OTRecoding]
+Modules = [OTRecod]
 Pages   = ["PrintLog.jl"]
 ```

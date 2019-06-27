@@ -1,4 +1,4 @@
-module OTRecoding
+module OTRecod
 
 using LaTeXStrings
 using Statistics

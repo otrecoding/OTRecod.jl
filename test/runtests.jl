@@ -1,4 +1,4 @@
-using OTRecoding, Test
+using OTRecod, Test
 using MultivariateStats
 using Distributions, PDMats
 using Printf

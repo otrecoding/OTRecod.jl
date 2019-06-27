@@ -1,10 +1,10 @@
 using Documenter
-using OTRecoding
+using OTRecod
 
 makedocs(
-    sitename = "OTRecoding",
+    sitename = "OTRecod",
     format = Documenter.HTML(),
-    modules = [OTRecoding]
+    modules = [OTRecod]
 )
 
 # Documenter can also automatically deploy documentation to gh-pages.

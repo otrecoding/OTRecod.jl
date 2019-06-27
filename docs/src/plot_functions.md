@@ -1,7 +1,6 @@
 # Plots
 
-
 ```@autodocs
-Modules = [OTRecoding]
+Modules = [OTRecod]
 Pages   = ["plot_functions.jl"]
 ```

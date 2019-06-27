@@ -1,6 +1,6 @@
 # Group
 
 ```@autodocs
-Modules = [OTRecoding]
+Modules = [OTRecod]
 Pages   = ["OT_group.jl"]
 ```
