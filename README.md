@@ -1,7 +1,8 @@
-# Recoding data using optimal transport
+# Optimal Transport for data recoding
+
+[Regularized optimal transport of covariates and outcomes in data recoding](https://hal.archives-ouvertes.fr/hal-02123109/file/OTRecoding.pdf), Garès, Valérie and Omer, Jérémy, 2019.
 
 ## Installation
-
 
 In a Julia session switch to `pkg>` mode to add `NPSMC`:
 
