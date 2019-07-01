@@ -138,9 +138,11 @@ end
 
  Run one given method on a given number of data files of a given directory
  The data files must be the only files with extension ".txt" in the directory
- path: name of the directory
- nbfiles: number of files considered, 0 if all the data files are tested
- norme : 1 or 2, norm used for distances in the space of covariates
+
+ - `path`: name of the directory
+ - `nbfiles`: number of files considered, 0 if all the data files are tested
+ - `norme` : 1 or 2, norm used for distances in the space of covariates
+
  (see run_all_methods for the description of other parameters)
 """
 function run_directory(path, method::Method, outname::String="result.out", 
