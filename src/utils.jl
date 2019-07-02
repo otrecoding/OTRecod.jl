@@ -9,7 +9,12 @@ using DataFrames
 export Instance
 
 """
+    Instance(data_file, norme)
+
 Definition and initialization of an Instance structure
+
+- datafile : file name
+- norme    : integer
 """
 struct Instance
     name    :: AbstractString
@@ -126,7 +131,9 @@ struct Instance
 end
 
 
-function aggregate_per_covar_mixed(inst::Instance, norme::Int64=1, aggregate_tol::Float64=0.5)
+function aggregate_per_covar_mixed(inst          :: Instance, 
+                                   norme         :: Int64=1, 
+                                   aggregate_tol :: Float64=0.5)
 
     A = 1:inst.nA
     B = 1:inst.nB
@@ -164,18 +171,22 @@ function aggregate_per_covar_mixed(inst::Instance, norme::Int64=1, aggregate_tol
 end
 
 """
-Compute a bound on the average prediction error in each base
+    bound_prediction_error(instance, norme, aggregate_tol)
+
+Compute a bound on the average prediction error in each base.
 The bound is computed as the expected prediction error assuming that the
 distribution of Z in base A (and that of Y in base B) is known, and the
 prediction done with the value that maximizes the probability
 """
-function bound_prediction_error(inst::Instance, norme::Int64=1, aggregate_tol::Float64=0.5)
+function bound_prediction_error(inst          :: Instance, 
+                                norme         :: Int64=1, 
+                                aggregate_tol :: Float64=0.5)
 
     # Local redefinitions of parameters of  the instance
     nA = inst.nA
     nB = inst.nB
-    Y = copy(inst.Y)
-    Z = copy(inst.Z)
+    Y  = copy(inst.Y)
+    Z  = copy(inst.Z)
 
     # compute the bound in base A
     boundpredZA = 0.0
@@ -215,6 +226,8 @@ function bound_prediction_error(inst::Instance, norme::Int64=1, aggregate_tol::F
 end
 
 """
+    empirical_distribution(instance, norme, aggregate_tol)
+
 Return the empirical cardinality of the joint occurrences of (C=x,Y=mA,Z=mB)
 in both bases
 """
@@ -250,6 +263,8 @@ end
 
 
 """
+    disp_inst_info(instance)
+
 Display information about the distance between the modalities
 """
 function disp_inst_info(inst::Instance)
@@ -325,6 +340,9 @@ function disp_inst_info(inst::Instance)
 end
 
 """
+    avg_distance_closest(instance, database1, database2, outcome, m1, m2, 
+                         percent_closest)
+
 Compute the average distance between individuals of base1 with modality m1
 for outcome and individuals of base2 with modality m2 for outcome
 Consider only the percent_closest individuals in the computation of the
@@ -371,48 +389,66 @@ function avg_distance_closest(inst::Instance, base1::DataBase, base2::DataBase, 
 end
 
 
+"""
+    Solution(t, jointYZA, jointYZB)
 
+    Solution(t, jointYZA, jointYZB, estimatorZA, estimatorYB)
+
+- tsolve       : solution time
+- jointYZA     : joint distribution of Y and Z in A
+- jointYZB     : joint distribution of Y and Z in B
+- estimatorZA  : estimator of probability of Z for individuals in base A
+- estimatorYB  : estimator of probability of Y for individuals in base B
+
+"""
 mutable struct Solution
-    tsolve::Float64  # solution time
-    jointYZA::Array{Float64,2} # joint distribution of Y and Z in A
-    jointYZB::Array{Float64,2} # joint distribution of Y and Z in B
-    estimatorZA::Array{Float64,3} # estimator of probability of Z for individuals in base A
-    estimatorYB::Array{Float64,3} # estimator of probability of Y for individuals in base B
-    errorpredZA::Float64
-    errorpredYB::Float64
-    errorpredavg::Float64
-    errordistribZA::Float64
-    errordistribYB::Float64
-    errordistribavg::Float64
 
-    Solution(t,jointYZA,jointYZB) = new(t,jointYZA,jointYZB)
-    Solution(t,jointYZA,jointYZB,estimatorZA,estimatorYB) = new(t,jointYZA,jointYZB,estimatorZA,estimatorYB)
+    tsolve          :: Float64  
+    jointYZA        :: Array{Float64,2} 
+    jointYZB        :: Array{Float64,2}
+    estimatorZA     :: Array{Float64,3}
+    estimatorYB     :: Array{Float64,3}
+    errorpredZA     :: Float64
+    errorpredYB     :: Float64
+    errorpredavg    :: Float64
+    errordistribZA  :: Float64
+    errordistribYB  :: Float64
+    errordistribavg :: Float64
+
+    Solution(t, jointYZA, jointYZB) = new(t,jointYZA,jointYZB)
+
+    Solution(t, jointYZA, jointYZB, estimatorZA, estimatorYB) = new(t, 
+             jointYZA, jointYZB, estimatorZA, estimatorYB)
 end
 
 
 """
 Compute prediction errors in a solution
 """
-function compute_pred_error(inst::Instance, sol, proba_disp::Bool=false, mis_disp::Bool=false, full_disp::Bool=false)
+function compute_pred_error(inst :: Instance, 
+                            sol, 
+                            proba_disp :: Bool=false,
+                            mis_disp   :: Bool=false, 
+                            full_disp  :: Bool=false)
 
-    A = 1:inst.nA
-    B = 1:inst.nB
-    Y = copy(inst.Y)
-    Z = copy(inst.Z)
+    A     = 1:inst.nA
+    B     = 1:inst.nB
+    Y     = copy(inst.Y)
+    Z     = copy(inst.Z)
     indXA = copy(inst.indXA) 
     indXB = copy(inst.indXB)
-    nbX = length(indXA)
+    nbX   = length(indXA)
 
     # display the transported and real modalities
     if full_disp
         println("Modalities of base 1 individuals:")
         for i in A
-            println("Index: " , i, ", real value: ", inst.Zobserv[i], ", transported value: ", sol.predZA[i])
+            println("Index: $i real value: $(inst.Zobserv[i]) transported value: $(sol.predZA[i])")
         end
         # display the transported and real modalities
         println("Modalities of base 2 individuals:")
         for j in B
-            println("Index: " , j, ", real value: ", inst.Yobserv[inst.nA+j], ", transported value: ", sol.predYB[j])
+            println("Index: $j real value: $(inst.Yobserv[inst.nA+j]) transported value: $(sol.predYB[j])")
         end
     end
 
@@ -480,9 +516,11 @@ function compute_pred_error(inst::Instance, sol, proba_disp::Bool=false, mis_dis
     return sol
 end
 
-###############################################################################
-# Compute errors in the conditional distributions of a solution
-###############################################################################
+"""
+    compute_distrib_error(insttance, solution, empiricalZA, empiricalYB)
+
+Compute errors in the conditional distributions of a solution
+"""
 function compute_distrib_error(inst::Instance, sol::Solution, empiricalZA, empiricalYB)
 
     nA  = inst.nA 
@@ -500,6 +538,8 @@ function compute_distrib_error(inst::Instance, sol::Solution, empiricalZA, empir
 end
 
 """
+    average_distance_to_closest(instance, percent_closest)
+
 Compute the cost between pairs of outcomes as the average distance between
 covariations of individuals with these outcomes, but considering only the
 percent closest neighbors
@@ -518,26 +558,25 @@ function average_distance_to_closest(inst::Instance, percent_closest::Float64)
     Davg = zeros(length(Y),length(Z))
     DindivA  = zeros(inst.nA,length(Z))
     DindivB  = zeros(inst.nB,length(Y))
-    for y in Y
-        for i in indY[y]
-            for z in Z
-                nbclose = max(round(Int,percent_closest*length(indZ[z])),1)
-                distance = sort([inst.D[i,j] for j in indZ[z]])
-                DindivA[i,z] =  sum(distance[1:nbclose])/nbclose
-                Davg[y,z] += sum(distance[1:nbclose])/nbclose/length(indY[y])/2.0
-            end
-        end
+
+    for y in Y, i in indY[y], z in Z
+
+        nbclose = max(round(Int,percent_closest*length(indZ[z])),1)
+        distance = sort([inst.D[i,j] for j in indZ[z]])
+        DindivA[i,z] =  sum(distance[1:nbclose])/nbclose
+        Davg[y,z] += sum(distance[1:nbclose])/nbclose/length(indY[y])/2.0
+
     end
-    for z in Z
-        for j in indZ[z]
-            for y in Y
-                nbclose = max(round(Int,percent_closest*length(indY[y])),1)
-                distance = sort([inst.D[i,j] for i in indY[y]])
-                DindivB[j,y] = sum(distance[1:nbclose])/nbclose
-                Davg[y,z] += sum(distance[1:nbclose])/nbclose/length(indZ[z])/2.0
-            end
-        end
+
+    for z in Z, j in indZ[z], y in Y
+
+        nbclose = max(round(Int,percent_closest*length(indY[y])),1)
+        distance = sort([inst.D[i,j] for i in indY[y]])
+        DindivB[j,y] = sum(distance[1:nbclose])/nbclose
+        Davg[y,z] += sum(distance[1:nbclose])/nbclose/length(indZ[z])/2.0
+
     end
 
     return Davg, DindivA, DindivB
+
 end
