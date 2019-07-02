@@ -4,7 +4,7 @@ using CSV
 
 path = joinpath("data","tab.csv")
 
-df = DataFrame(CSV.File("test/data/tab.csv"))
+df = CSV.read(path)
 
 norme = 1
 #=
