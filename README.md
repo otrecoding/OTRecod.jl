@@ -4,7 +4,7 @@
   6 ![Lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)        7 ![Lifecycle](https://img.shields.io/badge/lifecycle-stable-green.svg)
   8 ![Lifecycle](https://img.shields.io/badge/lifecycle-retired-orange.svg)
   9 ![Lifecycle](https://img.shields.io/badge/lifecycle-archived-red.svg)        10 ![Lifecycle](https://img.shields.io/badge/lifecycle-dormant-blue.svg) -->
-[![Build Status](https://travis-ci.org/npsmc/NPSMC.jl.svg?branch=master)](https://travis-ci.org/otrecoding/OTRecod.jl)
+[![Build Status](https://travis-ci.org/otrecoding/OTRecod.jl.svg?branch=master)](https://travis-ci.org/otrecoding/OTRecod.jl)
 [![codecov](https://codecov.io/gh/otrecoding/OTRecod.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/otrecoding/OTRecod.jl)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://otrecoding.github.io/OTRecod.jl/dev)
 
@@ -16,14 +16,14 @@ In a Julia session switch to `pkg>` mode to add `NPSMC`:
 
 ```julia
 julia>] # switch to pkg> mode
-pkg> add https://gitlab.insa-rennes.fr/otrecoding/OTRecod.jl
+pkg> add https://github.com/otrecoding/OTRecod.jl
 ```
 
 Alternatively, you can achieve the above using the `Pkg` API:
 
 ```julia
 julia> using Pkg
-julia> pkg"add https://gitlab.insa-rennes.fr/otrecoding/OTRecod.jl"
+julia> pkg"https://github.com/otrecoding/OTRecod.jl"
 ```
 
 When finished, make sure that you're back to the Julian prompt (`julia>`)
