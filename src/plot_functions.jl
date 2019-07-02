@@ -1,10 +1,11 @@
 export plot_benchmark, plot_scenario
 
-function plot_benchmark(datapath,outputpath,ymin=0.0, ymax=0.8)
+"""
+    plot_benchmark(datapath,outputpath,ymin=0.0, ymax=0.8)
 
-    println("\n#################################################################")
-    println("BOXPLOT OF EACH SIMULATION WITH ALL METHODS")
-    println("\n#################################################################\n")
+Boxplot of each simulation with all methods
+"""
+function plot_benchmark(datapath,outputpath,ymin=0.0, ymax=0.8)
 
     datadirlist = readdir(datapath);
     outfilelist = readdir(outputpath);
