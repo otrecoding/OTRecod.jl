@@ -5,7 +5,13 @@ makedocs(
     sitename = "OTRecod",
     authors  = "Jeremy Omer",
     format   = Documenter.HTML(),
-    modules  = [OTRecod]
+    modules  = [OTRecod],
+    pages    = [ "Documentation" => "index.md",
+                 "Group"         => "OT_group.md",
+                 "Joint"         => "OT_joint.md",
+                 "Logging"       => "PrintLog.md",
+                 "Plotting"      => "plot_functions.md",
+                 "Utilities"     => "utils.md"]
 )
 
 deploydocs(
