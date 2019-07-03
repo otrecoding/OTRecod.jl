@@ -161,6 +161,7 @@ function individual_from_group_optimal(inst::Instance, jointprobaA,
     return YAtrans, YBtrans
 end
 
+export OT_group
 
 """
     OT_group(inst, percent_closest=0.2, maxrelax=0.0, norme=0, 

@@ -1,3 +1,5 @@
+export OT_joint
+
 """
 Model where we directly compute the distribution of the outcomes for each
 individual or for sets of indviduals that similar values of covariates
@@ -9,7 +11,14 @@ individual or for sets of indviduals that similar values of covariates
 - full_disp: if true, write the transported value of each individual; otherwise, juste write the number of missed transports
 - solver_disp: if false, do not display the outputs of the solver
 """
-function OT_joint(inst::Instance, maxrelax::Float64=0.0, lambda_reg::Float64=0.0, percent_closest::Float64=0.2, norme::Int64=0, aggregate_tol::Float64=0.5, full_disp::Bool=false, solver_disp::Bool=false)
+function OT_joint(inst            :: Instance, 
+                  maxrelax        :: Float64 = 0.0, 
+                  lambda_reg      :: Float64 = 0.0, 
+                  percent_closest :: Float64 = 0.2, 
+                  norme           :: Int64   = 0, 
+                  aggregate_tol   :: Float64 = 0.5, 
+                  full_disp       :: Bool    = false, 
+                  solver_disp     :: Bool    = false)
 
     # println("#################################################################")
     # println("AGGREGATE INDIVIDUALS WRT COVARIATES")
