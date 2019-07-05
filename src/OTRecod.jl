@@ -166,7 +166,7 @@ function run_directory(path            :: String,
     # initialize the output file
     outfile = open(outname, "w");
     @printf(outfile, "%-12s , %-6s , %-5s , %-5s , %-5s , %-6s , %-6s , %-8s , %-7s , %-7s , %-9s , %-6s\n","filename", "method", "norme", "relax", "regul", "ePredA", "ePredB", "ePredavg", "eDistrA", "eDistrB","eDistravg","cpu");
-    close(outfile);
+    close(outfile)
 
     # compute the true empirical conditional distributions for comparison with results
     println("... compute the empirical distributions of outcomes\n");
@@ -192,9 +192,9 @@ function run_directory(path            :: String,
         indXA = copy(inst.indXA); indXB = copy(inst.indXB);
         nbX = length(indXA);
 
-        println("\n########## File : ", string(path,"/",data_file), " ##########");
+        @info " File : $(joinpath(path,data_file))$ "
         if method == :group
-            indiv_method = maxrelax > 0.0 ? optimal : sequential;
+            indiv_method = maxrelax > 0.0 ? :optimal : :sequential;
             sol = OT_group(inst,percent_closest,maxrelax,norme,indiv_method);
             #PN lambda_reg = 0.0;
         elseif method == :joint
