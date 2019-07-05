@@ -8,16 +8,20 @@ include("test_params_group.jl")
 include("test_params_joint.jl")
 include("test_ncds.jl")
 
-run_directory("data", joint)
+for method in [:group, :joint]
+    run_directory("data", method)
 
-outfile = "result.out"
-open(outfile,"r") do f
-    for line in eachline(f)
-        print(line)
+    outfile = "result.out"
+    open(outfile,"r") do f
+        for line in eachline(f)
+            print(line)
+        end
     end
+
+    @test true
+
 end
 
-@test true
 
 #=
 
