@@ -65,15 +65,23 @@ using CSV, Distances, MLDataUtils
             # errorboundA, errorboundB = compute_average_error_bound(path, norme)
     
             if method == :group
+
                indiv_method = maxrelax > 0.0 ? :optimal : :sequential
-               sol = ot_group(instance, percent_closest, maxrelax, indiv_method)
+
+               sol = ot_group(instance, percent_closest, 
+                              maxrelax, indiv_method)
+
             elseif method == :joint
-               sol = ot_joint(instance, maxrelax, lambda_reg, percent_closest)
+
+               sol = ot_joint(instance, maxrelax, 
+                              lambda_reg, percent_closest)
+
             end
     
-            sol = OTRecod.compute_pred_error(instance, sol, false);
-            sol = OTRecod.compute_distrib_error(instance, sol, empiricalZA, 
-                                                empiricalYB)
+            OTRecod.compute_pred_error!( sol, instance, false)
+            OTRecod.compute_distrib_error!(sol, instance, 
+                                           empiricalZA, 
+                                           empiricalYB)
     
 
             @show method, norme
