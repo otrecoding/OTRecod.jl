@@ -2,5 +2,5 @@
 
 ```@autodocs
 Modules = [OTRecod]
-Pages   = ["OT_group.jl"]
+Pages   = ["ot_group.jl"]
 ```
