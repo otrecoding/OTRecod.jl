@@ -31,3 +31,16 @@ mutable struct Solution
 end
 
 
+import Base.show
+
+function Base.show(io :: IO, sol :: Solution)
+
+     println(io, " errorpredZA     : $(sol.errorpredZA)")
+     println(io, " errorpredYB     : $(sol.errorpredYB)")
+     println(io, " errorpredavg    : $(sol.errorpredavg)") 
+     println(io, " errordistribZA  : $(sol.errordistribZA)") 
+     println(io, " errordistribZA  : $(sol.errordistribYB)")
+     println(io, " errordistribavg : $(sol.errordistribavg)") 
+     println(io, " tsolve          : $(sol.tsolve)")
+
+end
