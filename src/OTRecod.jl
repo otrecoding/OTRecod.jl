@@ -9,8 +9,8 @@ using StatsPlots
 export run_directory
 
 include("utils.jl")
-include("OT_group.jl")
-include("OT_joint.jl")
+include("ot_group.jl")
+include("ot_joint.jl")
 include("plot_functions.jl")
 
 
@@ -204,10 +204,10 @@ function run_directory(path            :: String,
         @info " File : $(joinpath(path,data_file)) "
         if method == :group
             indiv_method = maxrelax > 0.0 ? :optimal : :sequential
-            sol = OT_group(inst,percent_closest,maxrelax,norme,indiv_method)
+            sol = ot_group(inst,percent_closest,maxrelax,norme,indiv_method)
             #PN lambda_reg = 0.0
         elseif method == :joint
-            sol = OT_joint(inst, maxrelax, lambda_reg, percent_closest)
+            sol = ot_joint(inst, maxrelax, lambda_reg, percent_closest)
         end
 
         sol = compute_pred_error(inst, sol, false)
@@ -234,11 +234,11 @@ function run_benchmark(path, method, maxrelax::Float64=0.0,
                        lambda_reg::Float64=0.0, norme::Int64=0,
                        percent_closest::Float64=0.2)
 
-    println("\n#################################################################")
     println("RUN ONE METHOD ON THE COMPLETE BENCHMARK ")
     println("\tMethod: ", method)
-    if (method == :joint) println("\tRegularization parameter: ", lambda_reg);end
-    println("\n#################################################################\n")
+    if (method == :joint) 
+       println("\tRegularization parameter: ", lambda_reg)
+    end
 
     dirlist = readdir(path)
     restart = true
@@ -259,10 +259,10 @@ function run_benchmark(path, method, maxrelax::Float64=0.0,
 
         # scale the relaxation parameter as a function of the size of the instance
         maxrelax_scaled = maxrelax
-        if (dir == "Sn-100") maxrelax_scaled = sqrt(10.0) * maxrelax end
-        if (dir == "Sn-500") maxrelax_scaled = sqrt(2.0) * maxrelax end
-        if (dir == "Sn-5000") maxrelax_scaled = sqrt(0.2) * maxrelax end
-        # outname = string("")
+        if (dir == "Sn-100")  maxrelax_scaled = sqrt(10.0) * maxrelax end
+        if (dir == "Sn-500")  maxrelax_scaled = sqrt(2.0)  * maxrelax end
+        if (dir == "Sn-5000") maxrelax_scaled = sqrt(0.2)  * maxrelax end
+        
 
         run_directory(datasetpath, method, outname, maxrelax_scaled, 
                       lambda_reg, 0, norme, percent_closest)

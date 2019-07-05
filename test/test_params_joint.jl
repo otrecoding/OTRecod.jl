@@ -59,7 +59,7 @@ function test_params_joint(bench_path, nbfiles::Int64=1, norme::Int64=1)
                     inst = Instance(string(bench_path,"/",dir,"/",data_file), norme)
 
                     # Run the group transport
-                    sol = OT_joint(inst, maxrelax, lambda_reg, 0.2);
+                    sol = ot_joint(inst, maxrelax, lambda_reg, 0.2);
                     sol = compute_pred_error(inst, sol, false);
                     sol = compute_distrib_error(inst, sol, empiricalZA, empiricalYB);
                     error_avg += sol.errordistribavg/nbfiles;

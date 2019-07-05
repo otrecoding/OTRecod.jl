@@ -7,8 +7,8 @@ makedocs(
     format   = Documenter.HTML(),
     modules  = [OTRecod],
     pages    = [ "Documentation" => "index.md",
-                 "Group"         => "OT_group.md",
-                 "Joint"         => "OT_joint.md",
+                 "Group"         => "ot_group.md",
+                 "Joint"         => "ot_joint.md",
                  "Logging"       => "PrintLog.md",
                  "Plotting"      => "plot_functions.md",
                  "Utilities"     => "utils.md"]

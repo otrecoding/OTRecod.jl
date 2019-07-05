@@ -66,9 +66,9 @@ for method in [:group, :joint]
 
         if method == :group
            indiv_method = maxrelax > 0.0 ? :optimal : :sequential
-           sol = OT_group(inst, percent_closest, maxrelax, norme, indiv_method)
+           sol = ot_group(inst, percent_closest, maxrelax, norme, indiv_method)
         elseif method == :joint
-           sol = OT_joint(inst, maxrelax, lambda_reg, percent_closest)
+           sol = ot_joint(inst, maxrelax, lambda_reg, percent_closest)
         end
 
         sol = OTRecod.compute_pred_error(inst, sol, false);
