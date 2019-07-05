@@ -1,10 +1,8 @@
 module OTRecod
 
-using LaTeXStrings
 using Statistics
 using JuMP, Cbc, Clp
 using Printf
-using StatsPlots
 
 export run_directory
 
@@ -42,22 +40,25 @@ function compute_average_error_bound(path, norme::Int64=1)
         errorboundB += boundB
         nbfiles += 1
     end
+
     errorboundA = errorboundA/nbfiles
     errorboundB = errorboundB/nbfiles
 
     @printf("Bound on average prediction error in A : %.1f %%\n", 100.0 * errorboundA)
     @printf("Bound on average prediction error in B : %.1f %%\n", 100.0 * errorboundB)
 
-    return errorboundA, errorboundB
+    errorboundA, errorboundB
+
 end
 
 """
     empirical_estimator(path; norme=1)
 
 Get an empirical estimator of the distribution of Z conditional to Y and X
-on base A and reciprocally on base B
-obtain with a specific type of data sets
-path: path of the directory containing the data set
+on base A and reciprocally on base B obtain with a specific type of data sets
+
+- path: path of the directory containing the data set
+
 """
 function empirical_estimator(path, norme::Int64=1)
 
@@ -204,7 +205,7 @@ function run_directory(path            :: String,
         @info " File : $(joinpath(path,data_file)) "
         if method == :group
             indiv_method = maxrelax > 0.0 ? :optimal : :sequential
-            sol = ot_group(inst,percent_closest,maxrelax,norme,indiv_method)
+            sol = ot_group(inst,percent_closest,maxrelax,indiv_method)
             #PN lambda_reg = 0.0
         elseif method == :joint
             sol = ot_joint(inst, maxrelax, lambda_reg, percent_closest)
