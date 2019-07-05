@@ -194,7 +194,7 @@ function run_directory(path            :: String,
         indXA = copy(inst.indXA); indXB = copy(inst.indXB)
         nbX = length(indXA)
 
-        @info " File : $(joinpath(path,data_file))$ "
+        @info " File : $(joinpath(path,data_file)) "
         if method == :group
             indiv_method = maxrelax > 0.0 ? :optimal : :sequential
             sol = OT_group(inst,percent_closest,maxrelax,norme,indiv_method)
@@ -257,7 +257,8 @@ function run_benchmark(path, method, maxrelax::Float64=0.0,
         if (dir == "Sn-5000") maxrelax_scaled = sqrt(0.2) * maxrelax end
         # outname = string("")
 
-        run_directory(datasetpath, method, outname, maxrelax_scaled, lambda_reg, 0, norme, percent_closest)
+        run_directory(datasetpath, method, outname, maxrelax_scaled, 
+                      lambda_reg, 0, norme, percent_closest)
     end
 end
 
