@@ -1,15 +1,14 @@
 using CSV, Distances
 
-@enum IndivFromGroup sequential optimal
-
 @info "... compute the empirical distributions of outcomes"
 
 path = joinpath("data","tab.csv")
 
 df = CSV.read(path)
 
-maxrelax = 0.0
+maxrelax        = 0.0
 percent_closest = 0.2
+lambda_reg      = 0.0
 
 for method in [group, joint]
 
@@ -66,9 +65,8 @@ for method in [group, joint]
         nbX   = length(indXA)
 
         if method == group
-           indiv_method = maxrelax > 0.0 ? optimal : sequential
-           sol = OT_group(inst,percent_closest,maxrelax,norme,indiv_method)
-           lambda_reg = 0.0;
+           indiv_method = maxrelax > 0.0 ? :optimal : :sequential
+           sol = OT_group(inst, percent_closest, maxrelax, norme, indiv_method)
         elseif method == joint
            sol = OT_joint(inst, maxrelax, lambda_reg, percent_closest)
         end
@@ -77,7 +75,7 @@ for method in [group, joint]
         sol = OTRecod.compute_distrib_error(inst, sol, empiricalZA, 
                                             empiricalYB)
 
-        @printf("%-12s , %-6s , %-5d , %-5.2f , %-5.2f , %-6.3f , %-6.3f , %-8.3f , %-7.3f , %-7.3f , %-9.3f , %-6.2f\n", data_file, method, norme, maxrelax, lambda_reg, sol.errorpredZA, sol.errorpredYB, sol.errorpredavg, sol.errordistribZA, sol.errordistribYB, sol.errordistribavg, sol.tsolve)
+        @printf("%-12s , %-6s , %-5d , %-5.2f , %-5.2f , %-6.3f , %-6.3f , %-8.3f , %-7.3f , %-7.3f , %-9.3f , %-6.2f\n", path, method, norme, maxrelax, lambda_reg, sol.errorpredZA, sol.errorpredYB, sol.errorpredavg, sol.errordistribZA, sol.errordistribYB, sol.errordistribavg, sol.tsolve)
 
     end
 
