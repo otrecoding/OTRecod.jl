@@ -159,7 +159,7 @@ end
 export ot_group
 
 """
-    ot_group(inst, percent_closest=0.2, maxrelax=0.0, norme=0, 
+    ot_group(inst, percent_closest=0.2, maxrelax=0.0, 
              indiv_method=sequential, full_disp=false, solver_disp=false)
 
 Model of group transport
@@ -173,10 +173,12 @@ percent_closest: percent of closest neighbors taken in the computation of the
       otherwise, juste write the number of missed transports
 - `solver_disp`: if false, do not display the outputs of the solver
 """
-function ot_group(inst::Instance, percent_closest::Float64=0.2, 
-                  maxrelax::Float64=0.0, norme::Int64=0, 
-                  indiv_method=:sequential, 
-                  full_disp::Bool=false, solver_disp::Bool=false)
+function ot_group(inst            :: Instance, 
+                  percent_closest :: Float64=0.2, 
+                  maxrelax        :: Float64=0.0, 
+                  indiv_method    =  :sequential, 
+                  full_disp       :: Bool=false, 
+                  solver_disp     :: Bool=false)
 
     tstart = time()
 
@@ -337,8 +339,9 @@ function ot_group(inst::Instance, percent_closest::Float64=0.2,
     end
 
     # Compute the estimated probability distributions from predictions
-    indXA = copy(inst.indXA); indXB = copy(inst.indXB);
-    nbX = length(indXA);
+    indXA = copy(inst.indXA)
+    indXB = copy(inst.indXB)
+    nbX   = length(indXA)
     estimatorZA = zeros(nbX,length(Y),length(Z));
     estimatorYB = zeros(nbX,length(Y),length(Z));
 
@@ -361,5 +364,9 @@ function ot_group(inst::Instance, percent_closest::Float64=0.2,
         end
     end
 
-    return Solution(time()-tstart,transportA_val, transportB_val,estimatorZA,estimatorYB);
+    return Solution( time() - tstart,
+                     transportA_val, 
+                     transportB_val,
+                     estimatorZA,
+                     estimatorYB)
 end
