@@ -1,10 +1,5 @@
-
-@enum IndivFromGroup sequential optimal
-
-
 """
-    individual_from_group_closest(inst, jointprobaA, 
-        jointprobaB, percent_closest=1.0)
+    individual_from_group_closest(inst, jointprobaA, jointprobaB, percent_closest=1.0)
 
 Sequentially assign the modality of the individuals to that of the closest
 neighbor in the other base until the joint probability values are met
@@ -180,7 +175,7 @@ percent_closest: percent of closest neighbors taken in the computation of the
 """
 function OT_group(inst::Instance, percent_closest::Float64=0.2, 
                   maxrelax::Float64=0.0, norme::Int64=0, 
-                  indiv_method::IndivFromGroup=sequential, 
+                  indiv_method=:sequential, 
                   full_disp::Bool=false, solver_disp::Bool=false)
 
     tstart = time()
@@ -333,10 +328,12 @@ function OT_group(inst::Instance, percent_closest::Float64=0.2,
 
 
     # Get the individual transport from the group transport
-    if indiv_method == sequential
-        YApred, YBpred = individual_from_group_closest(inst, transportA_val, transportB_val, percent_closest);
-    elseif indiv_method == optimal
-        YApred, YBpred = individual_from_group_optimal(inst, transportA_val, transportB_val, percent_closest);
+    if indiv_method == :sequential
+        YApred, YBpred = individual_from_group_closest(inst, transportA_val, 
+                           transportB_val, percent_closest)
+    elseif indiv_method == :optimal
+        YApred, YBpred = individual_from_group_optimal(inst, transportA_val, 
+                           transportB_val, percent_closest);
     end
 
     # Compute the estimated probability distributions from predictions
