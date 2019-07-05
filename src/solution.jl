@@ -39,7 +39,7 @@ function Base.show(io :: IO, sol :: Solution)
      println(io, " errorpredYB     : $(sol.errorpredYB)")
      println(io, " errorpredavg    : $(sol.errorpredavg)") 
      println(io, " errordistribZA  : $(sol.errordistribZA)") 
-     println(io, " errordistribZA  : $(sol.errordistribYB)")
+     println(io, " errordistribYB  : $(sol.errordistribYB)")
      println(io, " errordistribavg : $(sol.errordistribavg)") 
      println(io, " tsolve          : $(sol.tsolve)")
 
