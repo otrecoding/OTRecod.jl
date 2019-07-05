@@ -5,12 +5,8 @@ using Statistics
 using JuMP, Cbc, Clp
 using Printf
 using StatsPlots
-#pgfplots()
 
 export run_directory
-export group, joint
-
-@enum Method group joint
 
 include("utils.jl")
 include("OT_group.jl")
@@ -139,13 +135,14 @@ end
  Run one given method on a given number of data files of a given directory
  The data files must be the only files with extension ".txt" in the directory
 
- - `path`: name of the directory
+ - `path`   : name of the directory
+ - `method` : `:group` or `:joint`
  - `nbfiles`: number of files considered, 0 if all the data files are tested
- - `norme` : 1 or 2, norm used for distances in the space of covariates
+ - `norme`  : 1 or 2, norm used for distances in the space of covariates
 
  (see run_all_methods for the description of other parameters)
 """
-function run_directory(path, method::Method, outname::String="result.out", 
+function run_directory(path, method, outname::String="result.out", 
                        maxrelax::Float64=0.0, lambda_reg::Float64=0.0, 
                        nbfiles::Int64=0, norme::Int64=0, 
                        percent_closest::Float64=0.2)
@@ -157,7 +154,7 @@ function run_directory(path, method::Method, outname::String="result.out",
     println("\tOutput file: ", outname);
     if (nbfiles > 0) println("\tTest only ", nbfiles, " files");
     else println("\tTest all the files of the directory");end
-    if (method == joint) println("\tRegularization parameter: ", lambda_reg);end
+    if (method == :joint) println("\tRegularization parameter: ", lambda_reg);end
     println("\n#################################################################\n")
 
     # initialize the output file
@@ -190,11 +187,11 @@ function run_directory(path, method::Method, outname::String="result.out",
         nbX = length(indXA);
 
         println("\n########## File : ", string(path,"/",data_file), " ##########");
-        if method == group
+        if method == :group
             indiv_method = maxrelax > 0.0 ? optimal : sequential;
             sol = OT_group(inst,percent_closest,maxrelax,norme,indiv_method);
-            lambda_reg = 0.0;
-        elseif method == joint
+            #PN lambda_reg = 0.0;
+        elseif method == :joint
             sol = OT_joint(inst, maxrelax, lambda_reg, percent_closest);
         end
 
@@ -218,14 +215,14 @@ end
  Run one method on the complete benchmark
  path: path of the directory including the benchmark
 """
-function run_benchmark(path, method::Method, maxrelax::Float64=0.0, 
+function run_benchmark(path, method, maxrelax::Float64=0.0, 
                        lambda_reg::Float64=0.0, norme::Int64=0,
                        percent_closest::Float64=0.2)
 
     println("\n#################################################################")
     println("RUN ONE METHOD ON THE COMPLETE BENCHMARK ")
     println("\tMethod: ", method);
-    if (method == joint) println("\tRegularization parameter: ", lambda_reg);end
+    if (method == :joint) println("\tRegularization parameter: ", lambda_reg);end
     println("\n#################################################################\n")
 
     dirlist = readdir(path);
