@@ -158,12 +158,15 @@ function run_directory(path            :: String,
     @info " Directory   : $path     "
     @info " Output file : $outname  "
 
+    if (nbfiles > 0) 
+        println("\tTest only ", nbfiles, " files")
+    else 
+        println("\tTest all the files of the directory")
+    end
 
-
-    if (nbfiles > 0) println("\tTest only ", nbfiles, " files")
-    else println("\tTest all the files of the directory");end
-    if (method == :joint) println("\tRegularization parameter: ", lambda_reg);end
-    println("\n#################################################################\n")
+    if (method == :joint) 
+        println("\tRegularization parameter: ", lambda_reg)
+    end
 
     # initialize the output file
     outfile = open(outname, "w")
@@ -179,7 +182,7 @@ function run_directory(path            :: String,
     # errorboundA, errorboundB = compute_average_error_bound(path, norme)
 
     # solve the instances corresponding to each file
-    files = readdir(path)
+    files  = readdir(path)
     nbruns = 0
     println("Maxrelax= ", maxrelax)
     for data_file in files
@@ -189,10 +192,14 @@ function run_directory(path            :: String,
         if !(data_file[end-3:end]==".txt") continue end
 
         # Reading the data file and preparing arrays
-        inst = Instance(string(path,"/",data_file), norme)
-        nA = inst.nA ;  nB = inst.nB ; Y = copy(inst.Y); Z = copy(inst.Z);
-        indXA = copy(inst.indXA); indXB = copy(inst.indXB)
-        nbX = length(indXA)
+        inst  = Instance(string(path,"/",data_file), norme)
+        nA    = inst.nA 
+        nB    = inst.nB 
+        Y     = copy(inst.Y)
+        Z     = copy(inst.Z)
+        indXA = copy(inst.indXA)
+        indXB = copy(inst.indXB)
+        nbX   = length(indXA)
 
         @info " File : $(joinpath(path,data_file)) "
         if method == :group
@@ -236,7 +243,7 @@ function run_benchmark(path, method, maxrelax::Float64=0.0,
     dirlist = readdir(path)
     restart = true
     for dir in dirlist
-        datasetpath = string(path,"/",dir)
+        datasetpath = joinpath(path,dir)
         println(datasetpath)
         if !isdir(datasetpath) continue end
         if (dir != "Sn-250") && (dir != "Sn-2500") continue end
