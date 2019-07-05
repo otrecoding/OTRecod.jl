@@ -20,13 +20,10 @@ function OT_joint(inst            :: Instance,
                   full_disp       :: Bool    = false, 
                   solver_disp     :: Bool    = false)
 
-    # println("#################################################################")
-    # println("AGGREGATE INDIVIDUALS WRT COVARIATES")
-    # println("Reg. weight =  ", lambda_reg)
-    # println("Percent closest = ", 100.0*percent_closest, "\%")
-    # println("Aggregation tolerance = ", aggregate_tol,"\n")
-    # println("#################################################################\n")
-
+    @info " AGGREGATE INDIVIDUALS WRT COVARIATES               "
+    @info " Reg. weight           = $(lambda_reg)              "
+    @info " Percent closest       = $(100.0*percent_closest) % "
+    @info " Aggregation tolerance = $(aggregate_tol)           "
 
     tstart = time()
 
