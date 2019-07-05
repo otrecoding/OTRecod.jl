@@ -10,7 +10,7 @@ maxrelax        = 0.0
 percent_closest = 0.2
 lambda_reg      = 0.0
 
-for method in [group, joint]
+for method in [:group, :joint]
 
     for (norme,distance) in enumerate([Cityblock(), Euclidean(), Hamming()])
 
@@ -64,10 +64,10 @@ for method in [group, joint]
         indXB = copy(inst.indXB)
         nbX   = length(indXA)
 
-        if method == group
+        if method == :group
            indiv_method = maxrelax > 0.0 ? :optimal : :sequential
            sol = OT_group(inst, percent_closest, maxrelax, norme, indiv_method)
-        elseif method == joint
+        elseif method == :joint
            sol = OT_joint(inst, maxrelax, lambda_reg, percent_closest)
         end
 
