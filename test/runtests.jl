@@ -11,9 +11,11 @@ include("test_params_joint.jl")
 @testset "run directory " begin
 
     for method in [:group, :joint]
-        run_directory("data", method)
+
+        outfile = "result_$(method).out"
+
+        run_directory("data", method, outfile)
     
-        outfile = "result.out"
         open(outfile,"r") do f
             for line in eachline(f)
                 print(line)
