@@ -126,10 +126,13 @@ struct Instance
     - df : dataframe with column names : ident,Y1,Y2,X1,X2,X3
     - distance : Cityblock(), Euclidean() or Hamming()
     """
-    function Instance(df :: DataFrame, distance )
+    function Instance(df          :: DataFrame, 
+                      covariables :: Vector{Symbol}, 
+                      outcomes    :: Vector{Symbol}, 
+                      distance    :: Distances.Metric )
 
       # number of covariables
-      nbcvar = ncol(df) - 3
+      nbcvar = length(covariables)
 
       # recover the sets of individuals in base 1 and 2
       base = df.ident
@@ -142,7 +145,7 @@ struct Instance
 
       nobs = size(df,1)
 
-      Xobserv = convert(Matrix, df[[:X1, :X2, :X3]])
+      Xobserv = convert(Matrix, df[covariables])
       Yobserv = convert(Array, df.Y1)
       Zobserv = convert(Array, df.Y2)
 
@@ -157,17 +160,18 @@ struct Instance
       # Modify Y and Z so that they go from 1 to the number of modalities
       Y = sort(unique(Yobserv[Yobserv .!= -1]))
       Z = sort(unique(Zobserv[Zobserv .!= -1]))
+
       for i in 1:length(Y)
           Yobserv[Yobserv .== Y[i]] .= i
       end
-      Y = [i for i in 1:length(Y)]
+      Y = eachindex(Y)
       for i in 1:length(Z)
           Zobserv[Zobserv .== Z[i]] .= i
       end
-      Z = [i for i in 1:length(Z)]
+      Z = eachindex(Z)
 
       # list the distinct modalities in A and B
-      indY = Dict((m,findall(Yobserv[1:nA] .== m)) for m in Y)
+      indY = Dict((m,findall(Yobserv[1:nA]     .== m)) for m in Y)
       indZ = Dict((m,findall(Zobserv[nA+1:end] .== m)) for m in Z)
 
       # compute the distance between pairs of individuals in different bases
@@ -195,7 +199,7 @@ struct Instance
 
       # aggregate both bases
       for i in  1:size(Xval,1)
-          nbX = nbX + 1
+          nbX += 1
           x = zeros(size(Xval,2),1)
           x[:,1] = [Xval[i,j] for j in 1:size(Xval,2)]
           distA = pairwise(distance, x, transpose(Xobserv[A,:]), dims=2)
