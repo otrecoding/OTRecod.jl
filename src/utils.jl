@@ -108,7 +108,9 @@ end
 Return the empirical cardinality of the joint occurrences of (C=x,Y=mA,Z=mB)
 in both bases
 """
-function empirical_distribution(inst::Instance, norme::Int64=0, aggregate_tol::Float64=0.5)
+function empirical_distribution(inst  ::Instance, 
+                                norme :: Int64=0, 
+                                aggregate_tol :: Float64=0.5)
 
     # Local redefinitions of parameters of  the instance
     nA = inst.nA
@@ -269,6 +271,195 @@ end
 include("solution.jl")
 
 """
+    compute_pred_error(inst, sol, proba_disp=false,
+                       mis_disp=false, full_disp=false)
+
+Compute prediction errors in a solution
+"""
+function compute_pred_error!( sol        :: Solution, 
+                              inst       :: Instance, 
+                              proba_disp :: Bool=false,
+                              mis_disp   :: Bool=false, 
+                              full_disp  :: Bool=false)
+
+    A     = 1:inst.nA
+    B     = 1:inst.nB
+    Y     = inst.Y
+    Z     = inst.Z
+    indXA = inst.indXA
+    indXB = inst.indXB
+    nbX   = length(indXA)
+
+    # display the transported and real modalities
+    if full_disp
+        println("Modalities of base 1 individuals:")
+        for i in A
+            println("Index: $i real value: $(inst.Zobserv[i]) transported value: $(sol.predZA[i])")
+        end
+        # display the transported and real modalities
+        println("Modalities of base 2 individuals:")
+        for j in B
+            println("Index: $j real value: $(inst.Yobserv[inst.nA+j]) transported value: $(sol.predYB[j])")
+        end
+    end
+
+    # Count the number of mistakes in the transport
+    #deduce the individual distributions of probability for each individual from the distributions
+    probaZindivA = zeros(Float64,(inst.nA, length(Z)))
+    probaYindivB = zeros(Float64,(inst.nB, length(Y)))
+    for x = 1:nbX
+        for i in indXA[x]
+            probaZindivA[i,:] .= sol.estimatorZA[x,inst.Yobserv[i],:]
+        end
+        for i in indXB[x]
+            probaYindivB[i,:] .= sol.estimatorYB[x,:,inst.Zobserv[i+inst.nA]]
+        end
+    end
+
+    # Transport the modality that maximizes frequency
+    predZA = [findmax([probaZindivA[i,z]  for z in Z])[2] for i in A]
+    predYB = [findmax([probaYindivB[j,y]  for y in Y])[2] for j in B]
+
+    # Base 1
+    nbmisA = 0
+    misA = Int64[]
+    for i in A
+        if predZA[i] != inst.Zobserv[i]
+          nbmisA += 1
+          push!(misA, i )
+        end
+    end
+
+    # Base 2
+    nbmisB = 0
+    misB = Int64[]
+    for j in B
+        if predYB[j] != inst.Yobserv[inst.nA+j]
+          nbmisB += 1
+          push!(misB, j)
+        end
+    end
+
+    if proba_disp
+        if nbmisA == 0
+            println("No mistake in the transport of base A")
+        else
+            @printf("Probability of error in base A: %.1f %%\n", 100.0 * nbmisA / inst.nA)
+            if mis_disp
+                println("Indices with mistakes in base A:", misA)
+            end
+        end
+
+        if nbmisB == 0
+            println("No mistake in the transport of base B")
+        else
+            @printf("Probability of error in base B: %.1f %%\n", 100.0 * nbmisB/inst.nB)
+            if mis_disp
+                println("Indices with mistakes in base 2:", misB)
+            end
+        end
+    end
+
+    sol.errorpredZA   = nbmisA/inst.nA
+    sol.errorpredYB   = nbmisB/inst.nB
+    sol.errorpredavg  = (inst.nA*sol.errorpredZA 
+                      +  inst.nB*sol.errorpredYB)/(inst.nA+inst.nB)
+
+end
+
+"""
+    compute_distrib_error(instance, solution, empiricalZA, empiricalYB)
+
+Compute errors in the conditional distributions of a solution
+"""
+function compute_distrib_error(inst::Instance, sol::Solution, empiricalZA, empiricalYB)
+
+    nA  = inst.nA 
+    nB  = inst.nB 
+    Y   = copy(inst.Y)
+    Z   = copy(inst.Z)
+    nbX = length(inst.indXA)
+
+
+    sol.errordistribZA = sum(length(inst.indXA[x][findall(inst.Yobserv[inst.indXA[x]] .== y)])/nA * sum(max.(sol.estimatorZA[x,y,:] .- empiricalZA[x,y,:],0)) for x in 1:nbX, y in Y)
+    sol.errordistribYB = sum(length(inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== z)])/nB * sum(max.(sol.estimatorYB[x,:,z] .- empiricalYB[x,:,z],0)) for x in 1:nbX, z in Z)
+    sol.errordistribavg = (nA * sol.errordistribZA + nB * sol.errordistribYB)/(nA+nB)
+
+    return sol
+end
+
+"""
+    compute_distrib_error!(solution, instance, empiricalZA, empiricalYB)
+
+Compute errors in the conditional distributions of a solution
+"""
+function compute_distrib_error!(sol  :: Solution, 
+                                inst :: Instance,
+                                empiricalZA, 
+                                empiricalYB)
+
+    nA  = inst.nA 
+    nB  = inst.nB 
+    Y   = inst.Y
+    Z   = inst.Z
+    nbX = length(inst.indXA)
+
+    sol.errordistribZA = sum(length(inst.indXA[x][findall(inst.Yobserv[inst.indXA[x]] .== y)])/nA * sum(max.(sol.estimatorZA[x,y,:] .- empiricalZA[x,y,:],0)) for x in 1:nbX, y in Y)
+
+    sol.errordistribYB = sum(length(inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== z)])/nB * sum(max.(sol.estimatorYB[x,:,z] .- empiricalYB[x,:,z],0)) for x in 1:nbX, z in Z)
+
+    sol.errordistribavg = (   nA * sol.errordistribZA 
+                            + nB * sol.errordistribYB ) / (nA+nB)
+
+end
+
+"""
+    average_distance_to_closest(instance, percent_closest)
+
+Compute the cost between pairs of outcomes as the average distance between
+covariations of individuals with these outcomes, but considering only the
+percent closest neighbors
+"""
+function average_distance_to_closest(inst::Instance, percent_closest::Float64)
+
+    # Redefine A and B for the model
+    A = 1:inst.nA
+    B = 1:inst.nB
+    Y = copy(inst.Y)
+    Z = copy(inst.Z)
+    indY = copy(inst.indY)
+    indZ = copy(inst.indZ)
+
+    # Compute average distances as described in the above
+    Davg = zeros(length(Y),length(Z))
+    DindivA  = zeros(inst.nA,length(Z))
+    DindivB  = zeros(inst.nB,length(Y))
+
+    for y in Y, i in indY[y], z in Z
+
+        nbclose = max(round(Int,percent_closest*length(indZ[z])),1)
+        distance = sort([inst.D[i,j] for j in indZ[z]])
+        DindivA[i,z] =  sum(distance[1:nbclose])/nbclose
+        Davg[y,z] += sum(distance[1:nbclose])/nbclose/length(indY[y])/2.0
+
+    end
+
+    for z in Z, j in indZ[z], y in Y
+
+        nbclose = max(round(Int,percent_closest*length(indY[y])),1)
+        distance = sort([inst.D[i,j] for i in indY[y]])
+        DindivB[j,y] = sum(distance[1:nbclose])/nbclose
+        Davg[y,z] += sum(distance[1:nbclose])/nbclose/length(indZ[z])/2.0
+
+    end
+
+    return Davg, DindivA, DindivB
+
+end
+
+"""
+    compute_pred_error(inst, sol, proba_disp, mis_disp, full_disp)
+
 Compute prediction errors in a solution
 """
 function compute_pred_error(inst :: Instance, 
@@ -359,70 +550,6 @@ function compute_pred_error(inst :: Instance,
     sol.errorpredZA, sol.errorpredYB = nbmisA/inst.nA, nbmisB/inst.nB
     sol.errorpredavg = (inst.nA*sol.errorpredZA + inst.nB*sol.errorpredYB)/(inst.nA+inst.nB)
 
-    return sol
-end
-
-"""
-    compute_distrib_error(insttance, solution, empiricalZA, empiricalYB)
-
-Compute errors in the conditional distributions of a solution
-"""
-function compute_distrib_error(inst::Instance, sol::Solution, empiricalZA, empiricalYB)
-
-    nA  = inst.nA 
-    nB  = inst.nB 
-    Y   = copy(inst.Y)
-    Z   = copy(inst.Z)
-    nbX = length(inst.indXA)
-
-
-    sol.errordistribZA = sum(length(inst.indXA[x][findall(inst.Yobserv[inst.indXA[x]] .== y)])/nA * sum(max.(sol.estimatorZA[x,y,:] .- empiricalZA[x,y,:],0)) for x in 1:nbX, y in Y)
-    sol.errordistribYB = sum(length(inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== z)])/nB * sum(max.(sol.estimatorYB[x,:,z] .- empiricalYB[x,:,z],0)) for x in 1:nbX, z in Z)
-    sol.errordistribavg = (nA * sol.errordistribZA + nB * sol.errordistribYB)/(nA+nB)
-
-    return sol
-end
-
-"""
-    average_distance_to_closest(instance, percent_closest)
-
-Compute the cost between pairs of outcomes as the average distance between
-covariations of individuals with these outcomes, but considering only the
-percent closest neighbors
-"""
-function average_distance_to_closest(inst::Instance, percent_closest::Float64)
-
-    # Redefine A and B for the model
-    A = 1:inst.nA
-    B = 1:inst.nB
-    Y = copy(inst.Y)
-    Z = copy(inst.Z)
-    indY = copy(inst.indY)
-    indZ = copy(inst.indZ)
-
-    # Compute average distances as described in the above
-    Davg = zeros(length(Y),length(Z))
-    DindivA  = zeros(inst.nA,length(Z))
-    DindivB  = zeros(inst.nB,length(Y))
-
-    for y in Y, i in indY[y], z in Z
-
-        nbclose = max(round(Int,percent_closest*length(indZ[z])),1)
-        distance = sort([inst.D[i,j] for j in indZ[z]])
-        DindivA[i,z] =  sum(distance[1:nbclose])/nbclose
-        Davg[y,z] += sum(distance[1:nbclose])/nbclose/length(indY[y])/2.0
-
-    end
-
-    for z in Z, j in indZ[z], y in Y
-
-        nbclose = max(round(Int,percent_closest*length(indY[y])),1)
-        distance = sort([inst.D[i,j] for i in indY[y]])
-        DindivB[j,y] = sum(distance[1:nbclose])/nbclose
-        Davg[y,z] += sum(distance[1:nbclose])/nbclose/length(indZ[z])/2.0
-
-    end
-
-    return Davg, DindivA, DindivB
+    sol
 
 end
