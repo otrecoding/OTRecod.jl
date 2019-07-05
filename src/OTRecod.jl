@@ -62,68 +62,59 @@ on base A and reciprocally on base B obtain with a specific type of data sets
 """
 function empirical_estimator(path, norme::Int64=1)
 
-    files = readdir(path)
-    dir_name = split(path,"/")[end]
-
+    txt_files = filter(x -> endswith(x, ".txt"), readdir(path))
     # Initialize the necessary structures by treating the first file
-    file = "file.txt"
     # get one instance file in the direcory
-    for data_file in files
-        # continue if not a data file
-        if (data_file[end-3:end]==".txt")
-            file = string(path,"/",data_file)
-            break
-        end
-    end
-    inst = Instance(file, norme)
-    nA = inst.nA; nB = inst.nB; Y = copy(inst.Y); Z = copy(inst.Z);
-    indXA = copy(inst.indXA); indXB = copy(inst.indXB)
-    nbX = length(indXA)
+    file = joinpath(path, first(txt_files))
+
+    inst  = Instance(file, norme)
+    nA    = inst.nA
+    nB    = inst.nB
+    Y     = inst.Y
+    Z     = inst.Z
+    indXA = inst.indXA
+    indXB = inst.indXB
+    nbX   = length(indXA)
 
     # Compute the cumulative cardinality of the joint occurences of 
     # (X=x,Y=y,Z=z) in the two databases
     cardA_c_mA_mB = zeros(nbX,length(Y),length(Z))
     cardB_c_mA_mB = zeros(nbX,length(Y),length(Z))
     nbIndiv = 0
-    for data_file in files
-        # continue if not a data file
-        if !(data_file[end-3:end]==".txt") continue end
+    for data_file in txt_files
 
         # read the data file and prepare arrays
-        inst = Instance(string(path,"/",data_file), norme)
+        inst = Instance(joinpath(path,data_file), norme)
 
         # update the cumulative count
-        countA, countB = empirical_distribution(inst, norme)
-        cardA_c_mA_mB = cardA_c_mA_mB .+ countA
-        cardB_c_mA_mB = cardB_c_mA_mB .+ countB
+        countA, countB  = empirical_distribution(inst, norme)
+        cardA_c_mA_mB .+= countA
+        cardB_c_mA_mB .+= countB
         nbIndiv += inst.nA
         if (nbIndiv >= 100000) break end
+
     end
 
     # Compute the empirical distribution of Z conditional to X and y in 
     # base A and that of Y conditional to X and Z in base B
     # Z conditional to X and Y in base A
-    empiricalZA = 1/length(Z)*ones(nbX,length(Y),length(Z))
-    for x in 1:nbX
-        for y in Y
-            cardA_c_mA = sum(cardA_c_mA_mB[x,y,z] for z in Z)
-            if cardA_c_mA > 0
-                empiricalZA[x,y,:] = cardA_c_mA_mB[x,y,:]/cardA_c_mA
-            end
+    empiricalZA = ones(nbX,length(Y),length(Z)) ./ length(Z)
+    for x in 1:nbX, y in Y
+        cardA_c_mA = sum(cardA_c_mA_mB[x,y,z] for z in Z)
+        if cardA_c_mA > 0
+            empiricalZA[x,y,:] .= cardA_c_mA_mB[x,y,:] ./ cardA_c_mA
         end
     end
     # Y conditional to X and Z in base B
-    empiricalYB = 1/length(Y)*ones(nbX,length(Y),length(Z))
-    for x in 1:nbX
-        for z in Z
-            cardB_c_mB = sum(cardB_c_mA_mB[x,y,z] for y in Y)
-            if cardB_c_mB > 0
-                empiricalYB[x,:,z] = cardB_c_mA_mB[x,:,z]/cardB_c_mB
-            end
+    empiricalYB = ones(nbX,length(Y),length(Z)) ./ length(Y)
+    for x in 1:nbX, z in Z
+        cardB_c_mB = sum(cardB_c_mA_mB[x,y,z] for y in Y)
+        if cardB_c_mB > 0
+            empiricalYB[x,:,z] .= cardB_c_mA_mB[x,:,z] ./ cardB_c_mB
         end
     end
 
-    return empiricalZA, empiricalYB
+    empiricalZA, empiricalYB
 
 end
 
@@ -175,7 +166,7 @@ function run_directory(path            :: String,
     close(outfile)
 
     # compute the true empirical conditional distributions for comparison with results
-    println("... compute the empirical distributions of outcomes\n")
+    @info "compute the empirical distributions of outcomes"
     empiricalZA,empiricalYB = empirical_estimator(path, norme)
 
     # compute a bound on the average prediction error in each base
@@ -217,6 +208,8 @@ function run_directory(path            :: String,
         outfile = open(outname, "a")
         @printf(outfile, "%-12s , %-6s , %-5d , %-5.2f , %-5.2f , %-6.3f , %-6.3f , %-8.3f , %-7.3f , %-7.3f , %-9.3f , %-6.2f\n", data_file, method, norme, maxrelax, lambda_reg, sol.errorpredZA, sol.errorpredYB, sol.errorpredavg, sol.errordistribZA, sol.errordistribYB, sol.errordistribavg, sol.tsolve)
         close(outfile)
+
+        @show sol
 
         nbruns += 1
     end
