@@ -142,16 +142,22 @@ end
 
  (see run_all_methods for the description of other parameters)
 """
-function run_directory(path, method, outname::String="result.out", 
-                       maxrelax::Float64=0.0, lambda_reg::Float64=0.0, 
-                       nbfiles::Int64=0, norme::Int64=0, 
-                       percent_closest::Float64=0.2)
+function run_directory(path            :: String,
+                       method          :: Symbol, 
+                       outname         :: String  = "result.out", 
+                       maxrelax        :: Float64 = 0.0, 
+                       lambda_reg      :: Float64 = 0.0, 
+                       nbfiles         :: Int64   = 0, 
+                       norme           :: Int64   = 0, 
+                       percent_closest :: Float64 = 0.2)
 
-    println("\n#################################################################")
-    println("RUN ONE METHOD ON THE FILES OF ONE DIRECTORY ")
-    println("\tMethod: ", method);
-    println("\tDirectory: ", path);
-    println("\tOutput file: ", outname);
+    @info " RUN ONE METHOD ON THE FILES OF ONE DIRECTORY "
+    @info " Method      : $method   "
+    @info " Directory   : $path     "
+    @info " Output file : $outname  "
+
+
+
     if (nbfiles > 0) println("\tTest only ", nbfiles, " files");
     else println("\tTest all the files of the directory");end
     if (method == :joint) println("\tRegularization parameter: ", lambda_reg);end
