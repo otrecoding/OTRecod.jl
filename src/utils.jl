@@ -26,7 +26,7 @@ function aggregate_per_covar_mixed(inst          :: Instance,
     while !isempty(notaggA)
         nbX += 1
         ind = notaggA[1]
-        isinset = inst.DA[ind,notaggA] .< aggregate_tol
+        isinset = inst.DA[ind, notaggA] .< aggregate_tol
         indXA[nbX] = notaggA[isinset]
         deleteat!(notaggA, isinset)
         isinset = inst.D[ind,notaggB] .< aggregate_tol
@@ -38,7 +38,7 @@ function aggregate_per_covar_mixed(inst          :: Instance,
     while !isempty(notaggB)
         nbX += 1
         ind = notaggB[1]
-        isinset = inst.DB[ind,notaggB] .< aggregate_tol
+        isinset = inst.DB[ind, notaggB] .< aggregate_tol
         indXB[nbX] = notaggB[isinset]
         indXA[nbX] = []
         deleteat!(notaggB, isinset)
@@ -62,8 +62,8 @@ function bound_prediction_error(inst          :: Instance,
     # Local redefinitions of parameters of  the instance
     nA = inst.nA
     nB = inst.nB
-    Y  = copy(inst.Y)
-    Z  = copy(inst.Z)
+    Y = copy(inst.Y)
+    Z = copy(inst.Z)
 
     # compute the bound in base A
     boundpredZA = 0.0
@@ -127,13 +127,13 @@ function empirical_distribution(inst  ::Instance,
     cardA_c_mA_mB = zeros(nbX, length(Y), length(Z))
     for x = 1:nbX
         for i in inst.indXA[x]
-            cardA_c_mA_mB[x,inst.Yobserv[i],inst.Zobserv[i]] += 1
+            cardA_c_mA_mB[x, inst.Yobserv[i], inst.Zobserv[i]] += 1
         end
     end
     cardB_c_mA_mB = zeros(nbX, length(Y), length(Z))
     for x = 1:nbX
         for i in inst.indXB[x]
-            cardB_c_mA_mB[x,inst.Yobserv[i+nA],inst.Zobserv[i+nA]] += 1
+            cardB_c_mA_mB[x, inst.Yobserv[i + nA], inst.Zobserv[i + nA]] += 1
         end
     end
 
@@ -165,11 +165,11 @@ function disp_inst_info(inst::Instance)
 
     # return indicators about the original density of the modalities
     print("Average distance between objects of base 1: ")
-    @printf("%.2f\n", 10*sum([DA[i,j] for i in A, j in A])/(nA^2))
+    @printf("%.2f\n", 10 * sum([DA[i, j] for i in A, j in A]) / (nA^2))
     print("Average distance between objects of base 2: ")
-    @printf("%.2f\n", 10*sum([DB[i,j] for i in B, j in B])/(nB^2))
+    @printf("%.2f\n", 10 * sum([DB[i, j] for i in B, j in B]) / (nB^2))
     print("Crossed average distance between objects of base 1 and 2: ")
-    @printf("%.2f\n", 10*sum([inst.D[i,j] for i in A, j in B])/(nA*nB))
+    @printf("%.2f\n", 10 * sum([inst.D[i, j] for i in A, j in B]) / (nA*nB))
 
     # restrict the average distance to the 10% closest individuals
     println("\nAverage distance between objects per modality")
@@ -181,9 +181,9 @@ function disp_inst_info(inst::Instance)
                 continue
             end
             avg = avg_distance_closest(inst,baseA,baseA,baseA,y1,y2,1.0)
-            @printf("\tModalities %d and %d : %.2f\n", y1, y2, 10*avg)
+            @printf("\tModalities %d and %d : %.2f\n", y1, y2, 10 * avg)
             avg = avg_distance_closest(inst,baseA,baseA,baseA,y1,y2,percent_closest)
-            @printf("\t\trestricted to the %.1f %% closest: %.2f\n", 100*percent_closest, 10*avg)
+            @printf("\t\trestricted to the %.1f %% closest: %.2f\n", 100 * percent_closest, 10 * avg)
         end
     end
     println("\nModalities of Z, individuals of B:")
