@@ -10,10 +10,10 @@ function individual_from_group_closest(inst::Instance, jointprobaA,
     # Redefine A and B for the model
     A      = 1:inst.nA
     B      = 1:inst.nB
-    Y      = copy(inst.Y)
-    Z      = copy(inst.Z)
-    indY   = copy(inst.indY)
-    indZ   = copy(inst.indZ)
+    Y      = inst.Y
+    Z      = inst.Z
+    indY   = inst.indY
+    indZ   = inst.indZ
     nbindY = [length(indY[y]) for y in Y]
     nbindZ = [length(indZ[z]) for z in Z]
     freqY  = [nbindY[y] / length(A) for y in Y]
@@ -23,18 +23,18 @@ function individual_from_group_closest(inst::Instance, jointprobaA,
     # where the distance from an individual to a modality is computed as 
     # the average distance to the individuals having this modality (in the other base)
 
-    YAtrans = Array{Int64,1}(undef,inst.nB);
-    YBtrans = Array{Int64,1}(undef,inst.nA);
-    Davg,DindivA, DindivB = average_distance_to_closest(inst, 
+    YAtrans = zeros(Int64,inst.nB)
+    YBtrans = zeros(Int64,inst.nA)
+    Davg, DindivA, DindivB = average_distance_to_closest(inst, 
                                                         percent_closest)
 
     DA = [(z,[DindivA[i,z] for i in A]) for z in Z]
     DB = [(y,[DindivB[j,y] for j in B]) for y in Y]
 
     for y in Y
-        indtrans = copy(indY[y])
+        indtrans = indY[y]
         for z in Z
-            nbtrans = min(round(Int,jointprobaA[y,z]/freqY[y] * nbindY[y])::Int64, length(indtrans));
+            nbtrans = min(round(Int,jointprobaA[y,z]/freqY[y] * nbindY[y])::Int64, length(indtrans))
             distance = [(i,DA[z][2][i]) for i in indtrans]
             sort!(distance, by = x->x[2])
             for k = 1:nbtrans
@@ -51,7 +51,7 @@ function individual_from_group_closest(inst::Instance, jointprobaA,
     end
 
     for z in Z
-        indtrans = copy(indZ[z]);
+        indtrans = indZ[z]
         for y in Y
             nbtrans = min(round(Int,jointprobaB[y,z]/freqZ[z] * nbindZ[z]), length(indtrans))
             distance = [(j,DB[y][2][j]) for j in indtrans]
@@ -108,17 +108,17 @@ function individual_from_group_optimal(inst::Instance,
     # compute the average distance between the individuals 
     # and the modalities of the other base
 
-    CA = zeros(inst.nA,length(Z))
+    CA = zeros(inst.nA, length(Z))
     CB = zeros(inst.nB, length(Y))
     for i in A, z in Z
-        nbclose = trunc(Int,percent_closest*nbindZ[z])
+        nbclose  = round(Int,percent_closest*nbindZ[z])
         distance = sort([inst.D[i,j] for j in indZ[z]])
-        CA[i,z] = sum(distance[1:nbclose])/nbclose
+        CA[i,z]  = sum(distance[1:nbclose])/nbclose
     end
     for j in B, y in Y
-        nbclose = trunc(Int,percent_closest*nbindY[y])
+        nbclose  = round(Int,percent_closest*nbindY[y])
         distance = sort([inst.D[i,j] for i in indY[y]])
-        CB[j,y] += sum(distance[1:nbclose])/nbclose
+        CB[j,y]  = sum(distance[1:nbclose])/nbclose
     end
 
     # Objective: minimize the distance between individuals of A and B
@@ -159,10 +159,9 @@ export ot_group
     ot_group(inst, percent_closest=0.2, maxrelax=0.0, 
              indiv_method=sequential, full_disp=false, solver_disp=false)
 
-Model of group transport
-percent_closest: percent of closest neighbors taken in the computation of the
-  costs
+# Model of group transport
 
+- `percent_closest`: percent of closest neighbors taken in the computation of the costs
 - `maxrelax`: maximum percentage of deviation from expected probability masses
 - `indiv_method`: specifies the method used to get individual transport from
   group joint probabilities
@@ -184,10 +183,10 @@ function ot_group(inst            :: Instance,
     nB     = inst.nB
     A      = 1:inst.nA
     B      = 1:inst.nB
-    Y      = copy(inst.Y)
-    Z      = copy(inst.Z)
-    indY   = copy(inst.indY)
-    indZ   = copy(inst.indZ)
+    Y      = inst.Y
+    Z      = inst.Z
+    indY   = inst.indY
+    indZ   = inst.indZ
     nbindY = [length(indY[y]) for y in Y]
     nbindZ = [length(indZ[z]) for z in Z]
     freqY  = [nbindY[y] / length(A) for y in Y]
@@ -356,9 +355,9 @@ function ot_group(inst            :: Instance,
         end
     end
 
-    return Solution( time() - tstart,
-                     transportA_val, 
-                     transportB_val,
-                     estimatorZA,
-                     estimatorYB)
+    Solution( time() - tstart,
+              transportA_val, 
+              transportB_val,
+              estimatorZA,
+              estimatorYB )
 end
