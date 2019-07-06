@@ -8,16 +8,16 @@ function individual_from_group_closest(inst::Instance, jointprobaA,
     jointprobaB, percent_closest::Float64=1.0)
 
     # Redefine A and B for the model
-    A      = 1:inst.nA
-    B      = 1:inst.nB
-    Y      = inst.Y
-    Z      = inst.Z
-    indY   = inst.indY
-    indZ   = inst.indZ
+    A = 1:inst.nA
+    B = 1:inst.nB
+    Y = inst.Y
+    Z = inst.Z
+    indY = inst.indY
+    indZ = inst.indZ
     nbindY = [length(indY[y]) for y in Y]
     nbindZ = [length(indZ[z]) for z in Z]
-    freqY  = [nbindY[y] / length(A) for y in Y]
-    freqZ  = [nbindZ[z] / length(B) for z in Z]
+    freqY = [nbindY[y] / length(A) for y in Y]
+    freqZ = [nbindZ[z] / length(B) for z in Z]
 
     # In essence, assign to each individual the modality that is closest, 
     # where the distance from an individual to a modality is computed as 
@@ -28,8 +28,8 @@ function individual_from_group_closest(inst::Instance, jointprobaA,
     Davg, DindivA, DindivB = average_distance_to_closest(inst, 
                                                         percent_closest)
 
-    DA = [(z,[DindivA[i,z] for i in A]) for z in Z]
-    DB = [(y,[DindivB[j,y] for j in B]) for y in Y]
+    DA = [(z,[DindivA[i, z] for i in A]) for z in Z]
+    DB = [(y,[DindivB[j, y] for j in B]) for y in Y]
 
     for y in Y
         indtrans = indY[y]
