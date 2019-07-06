@@ -187,10 +187,10 @@ function run_directory(path            :: String,
         inst  = Instance(string(path,"/",data_file), norme)
         nA    = inst.nA 
         nB    = inst.nB 
-        Y     = copy(inst.Y)
-        Z     = copy(inst.Z)
-        indXA = copy(inst.indXA)
-        indXB = copy(inst.indXB)
+        Y     = inst.Y
+        Z     = inst.Z
+        indXA = inst.indXA
+        indXB = inst.indXB
         nbX   = length(indXA)
 
         @info " File : $(joinpath(path,data_file)) "
