@@ -22,37 +22,37 @@ function ot_joint(inst            :: Instance,
 
     @info " AGGREGATE INDIVIDUALS WRT COVARIATES               "
     @info " Reg. weight           = $(lambda_reg)              "
-    @info " Percent closest       = $(100.0*percent_closest) % "
+    @info " Percent closest       = $(100.0 * percent_closest) % "
     @info " Aggregation tolerance = $(aggregate_tol)           "
 
     tstart = time()
 
     # Local redefinitions of parameters of  the instance
-    nA      = inst.nA
-    nB      = inst.nB
-    A       = 1:nA
-    B       = 1:nB
-    Y       = inst.Y
-    Z       = inst.Z
-    indY    = inst.indY
-    indZ    = inst.indZ
+    nA = inst.nA
+    nB = inst.nB
+    A = 1:nA
+    B = 1:nB
+    Y = inst.Y
+    Z = inst.Z
+    indY = inst.indY
+    indZ = inst.indZ
     Xobserv = inst.Xobserv
     Yobserv = inst.Yobserv
     Zobserv = inst.Zobserv
 
     # Create a model for the optimal transport of individuals
-    modelA = Model(with_optimizer(Clp.Optimizer,LogLevel=0))
-    modelB = Model(with_optimizer(Clp.Optimizer,LogLevel=0))
+    modelA = Model(with_optimizer(Clp.Optimizer,LogLevel = 0))
+    modelB = Model(with_optimizer(Clp.Optimizer,LogLevel = 0))
 
     # Compute data for aggregation of the individuals
     # println("... aggregating individuals")
     indXA = inst.indXA
     indXB = inst.indXB
-    nbX   = length(indXA)
+    nbX = length(indXA)
 
     # compute the neighbors of the covariates for regularization
     Xvalues = convert(Matrix,unique(DataFrame(Xobserv)))
-    dist_X  = pairwise(norme, transpose(Xvalues),transpose(Xvalues), dims=2)
+    dist_X = pairwise(norme, transpose(Xvalues),transpose(Xvalues), dims = 2)
     voisins_X = dist_X .<= 1
 
     # println("... computing costs")
@@ -60,10 +60,10 @@ function ot_joint(inst            :: Instance,
 
     # Compute the estimators that appear in the model
 
-    estim_XA = Dict([(x, length(indXA[x])/nA) for x in 1:nbX])
-    estim_XB = Dict([(x, length(indXB[x])/nB) for x in 1:nbX])
-    estim_XA_YA = Dict([((x,y), length(indXA[x][findall(Yobserv[indXA[x]] .== y)])/nA) for x in 1:nbX, y in Y])
-    estim_XB_ZB = Dict([((x,z), length(indXB[x][findall(Zobserv[indXB[x].+nA] .== z)])/nB) for x in 1:nbX, z in Z])
+    estim_XA = Dict([(x, length(indXA[x]) / nA) for x in 1:nbX])
+    estim_XB = Dict([(x, length(indXB[x]) / nB) for x in 1:nbX])
+    estim_XA_YA = Dict([((x,y), length(indXA[x][findall(Yobserv[indXA[x]] .== y)]) / nA) for x in 1:nbX, y in Y])
+    estim_XB_ZB = Dict([((x,z), length(indXB[x][findall(Zobserv[indXB[x].+nA] .== z)]) / nB) for x in 1:nbX, z in Z])
 
 
     # Basic part of the model
