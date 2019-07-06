@@ -29,7 +29,7 @@ function compute_average_error_bound(path, norme::Int64=1)
 
     for data_file in files
         # continue if not a data file
-        if !(data_file[end-3:end]==".txt") continue end
+        if !(data_file[end - 3:end] == ".txt") continue end
 
         # Reading the data file and preparing arrays
         inst = Instance(string(path,"/",data_file), norme)
@@ -41,8 +41,8 @@ function compute_average_error_bound(path, norme::Int64=1)
         nbfiles += 1
     end
 
-    errorboundA = errorboundA/nbfiles
-    errorboundB = errorboundB/nbfiles
+    errorboundA = errorboundA / nbfiles
+    errorboundB = errorboundB / nbfiles
 
     @printf("Bound on average prediction error in A : %.1f %%\n", 100.0 * errorboundA)
     @printf("Bound on average prediction error in B : %.1f %%\n", 100.0 * errorboundB)
@@ -67,14 +67,14 @@ function empirical_estimator(path, norme::Int64=1)
     # get one instance file in the direcory
     file = joinpath(path, first(txt_files))
 
-    inst  = Instance(file, norme)
-    nA    = inst.nA
-    nB    = inst.nB
-    Y     = inst.Y
-    Z     = inst.Z
+    inst = Instance(file, norme)
+    nA = inst.nA
+    nB = inst.nB
+    Y = inst.Y
+    Z = inst.Z
     indXA = inst.indXA
     indXB = inst.indXB
-    nbX   = length(indXA)
+    nbX = length(indXA)
 
     # Compute the cumulative cardinality of the joint occurences of 
     # (X=x,Y=y,Z=z) in the two databases
@@ -100,17 +100,17 @@ function empirical_estimator(path, norme::Int64=1)
     # Z conditional to X and Y in base A
     empiricalZA = ones(nbX,length(Y),length(Z)) ./ length(Z)
     for x in 1:nbX, y in Y
-        cardA_c_mA = sum(cardA_c_mA_mB[x,y,z] for z in Z)
+        cardA_c_mA = sum(cardA_c_mA_mB[x, y, z] for z in Z)
         if cardA_c_mA > 0
-            empiricalZA[x,y,:] .= cardA_c_mA_mB[x,y,:] ./ cardA_c_mA
+            empiricalZA[x, y, :] .= cardA_c_mA_mB[x, y, :] ./ cardA_c_mA
         end
     end
     # Y conditional to X and Z in base B
     empiricalYB = ones(nbX,length(Y),length(Z)) ./ length(Y)
     for x in 1:nbX, z in Z
-        cardB_c_mB = sum(cardB_c_mA_mB[x,y,z] for y in Y)
+        cardB_c_mB = sum(cardB_c_mA_mB[x, y, z] for y in Y)
         if cardB_c_mB > 0
-            empiricalYB[x,:,z] .= cardB_c_mA_mB[x,:,z] ./ cardB_c_mB
+            empiricalYB[x, :, z] .= cardB_c_mA_mB[x, :, z] ./ cardB_c_mB
         end
     end
 
