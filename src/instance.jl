@@ -47,7 +47,7 @@ struct Instance
       nbcvar = size(data,2) - 3
 
       # recover the sets of individuals in base 1 and 2
-      base = data[2:end,1]
+      base = data[2:end, 1]
       indA = findall(base .== 1)
       indB = findall(base .== 2)
       nA = length(indA)
@@ -59,11 +59,11 @@ struct Instance
       Zobserv = Array{Float64,1}(data[2:end, 3])
 
       # modify order so that base A comes first and then base B
-      Xobserv = [Xobserv[indA,:];Xobserv[indB,:]]
-      Yobserv = [Yobserv[indA];Yobserv[indB]]
-      Zobserv = [Zobserv[indA];Zobserv[indB]]
+      Xobserv = [Xobserv[indA, :]; Xobserv[indB, :]]
+      Yobserv = [Yobserv[indA]; Yobserv[indB]]
+      Zobserv = [Zobserv[indA]; Zobserv[indB]]
       indA = 1:nA
-      indB = nA+1:nA+nB
+      indB = nA + 1:nA + nB
 
       # Modify Y and Z so that they go from 1 to the number of modalities
       Y = sort(unique(Yobserv[Yobserv .!= -1]))
@@ -79,17 +79,17 @@ struct Instance
 
       # list the distinct modalities in A and B
       indY = Dict((m,findall(Yobserv[1:nA] .== m)) for m in Y)
-      indZ = Dict((m,findall(Zobserv[nA+1:end] .== m)) for m in Z)
+      indZ = Dict((m,findall(Zobserv[nA + 1:end] .== m)) for m in Z)
 
       # compute the distance between pairs of individuals in different bases
       # devectorize all the computations to go about twice faster
       # only compute norm 1 here
-      a = transpose(Xobserv[indA,:])
-      b = transpose(Xobserv[indB,:])
+      a = transpose(Xobserv[indA, :])
+      b = transpose(Xobserv[indB, :])
 
-      D  = pairwise(distance, a, b, dims=2)
-      DA = pairwise(distance, a, a, dims=2)
-      DB = pairwise(distance, b, b, dims=2)
+      D = pairwise(distance, a, b, dims = 2)
+      DA = pairwise(distance, a, a, dims = 2)
+      DB = pairwise(distance, b, b, dims = 2)
 
       # Compute the indexes of individuals with same covariates
       A = 1:nA
@@ -98,9 +98,9 @@ struct Instance
       indXA = Dict{Int64,Array{Int64}}()
       indXB = Dict{Int64,Array{Int64}}()
 
-      X1val = sort(unique(Xobserv[:,1]))
-      X2val = sort(unique(Xobserv[:,2]))
-      X3val = sort(unique(Xobserv[:,3]))
+      X1val = sort(unique(Xobserv[:, 1]))
+      X2val = sort(unique(Xobserv[:, 2]))
+      X3val = sort(unique(Xobserv[:, 3]))
 
       Xval = convert(Matrix,unique(DataFrame(Xobserv)))
 
