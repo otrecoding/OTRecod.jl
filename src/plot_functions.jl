@@ -5,7 +5,7 @@ export plot_benchmark, plot_scenario
 
 Boxplot of each simulation with all methods
 """
-function plot_benchmark(datapath,outputpath,ymin=0.0, ymax=0.8)
+function plot_benchmark(datapath, outputpath, ymin=0.0, ymax=0.8)
 
     datadirlist = readdir(datapath);
     outfilelist = readdir(outputpath);
