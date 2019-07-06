@@ -219,11 +219,12 @@ function disp_inst_info(inst::Instance)
 end
 
 """
-    avg_distance_closest(instance, database1, database2, outcome, m1, m2, 
-                         percent_closest)
+    avg_distance_closest(instance, database1, database2, 
+outcome, m1, m2, percent_closest)
 
 Compute the average distance between individuals of base1 with modality m1
 for outcome and individuals of base2 with modality m2 for outcome
+
 Consider only the percent_closest individuals in the computation of the
 distance
 """
@@ -237,15 +238,11 @@ function avg_distance_closest(inst::Instance, base1::DataBase, base2::DataBase, 
     ind2 = base2 == baseA ? (outcome == baseA ? inst.indY[m2] : indZinA[m2]) : (outcome == baseA ? indYinB[m2] : inst.indZ[m2])
 
     # select the distance matrix depending on the base
-    # println(base1)
-    # println(base2)
-    # println(outcome)
-    # println(typeof(Dscaled))
     D = base1 == baseA ? ( base2==baseA ? inst.DA : inst.D) : ( base2==baseA ? inst.D : inst.DB)
 
     # swap the two sets of indices if base1=baseB and base2=baseA
     if (base1==baseB && base2==baseA)
-        ind = ind1
+        ind  = ind1
         ind1 = ind2
         ind2 = ind1
     end
@@ -267,11 +264,10 @@ function avg_distance_closest(inst::Instance, base1::DataBase, base2::DataBase, 
     return avg
 end
 
-
 include("solution.jl")
 
 """
-    compute_pred_error(inst, sol, proba_disp=false,
+    compute_pred_error(instance, sol, proba_disp=false,
                        mis_disp=false, full_disp=false)
 
 Compute prediction errors in a solution
@@ -382,10 +378,13 @@ function compute_distrib_error(inst::Instance, sol::Solution, empiricalZA, empir
 
 
     sol.errordistribZA = sum(length(inst.indXA[x][findall(inst.Yobserv[inst.indXA[x]] .== y)])/nA * sum(max.(sol.estimatorZA[x,y,:] .- empiricalZA[x,y,:],0)) for x in 1:nbX, y in Y)
+
     sol.errordistribYB = sum(length(inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== z)])/nB * sum(max.(sol.estimatorYB[x,:,z] .- empiricalYB[x,:,z],0)) for x in 1:nbX, z in Z)
+
     sol.errordistribavg = (nA * sol.errordistribZA + nB * sol.errordistribYB)/(nA+nB)
 
-    return sol
+    sol
+
 end
 
 """
@@ -420,20 +419,21 @@ Compute the cost between pairs of outcomes as the average distance between
 covariations of individuals with these outcomes, but considering only the
 percent closest neighbors
 """
-function average_distance_to_closest(inst::Instance, percent_closest::Float64)
+function average_distance_to_closest(inst            :: Instance, 
+                                     percent_closest :: Float64)
 
     # Redefine A and B for the model
-    A = 1:inst.nA
-    B = 1:inst.nB
-    Y = copy(inst.Y)
-    Z = copy(inst.Z)
-    indY = copy(inst.indY)
-    indZ = copy(inst.indZ)
+    A    = 1:inst.nA
+    B    = 1:inst.nB
+    Y    = inst.Y
+    Z    = inst.Z
+    indY = inst.indY
+    indZ = inst.indZ
 
     # Compute average distances as described in the above
-    Davg = zeros(length(Y),length(Z))
-    DindivA  = zeros(inst.nA,length(Z))
-    DindivB  = zeros(inst.nB,length(Y))
+    Davg    = zeros(Float64,(length(Y),length(Z)))
+    DindivA = zeros(Float64,(inst.nA,length(Z)))
+    DindivB = zeros(Float64,(inst.nB,length(Y)))
 
     for y in Y, i in indY[y], z in Z
 
@@ -453,7 +453,7 @@ function average_distance_to_closest(inst::Instance, percent_closest::Float64)
 
     end
 
-    return Davg, DindivA, DindivB
+    Davg, DindivA, DindivB
 
 end
 
@@ -462,18 +462,18 @@ end
 
 Compute prediction errors in a solution
 """
-function compute_pred_error(inst :: Instance, 
-                            sol, 
+function compute_pred_error(inst       :: Instance, 
+                            sol        :: Solution, 
                             proba_disp :: Bool=false,
                             mis_disp   :: Bool=false, 
                             full_disp  :: Bool=false)
 
     A     = 1:inst.nA
     B     = 1:inst.nB
-    Y     = copy(inst.Y)
-    Z     = copy(inst.Z)
-    indXA = copy(inst.indXA) 
-    indXB = copy(inst.indXB)
+    Y     = inst.Y
+    Z     = inst.Z
+    indXA = inst.indXA 
+    indXB = inst.indXB
     nbX   = length(indXA)
 
     # display the transported and real modalities
@@ -525,7 +525,6 @@ function compute_pred_error(inst :: Instance,
           push!(misB, j)
         end
     end
-
 
     if proba_disp
         if nbmisA == 0
