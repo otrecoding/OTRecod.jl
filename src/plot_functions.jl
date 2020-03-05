@@ -73,6 +73,7 @@ function plot_scenario(outputpath, scenario, method, ymin=0.0, ymax=0.4)
     for outfile in outfilelist
         if occursin(scenario, outfile) & occursin(".out", outfile)
             if occursin(method, outfile)
+                println(outfile)
                 outfilepath = string(outputpath,"/",outfile);
                 data = readdlm(outfilepath, ',');
                 colindex = findall([strip(data[1,j]) for j in 1:size(data)[2]] .== "eDistravg");
@@ -85,6 +86,7 @@ function plot_scenario(outputpath, scenario, method, ymin=0.0, ymax=0.4)
                 if isempty(dataplots)
                     dataplots = Array{Float64}(data[2:101,colindex[1]]);
                     datasets = Array{String,1}([replace(outfile, '-' * method * ".out" => "")]);
+                    println(datasets)
                     splitstr = split(outfile,"-");
                     datanum = Array{Float64}([parse(Float64,splitstr[2])]);
                 else

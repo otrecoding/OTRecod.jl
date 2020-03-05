@@ -10,7 +10,7 @@ using StatsPlots
 export run_directory
 export group, joint
 
-@enum Method group joint
+@enum METHOD group joint
 
 include("utils.jl")
 include("OT_group.jl")
@@ -129,11 +129,11 @@ function empirical_estimator(path, norme::Int64=1)
 end
 
 """
-    run_directory(path, method; outname="result.out", 
-                                maxrelax=0.0, 
-                                lambda_reg=0.0, 
-                                nbfiles=0, 
-                                norme=0, 
+    run_directory(path, method; outname="result.out",
+                                maxrelax=0.0,
+                                lambda_reg=0.0,
+                                nbfiles=0,
+                                norme=0,
                                 percent_closest=0.2)
 
  Run one given method on a given number of data files of a given directory
@@ -145,9 +145,9 @@ end
 
  (see run_all_methods for the description of other parameters)
 """
-function run_directory(path, method::Method, outname::String="result.out", 
-                       maxrelax::Float64=0.0, lambda_reg::Float64=0.0, 
-                       nbfiles::Int64=0, norme::Int64=0, 
+function run_directory(path, method::METHOD, outname::String="result.out",
+                       maxrelax::Float64=0.0, lambda_reg::Float64=0.0,
+                       nbfiles::Int64=0, norme::Int64=0,
                        percent_closest::Float64=0.2)
 
     println("\n#################################################################")
@@ -212,13 +212,13 @@ end
 
 
 """
-    run_benchmark(path, method, maxrelax=0.0, lambda_reg=0.0, norme=0, 
+    run_benchmark(path, method, maxrelax=0.0, lambda_reg=0.0, norme=0,
                   percent_closest=0.2)
 
  Run one method on the complete benchmark
  path: path of the directory including the benchmark
 """
-function run_benchmark(path, method::Method, maxrelax::Float64=0.0, 
+function run_benchmark(path, method::METHOD, maxrelax::Float64=0.0,
                        lambda_reg::Float64=0.0, norme::Int64=0,
                        percent_closest::Float64=0.2)
 
@@ -234,15 +234,16 @@ function run_benchmark(path, method::Method, maxrelax::Float64=0.0,
         datasetpath = string(path,"/",dir);
         println(datasetpath);
         if !isdir(datasetpath) continue end
-        if (dir != "Sn-250") && (dir != "Sn-2500") continue end
+        if !occursin("LA-", dir) continue end
+        # if (dir != "Sn-250") && (dir != "Sn-2500") continue end
         # if (dir == "Sn-5000") continue end
-        if (dir != "SNL-3-5000") && (restart == false) continue
-        else restart = true end
+        # if (dir != "SNL-3-5000") && (restart == false) continue
+        # else restart = true end
 
         if maxrelax == 0.0
-            outname = string("../OutfilesJO/Sn/",dir,"-", method, "-basic.out");
+            outname = string("../outfiles/",dir,"-", method, "-basic.out");
         else
-            outname = string("../OutfilesJO/Sn/",dir,"-",method,"-",maxrelax,"-",lambda_reg,".out");
+            outname = string("../outfiles/",dir,"-",method,"-",maxrelax,"-",lambda_reg,".out");
         end
 
         # scale the relaxation parameter as a function of the size of the instance
