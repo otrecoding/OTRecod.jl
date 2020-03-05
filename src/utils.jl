@@ -99,11 +99,6 @@ struct Instance
       nbX = 0
       indXA = Dict{Int64,Array{Int64}}()
       indXB = Dict{Int64,Array{Int64}}()
-
-      X1val = sort(unique(Xobserv[:,1]))
-      X2val = sort(unique(Xobserv[:,2]))
-      X3val = sort(unique(Xobserv[:,3]))
-
       Xval = convert(Matrix,unique(DataFrame(Xobserv)))
 
       # aggregate both bases
@@ -131,8 +126,8 @@ struct Instance
 end
 
 
-function aggregate_per_covar_mixed(inst          :: Instance, 
-                                   norme         :: Int64=1, 
+function aggregate_per_covar_mixed(inst          :: Instance,
+                                   norme         :: Int64=1,
                                    aggregate_tol :: Float64=0.5)
 
     A = 1:inst.nA
@@ -178,8 +173,8 @@ The bound is computed as the expected prediction error assuming that the
 distribution of Z in base A (and that of Y in base B) is known, and the
 prediction done with the value that maximizes the probability
 """
-function bound_prediction_error(inst          :: Instance, 
-                                norme         :: Int64=1, 
+function bound_prediction_error(inst          :: Instance,
+                                norme         :: Int64=1,
                                 aggregate_tol :: Float64=0.5)
 
     # Local redefinitions of parameters of  the instance
@@ -340,7 +335,7 @@ function disp_inst_info(inst::Instance)
 end
 
 """
-    avg_distance_closest(instance, database1, database2, outcome, m1, m2, 
+    avg_distance_closest(instance, database1, database2, outcome, m1, m2,
                          percent_closest)
 
 Compute the average distance between individuals of base1 with modality m1
@@ -403,8 +398,8 @@ end
 """
 mutable struct Solution
 
-    tsolve          :: Float64  
-    jointYZA        :: Array{Float64,2} 
+    tsolve          :: Float64
+    jointYZA        :: Array{Float64,2}
     jointYZB        :: Array{Float64,2}
     estimatorZA     :: Array{Float64,3}
     estimatorYB     :: Array{Float64,3}
@@ -417,7 +412,7 @@ mutable struct Solution
 
     Solution(t, jointYZA, jointYZB) = new(t,jointYZA,jointYZB)
 
-    Solution(t, jointYZA, jointYZB, estimatorZA, estimatorYB) = new(t, 
+    Solution(t, jointYZA, jointYZB, estimatorZA, estimatorYB) = new(t,
              jointYZA, jointYZB, estimatorZA, estimatorYB)
 end
 
@@ -425,17 +420,17 @@ end
 """
 Compute prediction errors in a solution
 """
-function compute_pred_error(inst :: Instance, 
-                            sol, 
+function compute_pred_error(inst :: Instance,
+                            sol,
                             proba_disp :: Bool=false,
-                            mis_disp   :: Bool=false, 
+                            mis_disp   :: Bool=false,
                             full_disp  :: Bool=false)
 
     A     = 1:inst.nA
     B     = 1:inst.nB
     Y     = copy(inst.Y)
     Z     = copy(inst.Z)
-    indXA = copy(inst.indXA) 
+    indXA = copy(inst.indXA)
     indXB = copy(inst.indXB)
     nbX   = length(indXA)
 
@@ -523,8 +518,8 @@ Compute errors in the conditional distributions of a solution
 """
 function compute_distrib_error(inst::Instance, sol::Solution, empiricalZA, empiricalYB)
 
-    nA  = inst.nA 
-    nB  = inst.nB 
+    nA  = inst.nA
+    nB  = inst.nB
     Y   = copy(inst.Y)
     Z   = copy(inst.Z)
     nbX = length(inst.indXA)
