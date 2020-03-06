@@ -25,8 +25,8 @@ struct Instance
     Z       :: Array{Int64,1}
     indY    :: Dict{Int64,Array{Int64,1}}
     indZ    :: Dict{Int64,Array{Int64,1}}
-    indXA   :: Dict{Int64,Array{Int64}} 
-    indXB   :: Dict{Int64,Array{Int64}} 
+    indXA   :: Dict{Int64,Array{Int64}}
+    indXB   :: Dict{Int64,Array{Int64}}
     DA      :: Array{Float64,2}
     DB      :: Array{Float64,2}
 
@@ -37,7 +37,7 @@ struct Instance
 
       if norme == 2
           distance = Euclidean()
-      elseif norme == 3
+      elseif norme == 0
           distance = Hamming()
       end
 
@@ -45,6 +45,8 @@ struct Instance
 
       # number of covariables
       nbcvar = size(data,2) - 3
+
+
 
       # recover the sets of individuals in base 1 and 2
       base = data[2:end, 1]
@@ -97,11 +99,6 @@ struct Instance
       nbX = 0
       indXA = Dict{Int64,Array{Int64}}()
       indXB = Dict{Int64,Array{Int64}}()
-
-      X1val = sort(unique(Xobserv[:, 1]))
-      X2val = sort(unique(Xobserv[:, 2]))
-      X3val = sort(unique(Xobserv[:, 3]))
-
       Xval = convert(Matrix,unique(DataFrame(Xobserv)))
 
       # aggregate both bases
@@ -109,7 +106,7 @@ struct Instance
       for i in  1:size(Xval,1)
           nbX = nbX + 1
           fill!(x,0)
-          x[:,1] .= Xval[i,:] 
+          x[:,1] .= Xval[i,:]
           distA = pairwise(distance, x, transpose(Xobserv[A,:]), dims=2)
           distB = pairwise(distance, x, transpose(Xobserv[B .+ nA,:]), dims=2)
           indXA[nbX] = findall(distA[1,:] .< 0.1)
@@ -117,7 +114,7 @@ struct Instance
       end
 
       file_name = basename(data_file)
-      new(file_name,nA, nB, Xobserv, Yobserv, Zobserv, 
+      new(file_name,nA, nB, Xobserv, Yobserv, Zobserv,
           D, Y, Z, indY, indZ, indXA, indXB, DA, DB)
     end
 
@@ -126,9 +123,9 @@ struct Instance
     - df : dataframe with column names : ident,Y1,Y2,X1,X2,X3
     - distance : Cityblock(), Euclidean() or Hamming()
     """
-    function Instance(df          :: DataFrame, 
-                      covariables :: Vector{Symbol}, 
-                      outcomes    :: Vector{Symbol}, 
+    function Instance(df          :: DataFrame,
+                      covariables :: Vector{Symbol},
+                      outcomes    :: Vector{Symbol},
                       distance    :: Distances.Metric )
 
       # number of covariables
@@ -209,7 +206,7 @@ struct Instance
       end
 
       file_name = ""
-      new(file_name,nA, nB, Xobserv, Yobserv, Zobserv, 
+      new(file_name,nA, nB, Xobserv, Yobserv, Zobserv,
           D, Y, Z, indY, indZ, indXA, indXB, DA, DB)
   end
 
