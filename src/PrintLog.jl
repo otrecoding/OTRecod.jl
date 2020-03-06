@@ -17,7 +17,7 @@ All prints will be appended to the end of the file.
 Silent mode.
 Do not output `info`.
 """
-macro printlog(file, silent=false)
+macro printlog(file, silent = false)
     @eval begin
         import Base.println, Base.print, Suppressor.@suppress
         @suppress Base.println(xs...) =
@@ -39,7 +39,7 @@ Disable `printlog`.
 
 Silent mode.
 """
-macro noprintlog(silent=false)
+macro noprintlog(silent = false)
     @eval begin
         import Base.println, Base.print, Suppressor.@suppress
         @suppress Base.println(xs...) = println(STDOUT, xs...)

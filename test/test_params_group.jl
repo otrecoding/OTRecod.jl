@@ -51,7 +51,7 @@ function test_params_group(bench_path, nbfiles::Int64=1, norme::Int64=1)
                 inst = Instance(string(bench_path,"/",dir,"/",data_file), norme)
 
                 # Run the group transport
-                sol = OT_group(inst,0.2,maxrelax_group,norme,optimal);
+                sol = ot_group(inst,0.2,maxrelax_group,norme,optimal);
                 sol = compute_pred_error(inst, sol, false);
                 sol = compute_distrib_error(inst, sol, empiricalZA, empiricalYB);
                 error_avg += sol.errordistribavg/nbfiles;
