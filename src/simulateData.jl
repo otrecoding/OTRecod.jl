@@ -138,6 +138,22 @@ for k = 1:100
     writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2]);
 end
 
+mkpath( "../data/LAequal-0")
+mkpath( "../data/LAequal-1")
+mkpath( "../data/LAequal-2")
+mkpath( "../data/LAequal-3")
+for k = 1:100
+    XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0],[0.0, 0.0, 0.0],[1.0 1.0 1.0],[1.0 1.0 1.0], 1000, [0.5], [1.0/3.0, 2.0/3.0],[0.25, 0.5, 0.75]);
+    outname = "../data/LAequal-0" * "/" * "tab" * string(k) * ".txt";
+    writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+    outname = "../data/LAequal-1" * "/" * "tab" * string(k) * ".txt";
+    writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[2,3]);
+    outname = "../data/LAequal-2" * "/" * "tab" * string(k) * ".txt";
+    writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,3]);
+    outname = "../data/LAequal-3" * "/" * "tab" * string(k) * ".txt";
+    writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2]);
+end
+
 # Simulate alpha instances
 mkpath( "data/Sa-1")
 mkpath( "data/Sa-2")

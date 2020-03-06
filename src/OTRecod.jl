@@ -142,7 +142,7 @@ end
 """
 
 function run_directory(path            :: String,
-                       method          :: Symbol,
+                       method          :: METHOD,
                        outname         :: String  = "result.out",
                        maxrelax        :: Float64 = 0.0,
                        lambda_reg      :: Float64 = 0.0,
@@ -161,7 +161,7 @@ function run_directory(path            :: String,
         println("\tTest all the files of the directory")
     end
 
-    if (method == :joint)
+    if (method == joint)
         println("\tRegularization parameter: ", lambda_reg)
     end
 
@@ -199,11 +199,11 @@ function run_directory(path            :: String,
         nbX   = length(indXA)
 
         @info " File : $(joinpath(path,data_file)) "
-        if method == :group
+        if method == group
             indiv_method = maxrelax > 0.0 ? :optimal : :sequential
             sol = ot_group(inst,percent_closest,maxrelax,indiv_method)
             #PN lambda_reg = 0.0
-        elseif method == :joint
+        elseif method == joint
             sol = ot_joint(inst, maxrelax, lambda_reg, percent_closest)
         end
 
@@ -241,21 +241,22 @@ function run_benchmark(path, method::METHOD, maxrelax::Float64=0.0,
     end
 
     dirlist = readdir(path)
+    println(dirlist)
     restart = true
     for dir in dirlist
         datasetpath = joinpath(path,dir)
         println(datasetpath)
         if !isdir(datasetpath) continue end
-        if !occursin("LA-", dir) continue end
+        # if !occursin("LA-", dir) continue end
         # if (dir != "Sn-250") && (dir != "Sn-2500") continue end
         # if (dir == "Sn-5000") continue end
         # if (dir != "SNL-3-5000") && (restart == false) continue
         # else restart = true end
 
-        if maxrelax == 0.0
+        if (maxrelax == 0.0) && (norme == 0)
             outname = string("../outfiles/",dir,"-", method, "-basic.out");
         else
-            outname = string("../outfiles/",dir,"-",method,"-",maxrelax,"-",lambda_reg,".out");
+            outname = string("../outfiles/",dir,"-",method,"-",maxrelax,"-",lambda_reg, "-N", norme, ".out");
         end
 
         # scale the relaxation parameter as a function of the size of the instance

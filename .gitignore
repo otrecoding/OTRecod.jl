@@ -4,3 +4,4 @@ Manifest.toml
 test/result.out
 result.out
 *.out
+data/*

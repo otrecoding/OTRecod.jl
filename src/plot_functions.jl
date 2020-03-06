@@ -1,3 +1,6 @@
+using StatsPlots
+pgfplots()
+
 export plot_benchmark, plot_scenario
 
 """
