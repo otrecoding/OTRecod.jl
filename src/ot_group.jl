@@ -1,10 +1,5 @@
-
-@enum IndivFromGroup sequential optimal
-
-
 """
-    individual_from_group_closest(inst, jointprobaA, 
-        jointprobaB, percent_closest=1.0)
+    individual_from_group_closest(inst, jointprobaA, jointprobaB, percent_closest=1.0)
 
 Sequentially assign the modality of the individuals to that of the closest
 neighbor in the other base until the joint probability values are met
@@ -15,10 +10,10 @@ function individual_from_group_closest(inst::Instance, jointprobaA,
     # Redefine A and B for the model
     A = 1:inst.nA
     B = 1:inst.nB
-    Y = copy(inst.Y)
-    Z = copy(inst.Z)
-    indY = copy(inst.indY)
-    indZ = copy(inst.indZ)
+    Y = inst.Y
+    Z = inst.Z
+    indY = inst.indY
+    indZ = inst.indZ
     nbindY = [length(indY[y]) for y in Y]
     nbindZ = [length(indZ[z]) for z in Z]
     freqY = [nbindY[y] / length(A) for y in Y]
@@ -28,18 +23,18 @@ function individual_from_group_closest(inst::Instance, jointprobaA,
     # where the distance from an individual to a modality is computed as 
     # the average distance to the individuals having this modality (in the other base)
 
-    YAtrans = Array{Int64,1}(undef,inst.nB);
-    YBtrans = Array{Int64,1}(undef,inst.nA);
-    Davg,DindivA, DindivB = average_distance_to_closest(inst, percent_closest);
+    YAtrans = zeros(Int64,inst.nB)
+    YBtrans = zeros(Int64,inst.nA)
+    Davg, DindivA, DindivB = average_distance_to_closest(inst, 
+                                                        percent_closest)
 
-    # DA = [(z,[sum(inst.D[i,j] for j in indZ[z])/nbindZ[z] for i in A]) for z in Z]
-    # DB = [(y,[sum(inst.D[i,j] for i in indY[y])/nbindY[y] for j in B]) for y in Y]
-    DA = [(z,[DindivA[i,z] for i in A]) for z in Z];
-    DB = [(y,[DindivB[j,y] for j in B]) for y in Y];
+    DA = [(z,[DindivA[i, z] for i in A]) for z in Z]
+    DB = [(y,[DindivB[j, y] for j in B]) for y in Y]
+
     for y in Y
-        indtrans = copy(indY[y])
+        indtrans = indY[y]
         for z in Z
-            nbtrans = min(round(Int,jointprobaA[y,z]/freqY[y] * nbindY[y])::Int64, length(indtrans));
+            nbtrans = min(round(Int,jointprobaA[y,z]/freqY[y] * nbindY[y])::Int64, length(indtrans))
             distance = [(i,DA[z][2][i]) for i in indtrans]
             sort!(distance, by = x->x[2])
             for k = 1:nbtrans
@@ -56,25 +51,25 @@ function individual_from_group_closest(inst::Instance, jointprobaA,
     end
 
     for z in Z
-        indtrans = copy(indZ[z]);
+        indtrans = indZ[z]
         for y in Y
-            nbtrans = min(round(Int,jointprobaB[y,z]/freqZ[z] * nbindZ[z]), length(indtrans));
-            distance = [(j,DB[y][2][j]) for j in indtrans];
-            sort!(distance, by = x->x[2]);
+            nbtrans = min(round(Int,jointprobaB[y,z]/freqZ[z] * nbindZ[z]), length(indtrans))
+            distance = [(j,DB[y][2][j]) for j in indtrans]
+            sort!(distance, by = x->x[2])
             for k in 1:nbtrans
-                YAtrans[distance[k][1]] = y;
-                deleteat!(indtrans,findall(indtrans .== distance[k][1]));
+                YAtrans[distance[k][1]] = y
+                deleteat!(indtrans,findall(indtrans .== distance[k][1]))
             end
         end
 
         # affect potential individuals that have not been transported due to
         # rounding
         for j in indtrans
-            YAtrans[j] = inst.Yobserv[findmin([inst.D[i,j] for i in A])[2]];
+            YAtrans[j] = inst.Yobserv[findmin([inst.D[i,j] for i in A])[2]]
         end
     end
 
-    return YAtrans, YBtrans
+    YAtrans, YBtrans
 end
 
 """
@@ -85,25 +80,24 @@ Solve an optimization problem to get the individual transport that minimizes
 total distance while satisfying the joint probability computed by the model by
 group
 """
-function individual_from_group_optimal(inst::Instance, jointprobaA, 
-                jointprobaB, percent_closest::Float64=1.0)
+function individual_from_group_optimal(inst::Instance, 
+                                       jointprobaA, 
+                                       jointprobaB, 
+                                       percent_closest::Float64=1.0)
 
 
     # Redefine A and B for the model
-    A = 1:inst.nA
-    B = 1:inst.nB
-    Y = copy(inst.Y)
-    Z = copy(inst.Z)
-    indY = copy(inst.indY)
-    indZ = copy(inst.indZ)
+    A      = 1:inst.nA
+    B      = 1:inst.nB
+    Y      = inst.Y
+    Z      = inst.Z
+    indY   = inst.indY
+    indZ   = inst.indZ
     nbindY = [length(indY[y]) for y in Y]
     nbindZ = [length(indZ[z]) for z in Z]
 
     # Create a model for the optimal transport of individuals
-    # indiv = Model(solver=IpoptSolver(print_level=4))
     indiv = Model(with_optimizer(Clp.Optimizer,LogLevel=0))
-    # indiv = Model(solver=GurobiSolver(Method=2,LogToConsole=0)); #Presolve=0,Method=2,Crossover=0))
-
 
     # Variables
     # - assignA[i][z] : fraction of individual i assigned to modality z
@@ -111,28 +105,25 @@ function individual_from_group_optimal(inst::Instance, jointprobaA,
     # - assignB[j][y] : fraction of individual j assigned to modality y
     @variable(indiv, assignB[j in B, y in Y] >= 0, base_name="assignB")
 
-    # compute the average distance between the individuals and the modalities of
-    # the other base
-    CA = zeros(inst.nA,length(Z))
+    # compute the average distance between the individuals 
+    # and the modalities of the other base
+
+    CA = zeros(inst.nA, length(Z))
     CB = zeros(inst.nB, length(Y))
-    for i in A
-        for z in Z
-            nbclose = round(Int,percent_closest*nbindZ[z])
-            distance = sort([inst.D[i,j] for j in indZ[z]])
-            CA[i,z] = sum(distance[1:nbclose])/nbclose
-        end
+    for i in A, z in Z
+        nbclose  = round(Int,percent_closest*nbindZ[z])
+        distance = sort([inst.D[i,j] for j in indZ[z]])
+        CA[i,z]  = sum(distance[1:nbclose])/nbclose
     end
-    for j in B
-        for y in Y
-            nbclose = round(Int,percent_closest*nbindY[y])
-            distance = sort([inst.D[i,j] for i in indY[y]])
-            CB[j,y] += sum(distance[1:nbclose])/nbclose
-        end
+    for j in B, y in Y
+        nbclose  = round(Int,percent_closest*nbindY[y])
+        distance = sort([inst.D[i,j] for i in indY[y]])
+        CB[j,y]  = sum(distance[1:nbclose])/nbclose
     end
 
     # Objective: minimize the distance between individuals of A and B
     @objective(indiv, Min, sum(CA[i,z]*assignA[i,z] for i in A, z in Z)
-                            + sum(CB[j,y]*assignB[j,y] for j in B, y in Y))
+                         + sum(CB[j,y]*assignB[j,y] for j in B, y in Y))
 
     # Constraints
     # - assign the individuals so as to satisfy the joint probability computed
@@ -158,18 +149,19 @@ function individual_from_group_optimal(inst::Instance, jointprobaA,
     YBtrans = [findmax([assignA_val[i,z]  for z in Z])[2] for i in A]
     YAtrans = [findmax([assignB_val[j,y]  for y in Y])[2] for j in B]
 
-    return YAtrans, YBtrans
+    YAtrans, YBtrans
+
 end
 
+export ot_group
 
 """
-    OT_group(inst, percent_closest=0.2, maxrelax=0.0, norme=0, 
+    ot_group(inst, percent_closest=0.2, maxrelax=0.0, 
              indiv_method=sequential, full_disp=false, solver_disp=false)
 
-Model of group transport
-percent_closest: percent of closest neighbors taken in the computation of the
-  costs
+# Model of group transport
 
+- `percent_closest`: percent of closest neighbors taken in the computation of the costs
 - `maxrelax`: maximum percentage of deviation from expected probability masses
 - `indiv_method`: specifies the method used to get individual transport from
   group joint probabilities
@@ -177,45 +169,46 @@ percent_closest: percent of closest neighbors taken in the computation of the
       otherwise, juste write the number of missed transports
 - `solver_disp`: if false, do not display the outputs of the solver
 """
-function OT_group(inst::Instance, percent_closest::Float64=0.2, 
-                  maxrelax::Float64=0.0, norme::Int64=0, 
-                  indiv_method::IndivFromGroup=sequential, 
-                  full_disp::Bool=false, solver_disp::Bool=false)
+function ot_group(inst            :: Instance, 
+                  percent_closest :: Float64=0.2, 
+                  maxrelax        :: Float64=0.0, 
+                  indiv_method    =  :sequential, 
+                  full_disp       :: Bool=false, 
+                  solver_disp     :: Bool=false)
 
     tstart = time()
 
     # Redefine A and B for the model
-    nA = inst.nA
-    nB = inst.nB
-    A = 1:inst.nA
-    B = 1:inst.nB
-    Y = copy(inst.Y)
-    Z = copy(inst.Z)
-    indY = copy(inst.indY)
-    indZ = copy(inst.indZ)
+    nA     = inst.nA
+    nB     = inst.nB
+    A      = 1:inst.nA
+    B      = 1:inst.nB
+    Y      = inst.Y
+    Z      = inst.Z
+    indY   = inst.indY
+    indZ   = inst.indZ
     nbindY = [length(indY[y]) for y in Y]
     nbindZ = [length(indZ[z]) for z in Z]
-    freqY = [nbindY[y] / length(A) for y in Y]
-    freqZ = [nbindZ[z] / length(B) for z in Z]
+    freqY  = [nbindY[y] / length(A) for y in Y]
+    freqZ  = [nbindZ[z] / length(B) for z in Z]
 
-    ###########################################################################
     # Compute data for aggregation of the individuals
-    ###########################################################################
-    indXA = copy(inst.indXA); indXB = copy(inst.indXB);
+
+    indXA = copy(inst.indXA); indXB = copy(inst.indXB)
     nbX = length(indXA);
 
     # Computation of the cost matrix as average distances between the
     # individuals of two groups
-    C = average_distance_to_closest(inst, percent_closest)[1];
+    C = average_distance_to_closest(inst, percent_closest)[1]
 
     if maxrelax == 0.0
         # Create a model for the optimal transport of individuals
         # group = Model(solver=GurobiSolver(Method=2, LogToConsole=0));
-        group = Model(with_optimizer(Clp.Optimizer));
+        group = Model(with_optimizer(Clp.Optimizer))
 
         # Variables
         # - transport[y,z] : joint probability of modalities y and z
-        @variable(group, transport[y in Y, z in Z] >= 0, base_name="transport");
+        @variable(group, transport[y in Y, z in Z] >= 0, base_name="transport")
         # - deviationA[y]: deviation of the probability mass of Y from
         #   that observed in base A
         @variable(group, deviationA[y in Y], base_name="deviationA")
@@ -230,33 +223,33 @@ function OT_group(inst::Instance, percent_closest::Float64=0.2,
         @variable(group, absdevB[z in Z] >= 0, base_name="absdevB")
 
         # Objective: minimize the distance between individuals of A and B
-        @objective(group, Min, sum(C[y,z]*transport[y,z] for y in Y, z in Z));
+        @objective(group, Min, sum(C[y,z]*transport[y,z] for y in Y, z in Z))
 
         # Constraints
         # - satisfy probabilities of modality A
-        @constraint(group, cttransportA[y in Y], sum(transport[y,z] for z in Z) == freqY[y] + deviationA[y]);
+        @constraint(group, cttransportA[y in Y], sum(transport[y,z] for z in Z) == freqY[y] + deviationA[y])
 
         # - satisfy probabilities of modality B
-        @constraint(group, cttransportB[z in Z], sum(transport[y,z] for y in Y) == freqZ[z] + deviationB[z]);
+        @constraint(group, cttransportB[z in Z], sum(transport[y,z] for y in Y) == freqZ[z] + deviationB[z])
 
         # - the deviations must sum to zero to conserve a well-defined probability measure
         @constraint(group, ctsumdeviationA, sum(deviationA[y] for y in Y) == 0)
         @constraint(group, ctsumdeviationB, sum(deviationB[z] for z in Z) == 0)
 
         # - bound the norm 1 of deviations
-        @constraint(group, ctabsdevBplus[z in Z], deviationB[z] <= absdevB[z]);
-        @constraint(group, ctabsdevBmoins[z in Z], deviationB[z] >= -absdevB[z]);
+        @constraint(group, ctabsdevBplus[z in Z], deviationB[z] <= absdevB[z])
+        @constraint(group, ctabsdevBmoins[z in Z], deviationB[z] >= -absdevB[z])
         @constraint(group, ctbounddevB, sum([absdevB[z] for z in Z]) <= maxrelax/2.0);
-        @constraint(group, ctabsdevAplus[y in Y], deviationA[y] <= absdevA[y]);
-        @constraint(group, ctabsdevAmoins[y in Y], deviationA[y] >= -absdevA[y]);
-        @constraint(group, ctbounddevA, sum([absdevA[y] for y in Y]) <= maxrelax/2.0);
+        @constraint(group, ctabsdevAplus[y in Y], deviationA[y] <= absdevA[y])
+        @constraint(group, ctabsdevAmoins[y in Y], deviationA[y] >= -absdevA[y])
+        @constraint(group, ctbounddevA, sum([absdevA[y] for y in Y]) <= maxrelax/2.0)
 
         # Solve the problem
-        optimize!(group);
+        optimize!(group)
 
         # Extract the values of the solution
-        transportA_val = [value(transport[y,z]) for y in Y, z in Z];
-        transportB_val = transportA_val;
+        transportA_val = [value(transport[y,z]) for y in Y, z in Z]
+        transportB_val = transportA_val
 
 
     # Otherwise, the empirical distribution constraints are relaxed and the
@@ -268,8 +261,6 @@ function OT_group(inst::Instance, percent_closest::Float64=0.2,
        # Create a model for the optimal transport of individuals
        groupB = Model(with_optimizer(Clp.Optimizer))
        # groupB = Model(solver=GurobiSolver(Method=2,LogToConsole=0))
-
-
        # - transportA[y,z] : joint probability of modalities y and z if in base A
        @variable(groupA, transportA[y in Y, z in Z] >= 0, base_name="transportA")
        # - transportB[y,z] : joint probability of modalities y and z if in base B
@@ -329,39 +320,44 @@ function OT_group(inst::Instance, percent_closest::Float64=0.2,
        transportB_val = [value(transportB[y,z]) for y in Y, z in Z]
     end
 
-
-
     # Get the individual transport from the group transport
-    if indiv_method == sequential
-        YApred, YBpred = individual_from_group_closest(inst, transportA_val, transportB_val, percent_closest);
-    elseif indiv_method == optimal
-        YApred, YBpred = individual_from_group_optimal(inst, transportA_val, transportB_val, percent_closest);
+    if indiv_method == :sequential
+        YApred, YBpred = individual_from_group_closest(inst, transportA_val, 
+                           transportB_val, percent_closest)
+    elseif indiv_method == :optimal
+        YApred, YBpred = individual_from_group_optimal(inst, transportA_val, 
+                           transportB_val, percent_closest)
     end
 
     # Compute the estimated probability distributions from predictions
-    indXA = copy(inst.indXA); indXB = copy(inst.indXB);
-    nbX = length(indXA);
-    estimatorZA = zeros(nbX,length(Y),length(Z));
-    estimatorYB = zeros(nbX,length(Y),length(Z));
+    indXA       = inst.indXA
+    indXB       = inst.indXB
+    nbX         = length(indXA)
+    estimatorZA = zeros(nbX,length(Y),length(Z))
+    estimatorYB = zeros(nbX,length(Y),length(Z))
 
     for x in 1:nbX
         for i in indXA[x]
-            estimatorZA[x,inst.Yobserv[i],YBpred[i]] += 1/ length(findall(inst.Yobserv[indXA[x]] .== inst.Yobserv[i]));
+            estimatorZA[x,inst.Yobserv[i],YBpred[i]] += 1/ length(findall(inst.Yobserv[indXA[x]] .== inst.Yobserv[i]))
         end
         for y in Y
             if length(findall(inst.Yobserv[indXA[x]] .== y)) == 0
-                estimatorZA[x,y,:] = 1/length(Z)*ones(length(Z),1);
+                estimatorZA[x,y,:] .= 1/length(Z)
             end
         end
         for i in indXB[x]
-            estimatorYB[x,YApred[i],inst.Zobserv[i+nA]] += 1/ length(findall(inst.Zobserv[indXB[x].+nA] .== inst.Zobserv[i+nA]));
+            estimatorYB[x,YApred[i],inst.Zobserv[i+nA]] += 1/ length(findall(inst.Zobserv[indXB[x].+nA] .== inst.Zobserv[i+nA]))
         end
         for z in Z
             if length(findall(inst.Zobserv[indXB[x]] .== z)) == 0
-                estimatorYB[x,:,z] = 1/length(Y)*ones(length(Y),1);
+                estimatorYB[x,:,z] .= 1/length(Y)
             end
         end
     end
 
-    return Solution(time()-tstart,transportA_val, transportB_val,estimatorZA,estimatorYB);
+    Solution( time() - tstart,
+              transportA_val, 
+              transportB_val,
+              estimatorZA,
+              estimatorYB )
 end
