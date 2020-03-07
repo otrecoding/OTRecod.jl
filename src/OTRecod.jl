@@ -1,11 +1,8 @@
-module OTRecod
+# module OTRecod
 
 using Statistics
 using JuMP, Cbc, Clp
 using Printf
-
-export run_directory
-export group, joint
 
 @enum METHOD group joint
 
@@ -15,6 +12,10 @@ include("ot_group.jl")
 include("ot_joint.jl")
 include("plot_functions.jl")
 
+
+# export run_directory
+# export run_benchmark
+# export ot_group, ot_joint
 
 """
     compute_average_error_bound(path; norme=1)
@@ -247,7 +248,7 @@ function run_benchmark(path, method::METHOD, maxrelax::Float64=0.0,
         datasetpath = joinpath(path,dir)
         println(datasetpath)
         if !isdir(datasetpath) continue end
-        # if !occursin("LA-", dir) continue end
+        # if !occursin("CAT-4", dir) continue end
         # if (dir != "Sn-250") && (dir != "Sn-2500") continue end
         # if (dir == "Sn-5000") continue end
         # if (dir != "SNL-3-5000") && (restart == false) continue
@@ -271,4 +272,4 @@ function run_benchmark(path, method::METHOD, maxrelax::Float64=0.0,
     end
 end
 
-end # module
+# end # module
