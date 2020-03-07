@@ -1,5 +1,6 @@
 using StatsPlots
 pgfplots()
+# gr()
 
 export plot_benchmark, plot_scenario
 

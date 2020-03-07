@@ -33,20 +33,18 @@ struct Instance
     function Instance(data_file :: String, norme::Int64)
 
 
-      distance = Cityblock()
+      distance = Cityblock(); # WeightedCityblock([1.0, 2.0, 3.0])
 
       if norme == 2
           distance = Euclidean()
       elseif norme == 0
-          distance = Hamming()
+          distance = Hamming(); #WeightedHamming([1.0, 1.0/2.0, 1.0/3.0])
       end
 
       data = readdlm(data_file, ' ')
 
       # number of covariables
       nbcvar = size(data,2) - 3
-
-
 
       # recover the sets of individuals in base 1 and 2
       base = data[2:end, 1]

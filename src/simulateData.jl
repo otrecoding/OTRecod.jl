@@ -109,6 +109,28 @@ for k = 1:100
     writedataset(outname,XA,YA,ZA,XB,YB,ZB)
 end
 
+
+# Simulate data with varying number of categories
+mkpath( "../data/CAT-0")
+mkpath( "../data/CAT-1")
+mkpath( "../data/CAT-2")
+mkpath( "../data/CAT-3")
+for k = 1:100
+    XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0],[1.0, 0.0, 0.0],[1.0 1.0 1.0],[1.0 1.0 1.0], 1000, [0.5], [1.0/3.0, 2.0/3.0],[0.5]);
+    outname = "../data/CAT-0" * "/" * "tab" * string(k) * ".txt";
+    writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+    XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0],[1.0, 0.0, 0.0],[1.0 1.0 1.0],[1.0 1.0 1.0], 1000, [0.5], [0.5],[0.5]);
+    outname = "../data/CAT-1" * "/" * "tab" * string(k) * ".txt";
+    writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+    XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0],[1.0, 0.0, 0.0],[1.0 1.0 1.0],[1.0 1.0 1.0], 1000, [1.0/3.0, 2.0/3.0], [1.0/3.0, 2.0/3.0], [1.0/3.0, 2.0/3.0]);
+    outname = "../data/CAT-2" * "/" * "tab" * string(k) * ".txt";
+    writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+    XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0],[1.0, 0.0, 0.0],[1.0 1.0 1.0],[1.0 1.0 1.0], 1000, [0.25, 0.5, 0.75], [0.25, 0.5, 0.75], [0.25, 0.5, 0.75]);
+    outname = "../data/CAT-3" * "/" * "tab" * string(k) * ".txt";
+    writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+end
+
+
 # Simulate R2 instances
 for k = 1:100
     for R2 in [0.01, 0.05, 0.1, 0.9]
