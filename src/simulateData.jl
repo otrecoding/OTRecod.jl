@@ -67,15 +67,81 @@ end
 # Write the dataset given by covariates and outcomes in input
 function writedataset(outname,XA,YA,ZA,XB,YB,ZB)
     outfile = open(outname, "w");
-    @printf(outfile,"id Y Z X1 X2 X3");
-    n = length(YA);
-    for i in 1:n
-        @printf(outfile, "\n1 %d %d %d %d %d", YA[i], ZA[i], XA[1,i], XA[2,i], XA[3,i]);
+	n = length(YA);
+	ncovar = size(XA)[1]
+	@printf(outfile,"id Y Z");
+	for i in 1:ncovar
+		@printf(outfile," X%i", i);
+	end
+	for i in 1:n
+        @printf(outfile, "\n1 %d %d", YA[i], ZA[i]);
+        for j in 1:ncovar
+            @printf(outfile, " %d", XA[j,i]);
+        end
     end
     for i in 1:n
-        @printf(outfile, "\n2 %d %d %d %d %d", YB[i], ZB[i], XB[1,i], XB[2,i], XB[3,i]);
+        @printf(outfile, "\n2 %d %d", YB[i], ZB[i]);
+        for j in 1:ncovar
+            @printf(outfile, " %d", XB[j,i]);
+        end
     end
     close(outfile);
+end
+
+# Simulate dataset with 4 covariates.
+# This was used in the article to study the impact of latent variables
+function simulatelatent(R2     = 0.5,
+                  muA    = [0.0, 0.0 ,0.0, 0.0],
+                  muB    = [1.0, 0.0, 0.0, 0.0],
+                  alphaA = [1.0  1.0  1.0 1.0],
+                  alphaB = [1.0  1.0  1.0 1.0],
+                  n = 1000,
+                  q1 = [0.5],
+                  q2 = [1.0/3.0, 2.0/3.0],
+                  q3 = [0.25, 0.5, 0.75],
+				  q4 = [0.5])
+
+    Sigma = [[1.0,0.2,0.2,0.2] [0.2,1.0,0.2,0.2] [0.2,0.2,1.0,0.2] [0.2,0.2,0.2,1.0]];
+    PSigma = PDMat(Sigma);
+    t1 = quantile.(Normal(muA[1], sqrt(Sigma[1,1])), q1 );
+    t2 = quantile.(Normal(muA[1], sqrt(Sigma[1,1])), q2 );
+    t3 = quantile.(Normal(muA[1], sqrt(Sigma[1,1])), q3 );
+	t4 = quantile.(Normal(muA[1], sqrt(Sigma[1,1])), q4 );
+    UA = rand(MvNormal(muA, PSigma), n);
+    UB = rand(MvNormal(muB, PSigma), n);
+
+    XA = ones(4, n);
+    XB = ones(4, n);
+    for j in 1:n
+        for i in 1:length(t1)
+            if UA[1,j] >= t1[i] XA[1,j] = i+1; end
+            if UB[1,j] >= t1[i] XB[1,j] = i+1; end
+        end
+        for i in 1:length(t2)
+            if UA[2,j] >= t2[i] XA[2,j] = i+1; end
+            if UB[2,j] >= t2[i] XB[2,j] = i+1; end
+        end
+        for i in 1:length(t3)
+            if UA[3,j] >= t3[i] XA[3,j] = i+1; end
+            if UB[3,j] >= t3[i] XB[3,j] = i+1; end
+        end
+		for i in 1:length(t4)
+            if UA[4,j] >= t4[i] XA[4,j] = i+1; end
+            if UB[4,j] >= t4[i] XB[4,j] = i+1; end
+        end
+    end
+
+    varerror = (1/R2 -1)*sum(Sigma);
+    VA = transpose(alphaA * UA) .+ rand(Normal(0.0,sqrt(varerror)),n);
+    VB = transpose(alphaB * UB) .+ rand(Normal(0.0,sqrt(varerror)),n);
+    tY = quantile.(Normal((alphaA * muA)[1], sqrt(sum(alphaA * Sigma) + varerror)), [1.0/3.0, 2.0/3.0] );
+    tZ = quantile.(Normal((alphaB * muB)[1], sqrt(sum(alphaB * Sigma) + varerror)), [0.25, 0.5, 0.75] );
+    YA = [(VA[j] < tY[1] ? 1 : (VA[j] < tY[2] ? 2 : 3)) for j in 1:n];
+    ZA = [(VA[j] < tZ[1] ? 1 : (VA[j] < tZ[2] ? 2 : (VA[j] < tZ[3] ? 3 : 4))) for j in 1:n];
+    YB = [(VB[j] < tY[1] ? 1 : (VB[j] < tY[2] ? 2 : 3)) for j in 1:n];
+    ZB = [(VB[j] < tZ[1] ? 1 : (VB[j] < tZ[2] ? 2 : (VB[j] < tZ[3] ? 3 : 4))) for j in 1:n];
+
+    return XA, YA, ZA, XB, YB, ZB;
 end
 
 # Write the dataset where some of the input covariates are considered as "latent" variables, meaning that outcomes depend on them, but that those covariates are not observed
@@ -100,6 +166,52 @@ function writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,observed=[1,2,3])
         end
     end
     close(outfile);
+end
+
+# Simulate instances with latent variables
+mkpath( "../data/SLA-11Ref")
+mkpath( "../data/SLA-11")
+mkpath( "../data/SLA-12Ref")
+mkpath( "../data/SLA-12")
+mkpath( "../data/SLA-13Ref")
+mkpath( "../data/SLA-13")
+mkpath( "../data/SLA-21Ref")
+mkpath( "../data/SLA-21")
+mkpath( "../data/SLA-22Ref")
+mkpath( "../data/SLA-22")
+mkpath( "../data/SLA-23Ref")
+mkpath( "../data/SLA-23")
+for k = 1:100
+    XA,YA,ZA,XB,YB,ZB = simulatelatent(0.5,[0.0, 0.0 ,0.0, 0.0],[1.0, 0.0, 0.0,0.0],[1.0 1.0 1.0 0.5],[1.0 1.0 1.0 0.5]);
+    outname = "../data/SLA-11Ref" * "/" * "tab" * string(k) * ".txt";
+    writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+    outname = "../data/SLA-11" * "/" * "tab" * string(k) * ".txt";
+    writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2,3]);
+	XA,YA,ZA,XB,YB,ZB = simulatelatent(0.5,[0.0, 0.0 ,0.0, 0.0],[1.0, 0.0, 0.0,0.0],[1.0 1.0 1.0 1.0],[1.0 1.0 1.0 1.0]);
+	outname = "../data/SLA-12Ref" * "/" * "tab" * string(k) * ".txt";
+	writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+	outname = "../data/SLA-12" * "/" * "tab" * string(k) * ".txt";
+	writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2,3]);
+	XA,YA,ZA,XB,YB,ZB = simulatelatent(0.5,[0.0, 0.0 ,0.0, 0.0],[1.0, 0.0, 0.0,0.0],[1.0 1.0 1.0 1.5],[1.0 1.0 1.0 1.5]);
+	outname = "../data/SLA-13Ref" * "/" * "tab" * string(k) * ".txt";
+	writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+	outname = "../data/SLA-13" * "/" * "tab" * string(k) * ".txt";
+	writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2,3]);
+	XA,YA,ZA,XB,YB,ZB = simulatelatent(0.5,[0.0, 0.0 ,0.0, 0.0],[1.0, 0.0, 0.0,1.0],[1.0 1.0 1.0 0.5],[1.0 1.0 1.0 0.5]);
+	outname = "../data/SLA-21Ref" * "/" * "tab" * string(k) * ".txt";
+	writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+	outname = "../data/SLA-21" * "/" * "tab" * string(k) * ".txt";
+	writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2,3]);
+	XA,YA,ZA,XB,YB,ZB = simulatelatent(0.5,[0.0, 0.0 ,0.0, 0.0],[1.0, 0.0, 0.0,1.0],[1.0 1.0 1.0 1.0],[1.0 1.0 1.0 1.0]);
+	outname = "../data/SLA-22Ref" * "/" * "tab" * string(k) * ".txt";
+	writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+	outname = "../data/SLA-22" * "/" * "tab" * string(k) * ".txt";
+	writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2,3]);
+	XA,YA,ZA,XB,YB,ZB = simulatelatent(0.5,[0.0, 0.0 ,0.0, 0.0],[1.0, 0.0, 0.0,1.0],[1.0 1.0 1.0 1.5],[1.0 1.0 1.0 1.5]);
+	outname = "../data/SLA-23Ref" * "/" * "tab" * string(k) * ".txt";
+	writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+	outname = "../data/SLA-23" * "/" * "tab" * string(k) * ".txt";
+	writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2,3]);
 end
 
 # Simulate default instance
@@ -140,40 +252,6 @@ for k = 1:100
         outname = joinpath(path, "tab" * string(k) * ".txt")
         writedataset(outname,XA,YA,ZA,XB,YB,ZB)
     end
-end
-
-
-# Simulate instances with latent variables
-mkpath( "../data/LA-0")
-mkpath( "../data/LA-1")
-mkpath( "../data/LA-2")
-mkpath( "../data/LA-3")
-for k = 1:100
-    XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0],[1.0, 0.0, 0.0],[1.0 1.0 1.0],[1.0 1.0 1.0], 1000, [0.5], [1.0/3.0, 2.0/3.0],[0.5]);
-    outname = "../data/LA-0" * "/" * "tab" * string(k) * ".txt";
-    writedataset(outname,XA,YA,ZA,XB,YB,ZB);
-    outname = "../data/LA-1" * "/" * "tab" * string(k) * ".txt";
-    writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[2,3]);
-    outname = "../data/LA-2" * "/" * "tab" * string(k) * ".txt";
-    writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,3]);
-    outname = "../data/LA-3" * "/" * "tab" * string(k) * ".txt";
-    writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2]);
-end
-
-mkpath( "../data/LAequal-0")
-mkpath( "../data/LAequal-1")
-mkpath( "../data/LAequal-2")
-mkpath( "../data/LAequal-3")
-for k = 1:100
-    XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0],[0.0, 0.0, 0.0],[1.0 1.0 1.0],[1.0 1.0 1.0], 1000, [0.5], [1.0/3.0, 2.0/3.0],[0.25, 0.5, 0.75]);
-    outname = "../data/LAequal-0" * "/" * "tab" * string(k) * ".txt";
-    writedataset(outname,XA,YA,ZA,XB,YB,ZB);
-    outname = "../data/LAequal-1" * "/" * "tab" * string(k) * ".txt";
-    writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[2,3]);
-    outname = "../data/LAequal-2" * "/" * "tab" * string(k) * ".txt";
-    writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,3]);
-    outname = "../data/LAequal-3" * "/" * "tab" * string(k) * ".txt";
-    writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2]);
 end
 
 # Simulate alpha instances
