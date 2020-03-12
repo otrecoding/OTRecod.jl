@@ -11,13 +11,13 @@ individual or for sets of indviduals that similar values of covariates
 - full_disp: if true, write the transported value of each individual; otherwise, juste write the number of missed transports
 - solver_disp: if false, do not display the outputs of the solver
 """
-function ot_joint(inst            :: Instance, 
-                  maxrelax        :: Float64 = 0.0, 
-                  lambda_reg      :: Float64 = 0.0, 
-                  percent_closest :: Float64 = 0.2, 
-                  norme           :: Metric  = Cityblock(), 
-                  aggregate_tol   :: Float64 = 0.5, 
-                  full_disp       :: Bool    = false, 
+function ot_joint(inst            :: Instance,
+                  maxrelax        :: Float64 = 0.0,
+                  lambda_reg      :: Float64 = 0.0,
+                  percent_closest :: Float64 = 0.2,
+                  norme           :: Metric  = Cityblock(),
+                  aggregate_tol   :: Float64 = 0.5,
+                  full_disp       :: Bool    = false,
                   solver_disp     :: Bool    = false)
 
     @info " AGGREGATE INDIVIDUALS WRT COVARIATES               "
@@ -165,10 +165,10 @@ function ot_joint(inst            :: Instance,
    # println("Regularization cost = ", lambda_reg * value(regterm))
 
 
-   Solution( time()-tstart, 
-             [sum(gammaA_val[x,y,z] for x in 1:nbX) for y in Y, z in Z], 
+   Solution( time()-tstart,
+             [sum(gammaA_val[x,y,z] for x in 1:nbX) for y in Y, z in Z],
              [sum(gammaB_val[x,y,z] for x in 1:nbX) for y in Y, z in Z],
-              estimatorZA, 
+              estimatorZA,
               estimatorYB)
 
 end

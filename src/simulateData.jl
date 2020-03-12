@@ -26,14 +26,7 @@ function simulate(R2     = 0.5,
     t3 = quantile.(Normal(muA[1], sqrt(Sigma[1,1])), q3 );
     UA = rand(MvNormal(muA, PSigma), n);
     UB = rand(MvNormal(muB, PSigma), n);
-    # XA = zeros(3,n)
-    # XB = zeros(3,n)
-    # XA[1,:] = [(UA[1,j] < t1[1] ? 1 : 2) for j in 1:n]
-    # XA[2,:] = [(UA[2,j] < t2[1] ? 1 : (UA[2,j] < t2[2] ? 2 : 3)) for j in 1:n]
-    # XA[3,:] = [(UA[3,j] < t3[1] ? 1 : (UA[3,j] < t3[2] ? 2 : (UA[3,j] < t3[3] ? 3 : 4))) for j in 1:n]
-    # XB[1,:] = [(UB[1,j] < t1[1] ? 1 : 2) for j in 1:n]
-    # XB[2,:] = [(UB[2,j] < t2[1] ? 1 : (UB[2,j] < t2[2] ? 2 : 3)) for j in 1:n]
-    # XB[3,:] = [(UB[3,j] < t3[1] ? 1 : (UB[3,j] < t3[2] ? 2 : (UB[3,j] < t3[3] ? 3 : 4))) for j in 1:n]
+
     XA = ones(3, n);
     XB = ones(3, n);
     for j in 1:n
@@ -99,7 +92,7 @@ function simulatelatent(R2     = 0.5,
                   q1 = [0.5],
                   q2 = [1.0/3.0, 2.0/3.0],
                   q3 = [0.25, 0.5, 0.75],
-				  q4 = [0.5])
+				  q4 = [1.0/3.0, 2.0/3.0])
 
     Sigma = [[1.0,0.2,0.2,0.2] [0.2,1.0,0.2,0.2] [0.2,0.2,1.0,0.2] [0.2,0.2,0.2,1.0]];
     PSigma = PDMat(Sigma);
@@ -107,8 +100,8 @@ function simulatelatent(R2     = 0.5,
     t2 = quantile.(Normal(muA[1], sqrt(Sigma[1,1])), q2 );
     t3 = quantile.(Normal(muA[1], sqrt(Sigma[1,1])), q3 );
 	t4 = quantile.(Normal(muA[1], sqrt(Sigma[1,1])), q4 );
-    UA = rand(MvNormal(muA, PSigma), n);
-    UB = rand(MvNormal(muB, PSigma), n);
+    UA = rand(MvNormal(muA, Sigma), n);
+    UB = rand(MvNormal(muB, Sigma), n);
 
     XA = ones(4, n);
     XB = ones(4, n);
@@ -169,46 +162,46 @@ function writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,observed=[1,2,3])
 end
 
 # Simulate instances with latent variables
-mkpath( "../data/SLA-11Ref")
+mkpath( "../data/SLA-110")
 mkpath( "../data/SLA-11")
-mkpath( "../data/SLA-12Ref")
+mkpath( "../data/SLA-120")
 mkpath( "../data/SLA-12")
-mkpath( "../data/SLA-13Ref")
+mkpath( "../data/SLA-130")
 mkpath( "../data/SLA-13")
-mkpath( "../data/SLA-21Ref")
+mkpath( "../data/SLA-210")
 mkpath( "../data/SLA-21")
-mkpath( "../data/SLA-22Ref")
+mkpath( "../data/SLA-220")
 mkpath( "../data/SLA-22")
-mkpath( "../data/SLA-23Ref")
+mkpath( "../data/SLA-230")
 mkpath( "../data/SLA-23")
 for k = 1:100
     XA,YA,ZA,XB,YB,ZB = simulatelatent(0.5,[0.0, 0.0 ,0.0, 0.0],[1.0, 0.0, 0.0,0.0],[1.0 1.0 1.0 0.5],[1.0 1.0 1.0 0.5]);
-    outname = "../data/SLA-11Ref" * "/" * "tab" * string(k) * ".txt";
+    outname = "../data/SLA-110" * "/" * "tab" * string(k) * ".txt";
     writedataset(outname,XA,YA,ZA,XB,YB,ZB);
     outname = "../data/SLA-11" * "/" * "tab" * string(k) * ".txt";
     writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2,3]);
 	XA,YA,ZA,XB,YB,ZB = simulatelatent(0.5,[0.0, 0.0 ,0.0, 0.0],[1.0, 0.0, 0.0,0.0],[1.0 1.0 1.0 1.0],[1.0 1.0 1.0 1.0]);
-	outname = "../data/SLA-12Ref" * "/" * "tab" * string(k) * ".txt";
+	outname = "../data/SLA-120" * "/" * "tab" * string(k) * ".txt";
 	writedataset(outname,XA,YA,ZA,XB,YB,ZB);
 	outname = "../data/SLA-12" * "/" * "tab" * string(k) * ".txt";
 	writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2,3]);
 	XA,YA,ZA,XB,YB,ZB = simulatelatent(0.5,[0.0, 0.0 ,0.0, 0.0],[1.0, 0.0, 0.0,0.0],[1.0 1.0 1.0 1.5],[1.0 1.0 1.0 1.5]);
-	outname = "../data/SLA-13Ref" * "/" * "tab" * string(k) * ".txt";
+	outname = "../data/SLA-130" * "/" * "tab" * string(k) * ".txt";
 	writedataset(outname,XA,YA,ZA,XB,YB,ZB);
 	outname = "../data/SLA-13" * "/" * "tab" * string(k) * ".txt";
 	writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2,3]);
 	XA,YA,ZA,XB,YB,ZB = simulatelatent(0.5,[0.0, 0.0 ,0.0, 0.0],[1.0, 0.0, 0.0,1.0],[1.0 1.0 1.0 0.5],[1.0 1.0 1.0 0.5]);
-	outname = "../data/SLA-21Ref" * "/" * "tab" * string(k) * ".txt";
+	outname = "../data/SLA-210" * "/" * "tab" * string(k) * ".txt";
 	writedataset(outname,XA,YA,ZA,XB,YB,ZB);
 	outname = "../data/SLA-21" * "/" * "tab" * string(k) * ".txt";
 	writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2,3]);
 	XA,YA,ZA,XB,YB,ZB = simulatelatent(0.5,[0.0, 0.0 ,0.0, 0.0],[1.0, 0.0, 0.0,1.0],[1.0 1.0 1.0 1.0],[1.0 1.0 1.0 1.0]);
-	outname = "../data/SLA-22Ref" * "/" * "tab" * string(k) * ".txt";
+	outname = "../data/SLA-220" * "/" * "tab" * string(k) * ".txt";
 	writedataset(outname,XA,YA,ZA,XB,YB,ZB);
 	outname = "../data/SLA-22" * "/" * "tab" * string(k) * ".txt";
 	writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2,3]);
 	XA,YA,ZA,XB,YB,ZB = simulatelatent(0.5,[0.0, 0.0 ,0.0, 0.0],[1.0, 0.0, 0.0,1.0],[1.0 1.0 1.0 1.5],[1.0 1.0 1.0 1.5]);
-	outname = "../data/SLA-23Ref" * "/" * "tab" * string(k) * ".txt";
+	outname = "../data/SLA-230" * "/" * "tab" * string(k) * ".txt";
 	writedataset(outname,XA,YA,ZA,XB,YB,ZB);
 	outname = "../data/SLA-23" * "/" * "tab" * string(k) * ".txt";
 	writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2,3]);
