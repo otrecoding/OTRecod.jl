@@ -21,6 +21,7 @@ struct Instance
     Yobserv :: Array{Int64,1}
     Zobserv :: Array{Int64,1}
     D       :: Array{Float64,2}
+    Xval    :: Array{Float64,2}
     Y       :: Array{Int64,1}
     Z       :: Array{Int64,1}
     indY    :: Dict{Int64,Array{Int64,1}}
@@ -113,7 +114,7 @@ struct Instance
 
       file_name = basename(data_file)
       new(file_name,nA, nB, Xobserv, Yobserv, Zobserv,
-          D, Y, Z, indY, indZ, indXA, indXB, DA, DB)
+          D, Xval, Y, Z, indY, indZ, indXA, indXB, DA, DB)
     end
 
     """
@@ -186,10 +187,6 @@ struct Instance
       indXA = Dict{Int64,Array{Int64}}()
       indXB = Dict{Int64,Array{Int64}}()
 
-      X1val = sort(unique(Xobserv[:,1]))
-      X2val = sort(unique(Xobserv[:,2]))
-      X3val = sort(unique(Xobserv[:,3]))
-
       Xval  = convert(Matrix,unique(DataFrame(Xobserv)))
 
       # aggregate both bases
@@ -205,7 +202,7 @@ struct Instance
 
       file_name = ""
       new(file_name,nA, nB, Xobserv, Yobserv, Zobserv,
-          D, Y, Z, indY, indZ, indXA, indXB, DA, DB)
+          D, Xval, Y, Z, indY, indZ, indXA, indXB, DA, DB)
   end
 
 end

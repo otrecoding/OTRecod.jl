@@ -175,6 +175,7 @@ function run_directory(path            :: String,
     @info "compute the empirical distributions of outcomes"
     empiricalZA,empiricalYB = empirical_estimator(path, norme)
 
+
     # compute a bound on the average prediction error in each base
     # println("... compute bounds on the average prediction errors\n")
     # errorboundA, errorboundB = compute_average_error_bound(path, norme)
@@ -257,7 +258,7 @@ function run_benchmark(path, method::METHOD, maxrelax::Float64=0.0,
         if (maxrelax == 0.0) && (norme == 0)
             outname = string("../outfiles/",dir,"-", method, "-basic.out");
         else
-            outname = string("../outfiles/",dir,"-",method,"-",maxrelax,"-",lambda_reg, "-N", norme, ".out");
+            outname = string("../outfiles/",dir,"-",method,"-",maxrelax,"-",lambda_reg, ".out");
         end
 
         # scale the relaxation parameter as a function of the size of the instance

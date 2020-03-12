@@ -411,6 +411,48 @@ function compute_distrib_error!(sol  :: Solution,
 
 end
 
+function compute_distrib_error_3covar!(sol  :: Solution,
+                                inst :: Instance,
+                                empiricalZA,
+                                empiricalYB)
+
+    nA  = inst.nA
+    nB  = inst.nB
+    Y   = inst.Y
+    Z   = inst.Z
+    nbX = length(inst.indXA)
+
+    d_empiricalZA= Dict{Array{Int64,1},Array{Float64,2}}()
+    d_empiricalYB= Dict{Array{Int64,1},Array{Float64,2}}()
+    d3_empiricalZA= Dict{Array{Int64,1},Array{Float64,2}}()
+    d3_empiricalYB= Dict{Array{Int64,1},Array{Float64,2}}()
+    d_estimatorZA= Dict{Array{Int64,1},Array{Float64,2}}()
+    d_estimatorYB= Dict{Array{Int64,1},Array{Float64,2}}()
+    d3_estimatorZA= Dict{Array{Int64,1},Array{Float64,2}}()
+    d3_estimatorYB= Dict{Array{Int64,1},Array{Float64,2}}()
+    for i in 1:nbX
+        d_empiricalZA[Int.(inst.Xval[i,:])]= empiricalZA[i,:,:]
+        d_empiricalYB[Int.(inst.Xval[i,:])]= empiricalYB[i,:,:]
+        d_estimatorZA[Int.(inst.Xval[i,:])]= sol.estimatorZA[i,:,:]
+        d_estimatorYB[Int.(inst.Xval[i,:])]= sol.estimatorYB[i,:,:]
+    end
+    for i in 1:nbX
+        x = Int.(inst.Xval[i,1:3])
+        d3_empiricalZA[x] = d_empiricalZA[[x;1]] .+ d_empiricalZA[[x;2]] .+ d_empiricalZA[[x;3]]
+        d3_empiricalYB[x] = d_empiricalYB[[x;1]] .+ d_empiricalYB[[x;2]] .+ d_empiricalYB[[x;3]]
+        d3_estimatorZA[x] = d_estimatorZA[[x;1]] .+ d_estimatorZA[[x;2]] .+ d_estimatorZA[[x;3]]
+        d3_estimatorYB[x] = d_estimatorYB[[x;1]] .+ d_estimatorYB[[x;2]] .+ d_estimatorYB[[x;3]]
+    end
+
+    sol.errordistribZA = sum(length(inst.indXA[x][findall(inst.Yobserv[inst.indXA[x]] .== y)])/nA * sum(max.(sol.estimatorZA[x,y,:] .- empiricalZA[x,y,:],0)) for x in 1:nbX, y in Y)
+
+    sol.errordistribYB = sum(length(inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== z)])/nB * sum(max.(sol.estimatorYB[x,:,z] .- empiricalYB[x,:,z],0)) for x in 1:nbX, z in Z)
+
+    sol.errordistribavg = (   nA * sol.errordistribZA
+                            + nB * sol.errordistribYB ) / (nA+nB)
+
+end
+
 """
     average_distance_to_closest(instance, percent_closest)
 
