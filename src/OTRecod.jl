@@ -211,13 +211,15 @@ function run_directory(path            :: String,
 
         sol = compute_pred_error(inst, sol, false)
         sol = compute_distrib_error(inst, sol, empiricalZA, empiricalYB)
+        @show sol
+        # if (size(inst.Xval)[2] >= 3)
+        #     sol = compute_distrib_error_3covar(sol, inst, empiricalZA, empiricalYB)
+        #     @show sol
+        # end
 
         outfile = open(outname, "a")
         @printf(outfile, "%-12s , %-6s , %-5d , %-5.2f , %-5.2f , %-6.3f , %-6.3f , %-8.3f , %-7.3f , %-7.3f , %-9.3f , %-6.2f\n", data_file, method, norme, maxrelax, lambda_reg, sol.errorpredZA, sol.errorpredYB, sol.errorpredavg, sol.errordistribZA, sol.errordistribYB, sol.errordistribavg, sol.tsolve)
         close(outfile)
-
-        @show sol
-
         nbruns += 1
     end
 end
@@ -249,7 +251,6 @@ function run_benchmark(path, method::METHOD, maxrelax::Float64=0.0,
         datasetpath = joinpath(path,dir)
         println(datasetpath)
         if !isdir(datasetpath) continue end
-        # if !occursin("CAT-4", dir) continue end
         # if (dir != "Sn-250") && (dir != "Sn-2500") continue end
         # if (dir == "Sn-5000") continue end
         # if (dir != "SNL-3-5000") && (restart == false) continue

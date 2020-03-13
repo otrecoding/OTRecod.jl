@@ -7,7 +7,7 @@ individual or for sets of indviduals that similar values of covariates
 - aggregate_tol: quantify how much individuals' covariates must be close for aggregation
 - reg_norm: norm1, norm2 or entropy depending on the type of regularization
 - percent_closest: percent of closest neighbors taken into consideration in regularization
-- lambda_reg: coefficient measuing the importance of the regularization term
+- lambda_reg: coefficient measuring the importance of the regularization term
 - full_disp: if true, write the transported value of each individual; otherwise, juste write the number of missed transports
 - solver_disp: if false, do not display the outputs of the solver
 """
