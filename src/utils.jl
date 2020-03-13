@@ -411,7 +411,7 @@ function compute_distrib_error!(sol  :: Solution,
 
 end
 
-function compute_distrib_error_3covar!(sol  :: Solution,
+function compute_distrib_error_3covar(sol  :: Solution,
                                 inst :: Instance,
                                 empiricalZA,
                                 empiricalYB)
@@ -420,36 +420,53 @@ function compute_distrib_error_3covar!(sol  :: Solution,
     nB  = inst.nB
     Y   = inst.Y
     Z   = inst.Z
+    Xval = inst.Xval
     nbX = length(inst.indXA)
 
-    d_empiricalZA= Dict{Array{Int64,1},Array{Float64,2}}()
-    d_empiricalYB= Dict{Array{Int64,1},Array{Float64,2}}()
-    d3_empiricalZA= Dict{Array{Int64,1},Array{Float64,2}}()
-    d3_empiricalYB= Dict{Array{Int64,1},Array{Float64,2}}()
-    d_estimatorZA= Dict{Array{Int64,1},Array{Float64,2}}()
-    d_estimatorYB= Dict{Array{Int64,1},Array{Float64,2}}()
-    d3_estimatorZA= Dict{Array{Int64,1},Array{Float64,2}}()
-    d3_estimatorYB= Dict{Array{Int64,1},Array{Float64,2}}()
-    for i in 1:nbX
-        d_empiricalZA[Int.(inst.Xval[i,:])]= empiricalZA[i,:,:]
-        d_empiricalYB[Int.(inst.Xval[i,:])]= empiricalYB[i,:,:]
-        d_estimatorZA[Int.(inst.Xval[i,:])]= sol.estimatorZA[i,:,:]
-        d_estimatorYB[Int.(inst.Xval[i,:])]= sol.estimatorYB[i,:,:]
-    end
-    for i in 1:nbX
-        x = Int.(inst.Xval[i,1:3])
-        d3_empiricalZA[x] = d_empiricalZA[[x;1]] .+ d_empiricalZA[[x;2]] .+ d_empiricalZA[[x;3]]
-        d3_empiricalYB[x] = d_empiricalYB[[x;1]] .+ d_empiricalYB[[x;2]] .+ d_empiricalYB[[x;3]]
-        d3_estimatorZA[x] = d_estimatorZA[[x;1]] .+ d_estimatorZA[[x;2]] .+ d_estimatorZA[[x;3]]
-        d3_estimatorYB[x] = d_estimatorYB[[x;1]] .+ d_estimatorYB[[x;2]] .+ d_estimatorYB[[x;3]]
+    Xval3  = convert(Matrix,unique(DataFrame(Xval[:,2:3])))
+    nbX3 = size(Xval3)[1]
+    indX3 = Dict{Int64,Array{Int64,1}}()
+    for i in 1:nbX3
+        indlist = []
+        for j in 1:size(inst.Xval)[1]
+            if inst.Xval[j,2:3] == Xval3[i,:]
+                indlist = [indlist; j]
+            end
+        end
+        indX3[i] = indlist
     end
 
-    sol.errordistribZA = sum(length(inst.indXA[x][findall(inst.Yobserv[inst.indXA[x]] .== y)])/nA * sum(max.(sol.estimatorZA[x,y,:] .- empiricalZA[x,y,:],0)) for x in 1:nbX, y in Y)
+    # d_empiricalZA= Dict{Array{Int64,1},Array{Float64,2}}()
+    # d_empiricalYB= Dict{Array{Int64,1},Array{Float64,2}}()
+    # d3_empiricalZA= Dict{Array{Int64,1},Array{Float64,2}}()
+    # d3_empiricalYB= Dict{Array{Int64,1},Array{Float64,2}}()
+    # d_estimatorZA= Dict{Array{Int64,1},Array{Float64,2}}()
+    # d_estimatorYB= Dict{Array{Int64,1},Array{Float64,2}}()
+    # d3_estimatorZA= Dict{Array{Int64,1},Array{Float64,2}}()
+    # d3_estimatorYB= Dict{Array{Int64,1},Array{Float64,2}}()
+    # for i in 1:nbX
+    #     d_empiricalZA[Int.(inst.Xval[i,:])]= empiricalZA[i,:,:]
+    #     d_empiricalYB[Int.(inst.Xval[i,:])]= empiricalYB[i,:,:]
+    #     d_estimatorZA[Int.(inst.Xval[i,:])]= sol.estimatorZA[i,:,:]
+    #     d_estimatorYB[Int.(inst.Xval[i,:])]= sol.estimatorYB[i,:,:]
+    # end
+    # for i in 1:nbX
+    #     x = Int.(inst.Xval[i,1:3])
+    #     d3_empiricalZA[x] = d_empiricalZA[[x;1]] .+ d_empiricalZA[[x;2]] .+ d_empiricalZA[[x;3]]
+    #     d3_empiricalYB[x] = d_empiricalYB[[x;1]] .+ d_empiricalYB[[x;2]] .+ d_empiricalYB[[x;3]]
+    #     d3_estimatorZA[x] = d_estimatorZA[[x;1]] .+ d_estimatorZA[[x;2]] .+ d_estimatorZA[[x;3]]
+    #     d3_estimatorYB[x] = d_estimatorYB[[x;1]] .+ d_estimatorYB[[x;2]] .+ d_estimatorYB[[x;3]]
+    # end
+    print(indX3)
 
-    sol.errordistribYB = sum(length(inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== z)])/nB * sum(max.(sol.estimatorYB[x,:,z] .- empiricalYB[x,:,z],0)) for x in 1:nbX, z in Z)
+    sol.errordistribZA = sum(max(sum(length(inst.indXA[x][findall(inst.Yobserv[inst.indXA[x]] .== y)])/nA * (sol.estimatorZA[x,y,z] - empiricalZA[x,y,z]) for x in indX3[x3]),0) for x3 in 1:nbX3, y in Y, z in Z)
+
+    sol.errordistribYB = sum(max(sum(length(inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== z)])/nB * (sol.estimatorYB[x,y,z] - empiricalYB[x,y,z]) for x in indX3[x3]),0) for x3 in 1:nbX3, y in Y, z in Z)
 
     sol.errordistribavg = (   nA * sol.errordistribZA
                             + nB * sol.errordistribYB ) / (nA+nB)
+
+    sol
 
 end
 

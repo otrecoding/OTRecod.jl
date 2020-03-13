@@ -39,7 +39,7 @@ struct Instance
       if norme == 2
           distance = Euclidean()
       elseif norme == 0
-          distance = Hamming(); #WeightedHamming([1.0, 1.0/2.0, 1.0/3.0])
+          distance = Hamming(); #WeightedHamming([2.0, 1.0])  #Hamming(); ##
       end
 
       data = readdlm(data_file, ' ')

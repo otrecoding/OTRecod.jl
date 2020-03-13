@@ -44,7 +44,8 @@ function simulate(R2     = 0.5,
         end
     end
 
-    varerror = (1/R2 -1)*sum(Sigma);
+	dimU = 3;
+    varerror = (1/R2 -1)*sum([alphaA[i]*alphaA[j]*Sigma[i,j] for i in 1:dimU, j in 1:dimU]);
     VA = transpose(alphaA * UA) .+ rand(Normal(0.0,sqrt(varerror)),n);
     VB = transpose(alphaB * UB) .+ rand(Normal(0.0,sqrt(varerror)),n);
     tY = quantile.(Normal((alphaA * muA)[1], sqrt(sum(alphaA * Sigma) + varerror)), [1.0/3.0, 2.0/3.0] );
@@ -92,7 +93,7 @@ function simulatelatent(R2     = 0.5,
                   q1 = [0.5],
                   q2 = [1.0/3.0, 2.0/3.0],
                   q3 = [0.25, 0.5, 0.75],
-				  q4 = [1.0/3.0, 2.0/3.0])
+				  q4 = [0.5])
 
     Sigma = [[1.0,0.2,0.2,0.2] [0.2,1.0,0.2,0.2] [0.2,0.2,1.0,0.2] [0.2,0.2,0.2,1.0]];
     PSigma = PDMat(Sigma);
@@ -124,7 +125,8 @@ function simulatelatent(R2     = 0.5,
         end
     end
 
-    varerror = (1/R2 -1)*sum(Sigma);
+	dimU = 3;
+    varerror = (1/R2 -1)*sum([alphaA[i]*alphaA[j]*Sigma[i,j] for i in 1:dimU, j in 1:dimU]);
     VA = transpose(alphaA * UA) .+ rand(Normal(0.0,sqrt(varerror)),n);
     VB = transpose(alphaB * UB) .+ rand(Normal(0.0,sqrt(varerror)),n);
     tY = quantile.(Normal((alphaA * muA)[1], sqrt(sum(alphaA * Sigma) + varerror)), [1.0/3.0, 2.0/3.0] );
@@ -175,12 +177,35 @@ mkpath( "../data/SLA-22")
 mkpath( "../data/SLA-230")
 mkpath( "../data/SLA-23")
 for k = 1:100
+	XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0], [0.0, 0.0, 0.0])
+    outname = joinpath("data/SX-1", "tab" * string(k) * ".txt")
+    writedataset(outname,XA,YA,ZA,XB,YB,ZB)
+    XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0], [0.5, 0.0, 0.0])
+    outname = joinpath("data/SX-2", "tab" * string(k) * ".txt")
+    writedataset(outname,XA,YA,ZA,XB,YB,ZB)
+    XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0],[0.0, 0.0, 0.0]);
+    outname = "../data/SLA-110" * "/" * "tab" * string(k) * ".txt";
+    writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+    outname = "../data/SLA-11" * "/" * "tab" * string(k) * ".txt";
+    writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[2,3]);
+	XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0],[0.5, 0.0, 0.0]);
+	outname = "../data/SLA-120" * "/" * "tab" * string(k) * ".txt";
+	writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+	outname = "../data/SLA-12" * "/" * "tab" * string(k) * ".txt";
+	writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[2,3]);
+	XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0],[1.0, 0.0, 0.0]);
+	outname = "../data/SLA-130" * "/" * "tab" * string(k) * ".txt";
+	writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+	outname = "../data/SLA-13" * "/" * "tab" * string(k) * ".txt";
+	writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[2,3]);
+end
+for k = 1:10
     XA,YA,ZA,XB,YB,ZB = simulatelatent(0.5,[0.0, 0.0 ,0.0, 0.0],[1.0, 0.0, 0.0,0.0],[1.0 1.0 1.0 0.5],[1.0 1.0 1.0 0.5]);
     outname = "../data/SLA-110" * "/" * "tab" * string(k) * ".txt";
     writedataset(outname,XA,YA,ZA,XB,YB,ZB);
     outname = "../data/SLA-11" * "/" * "tab" * string(k) * ".txt";
     writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2,3]);
-	XA,YA,ZA,XB,YB,ZB = simulatelatent(0.5,[0.0, 0.0 ,0.0, 0.0],[1.0, 0.0, 0.0,0.0],[1.0 1.0 1.0 1.0],[1.0 1.0 1.0 1.0]);
+	XA,YA,ZA,XB,YB,ZB = simulatelatent(0.5,[0.0, 0.0 ,0.0, 0.0],[1.0, 0.0, 0.0,0.0],[1.0 0.5 0.5 1.0 ],[1.0 0.5 0.5 1.0],10000);
 	outname = "../data/SLA-120" * "/" * "tab" * string(k) * ".txt";
 	writedataset(outname,XA,YA,ZA,XB,YB,ZB);
 	outname = "../data/SLA-12" * "/" * "tab" * string(k) * ".txt";

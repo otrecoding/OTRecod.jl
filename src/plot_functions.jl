@@ -126,7 +126,7 @@ function plot_scenario(outputpath, scenario, method, ymin=0.0, ymax=0.4)
     else  end
 
     titleplot = string("Results of ", method_tex);
-    plt=StatsPlots.boxplot(datasets,dataplots,size=(400,500),whisker_width=0.25,title=titleplot,notch=true,legend=false,color_palette=:grays, ylims=(ymin,ymax), tickfontsize=14, titlefontsize=18)
+    plt=StatsPlots.boxplot(datasets,dataplots,size=(400,500),whisker_width=0.25,title=titleplot,notch=true,legend=false,color_palette=:grays, ylims=(ymin,ymax), tickfontsize=8, titlefontsize=11)
     if scenario == "Sn"
         plt=StatsPlots.boxplot(datasets,dataplots,whisker_width=0.25,title=titleplot,notch=true,legend=false,color_palette=:grays, ylims=(ymin,ymax)) #xlab="Scenario", ylab="Error in the distribution",
     end

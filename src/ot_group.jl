@@ -4,7 +4,7 @@
 Sequentially assign the modality of the individuals to that of the closest
 neighbor in the other base until the joint probability values are met
 """
-function individual_from_group_closest(inst::Instance, jointprobaA, 
+function individual_from_group_closest(inst::Instance, jointprobaA,
     jointprobaB, percent_closest::Float64=1.0)
 
     # Redefine A and B for the model
@@ -19,13 +19,13 @@ function individual_from_group_closest(inst::Instance, jointprobaA,
     freqY = [nbindY[y] / length(A) for y in Y]
     freqZ = [nbindZ[z] / length(B) for z in Z]
 
-    # In essence, assign to each individual the modality that is closest, 
-    # where the distance from an individual to a modality is computed as 
+    # In essence, assign to each individual the modality that is closest,
+    # where the distance from an individual to a modality is computed as
     # the average distance to the individuals having this modality (in the other base)
 
     YAtrans = zeros(Int64,inst.nB)
     YBtrans = zeros(Int64,inst.nA)
-    Davg, DindivA, DindivB = average_distance_to_closest(inst, 
+    Davg, DindivA, DindivB = average_distance_to_closest(inst,
                                                         percent_closest)
 
     DA = [(z,[DindivA[i, z] for i in A]) for z in Z]
@@ -80,9 +80,9 @@ Solve an optimization problem to get the individual transport that minimizes
 total distance while satisfying the joint probability computed by the model by
 group
 """
-function individual_from_group_optimal(inst::Instance, 
-                                       jointprobaA, 
-                                       jointprobaB, 
+function individual_from_group_optimal(inst::Instance,
+                                       jointprobaA,
+                                       jointprobaB,
                                        percent_closest::Float64=1.0)
 
 
@@ -105,7 +105,7 @@ function individual_from_group_optimal(inst::Instance,
     # - assignB[j][y] : fraction of individual j assigned to modality y
     @variable(indiv, assignB[j in B, y in Y] >= 0, base_name="assignB")
 
-    # compute the average distance between the individuals 
+    # compute the average distance between the individuals
     # and the modalities of the other base
 
     CA = zeros(inst.nA, length(Z))
@@ -156,7 +156,7 @@ end
 export ot_group
 
 """
-    ot_group(inst, percent_closest=0.2, maxrelax=0.0, 
+    ot_group(inst, percent_closest=0.2, maxrelax=0.0,
              indiv_method=sequential, full_disp=false, solver_disp=false)
 
 # Model of group transport
@@ -169,11 +169,11 @@ export ot_group
       otherwise, juste write the number of missed transports
 - `solver_disp`: if false, do not display the outputs of the solver
 """
-function ot_group(inst            :: Instance, 
-                  percent_closest :: Float64=0.2, 
-                  maxrelax        :: Float64=0.0, 
-                  indiv_method    =  :sequential, 
-                  full_disp       :: Bool=false, 
+function ot_group(inst            :: Instance,
+                  percent_closest :: Float64=0.2,
+                  maxrelax        :: Float64=0.0,
+                  indiv_method    =  :sequential,
+                  full_disp       :: Bool=false,
                   solver_disp     :: Bool=false)
 
     tstart = time()
@@ -204,7 +204,7 @@ function ot_group(inst            :: Instance,
     if maxrelax == 0.0
         # Create a model for the optimal transport of individuals
         # group = Model(solver=GurobiSolver(Method=2, LogToConsole=0));
-        group = Model(with_optimizer(Clp.Optimizer))
+        group = Model(with_optimizer(Clp.Optimizer,LogLevel=0))
 
         # Variables
         # - transport[y,z] : joint probability of modalities y and z
@@ -256,10 +256,10 @@ function ot_group(inst            :: Instance,
     # model can be decomposed by database
     else
        # Create a model for the optimal transport of individuals
-       groupA = Model(with_optimizer(Clp.Optimizer))
+       groupA = Model(with_optimizer(Clp.Optimizer,LogLevel=0))
        # groupA = Model(solver=GurobiSolver(Method=2,LogToConsole=0))
        # Create a model for the optimal transport of individuals
-       groupB = Model(with_optimizer(Clp.Optimizer))
+       groupB = Model(with_optimizer(Clp.Optimizer,LogLevel=0))
        # groupB = Model(solver=GurobiSolver(Method=2,LogToConsole=0))
        # - transportA[y,z] : joint probability of modalities y and z if in base A
        @variable(groupA, transportA[y in Y, z in Z] >= 0, base_name="transportA")
@@ -322,10 +322,10 @@ function ot_group(inst            :: Instance,
 
     # Get the individual transport from the group transport
     if indiv_method == :sequential
-        YApred, YBpred = individual_from_group_closest(inst, transportA_val, 
+        YApred, YBpred = individual_from_group_closest(inst, transportA_val,
                            transportB_val, percent_closest)
     elseif indiv_method == :optimal
-        YApred, YBpred = individual_from_group_optimal(inst, transportA_val, 
+        YApred, YBpred = individual_from_group_optimal(inst, transportA_val,
                            transportB_val, percent_closest)
     end
 
@@ -356,7 +356,7 @@ function ot_group(inst            :: Instance,
     end
 
     Solution( time() - tstart,
-              transportA_val, 
+              transportA_val,
               transportB_val,
               estimatorZA,
               estimatorYB )
