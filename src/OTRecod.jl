@@ -1,4 +1,4 @@
-# module OTRecod
+module OTRecod
 
 using Statistics
 using JuMP, Cbc, Clp
@@ -13,9 +13,9 @@ include("ot_joint.jl")
 include("plot_functions.jl")
 
 
-# export run_directory
-# export run_benchmark
-# export ot_group, ot_joint
+export run_directory
+export run_benchmark
+export ot_group, ot_joint
 
 """
     compute_average_error_bound(path; norme=1)
@@ -301,4 +301,4 @@ function run_benchmark(path,
     end
 end
 
-# end # module
+end # module
