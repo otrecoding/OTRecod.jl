@@ -57,29 +57,31 @@ function compute_average_error_bound(path, norme::Int64=1)
 end
 
 """
-    empirical_estimator(path; norme=1)
+    empirical_estimator(path; observed = [])
 
 Get an empirical estimator of the distribution of Z conditional to Y and X
 on base A and reciprocally on base B obtain with a specific type of data sets
 
-- path: path of the directory containing the data set
+- `path`: path of the directory containing the data set
+- `observed`: if nonempty, list of indices of the observed covariates; this allows to exclude some latent variables.
 
 """
-function empirical_estimator(path, norme::Int64=1)
+function empirical_estimator(path,
+                             observed   :: Array{Int64,1} = Array{Int64,1}())
 
     txt_files = filter(x -> endswith(x, ".txt"), readdir(path))
     # Initialize the necessary structures by treating the first file
     # get one instance file in the direcory
     file = joinpath(path, first(txt_files))
 
-    inst = Instance(file, norme)
+    inst = Instance(file, 0, observed)
     nA = inst.nA
     nB = inst.nB
     Y = inst.Y
     Z = inst.Z
     indXA = inst.indXA
     indXB = inst.indXB
-    nbX = length(indXA)
+    nbX = length(indXA[])
 
     # Compute the cumulative cardinality of the joint occurences of
     # (X=x,Y=y,Z=z) in the two databases
@@ -89,10 +91,10 @@ function empirical_estimator(path, norme::Int64=1)
     for data_file in txt_files
 
         # read the data file and prepare arrays
-        inst = Instance(joinpath(path,data_file), norme)
+        inst = Instance(joinpath(path,data_file), 0, observed)
 
         # update the cumulative count
-        countA, countB  = empirical_distribution(inst, norme)
+        countA, countB  = empirical_distribution(inst, 0)
         cardA_c_mA_mB .+= countA
         cardB_c_mA_mB .+= countB
         nbIndiv += inst.nA
@@ -124,22 +126,26 @@ function empirical_estimator(path, norme::Int64=1)
 end
 
 """
-    run_directory(path, method; outname="result.out",
-                                maxrelax=0.0,
-                                lambda_reg=0.0,
-                                nbfiles=0,
-                                norme=0,
-                                percent_closest=0.2)
+    run_directory(path, method; outname = "result.out",
+                                maxrelax = 0.0,
+                                lambda_reg = 0.0,
+                                nbfiles = 0,
+                                norme = 0,
+                                percent_closest = 0.2,
+                                observed = [])
 
  Run one given method on a given number of data files of a given directory
  The data files must be the only files with extension ".txt" in the directory
 
  - `path`   : name of the directory
- - `method` : `:group` or `:joint`
+ - `method` : `group` or `joint`
+ - `maxrelax`: maximum percentage of deviation from expected probability masses
+ - `lambda_reg`: coefficient measuring the importance of the regularization term
  - `nbfiles`: number of files considered, 0 if all the data files are tested
- - `norme`  : 1 or 2, norm used for distances in the space of covariates
+ - `norme`  : 0, 1 or 2, norm used for distances in the space of covariates
+ - `percent_closest`: percent of closest neighbors taken in the computation of the costs (both distance and regularization related)
+ - `observed`: if nonempty, list of indices of the observed covariates; this allows to exclude some latent variables.
 
- (see run_all_methods for the description of other parameters)
 """
 
 function run_directory(path            :: String,
@@ -149,7 +155,8 @@ function run_directory(path            :: String,
                        lambda_reg      :: Float64 = 0.0,
                        nbfiles         :: Int64   = 0,
                        norme           :: Int64   = 0,
-                       percent_closest :: Float64 = 0.2)
+                       percent_closest :: Float64 = 0.2,
+                       observed        :: Array{Int64,1} = Array{Int64,1}())
 
     @info " RUN ONE METHOD ON THE FILES OF ONE DIRECTORY "
     @info " Method      : $method   "
@@ -162,18 +169,19 @@ function run_directory(path            :: String,
         println("\tTest all the files of the directory")
     end
 
+    println("\tRelaxation parameter: ", maxrelax)
     if (method == joint)
-        println("\tRegularization parameter: ", lambda_reg)
+       println("\tRegularization parameter: ", lambda_reg)
     end
 
     # initialize the output file
     outfile = open(outname, "w")
-    @printf(outfile, "%-12s , %-6s , %-5s , %-5s , %-5s , %-6s , %-6s , %-8s , %-7s , %-7s , %-9s , %-6s\n","filename", "method", "norme", "relax", "regul", "ePredA", "ePredB", "ePredavg", "eDistrA", "eDistrB","eDistravg","cpu")
+    @printf(outfile, "%-12s , %-6s , %-5s , %-5s , %-5s , %-6s , %-6s , %-8s , %-7s , %-7s , %-9s , %-6s\n","filename", "method", "norme", "relax", "regul", "ePredA", "ePredB", "ePredavg", "eDistrA", "eDistrB", "eDistravg", "cpu")
     close(outfile)
 
     # compute the true empirical conditional distributions for comparison with results
     @info "compute the empirical distributions of outcomes"
-    empiricalZA,empiricalYB = empirical_estimator(path, norme)
+    empiricalZA,empiricalYB = empirical_estimator(path, observed)
 
 
     # compute a bound on the average prediction error in each base
@@ -183,7 +191,6 @@ function run_directory(path            :: String,
     # solve the instances corresponding to each file
     files  = readdir(path)
     nbruns = 0
-    println("Maxrelax= ", maxrelax)
     for data_file in files
         # stop if the requested number of runs has been performed
         if ((nbfiles > 0) & (nbruns >= nbfiles)) break end
@@ -191,7 +198,7 @@ function run_directory(path            :: String,
         if !(data_file[end-3:end]==".txt") continue end
 
         # Reading the data file and preparing arrays
-        inst  = Instance(string(path,"/",data_file), norme)
+        inst  = Instance(string(path,"/",data_file), norme, observed)
         nA    = inst.nA
         nB    = inst.nB
         Y     = inst.Y
@@ -227,20 +234,36 @@ end
 
 
 """
-    run_benchmark(path, method, maxrelax=0.0, lambda_reg=0.0, norme=0,
-                  percent_closest=0.2)
+    run_benchmark(path, method;
+                        maxrelax = 0.0,
+                        lambda_reg = 0.0,
+                        norme = 0,
+                        percent_closest = 0.2,
+                        observed = [])
 
  Run one method on the complete benchmark
- path: path of the directory including the benchmark
+ - `path`   : name of the benchmark directory
+ - `method` : `group` or `:joint`
+ - `maxrelax`: maximum percentage of deviation from expected probability masses
+ - `lambda_reg`: coefficient measuring the importance of the regularization term
+ - `norme`  : 0, 1 or 2, norm used for distances in the space of covariates
+ - `percent_closest`: percent of closest neighbors taken in the computation of the costs (both distance and regularization related)
+ - `observed`: if nonempty, list of indices of the observed covariates; this allows to exclude some latent variables.
+
 """
 
-function run_benchmark(path, method::METHOD, maxrelax::Float64=0.0,
-                       lambda_reg::Float64=0.0, norme::Int64=0,
-                       percent_closest::Float64=0.2)
+function run_benchmark(path,
+                       method           :: METHOD,
+                       maxrelax         :: Float64 = 0.0,
+                       lambda_reg       :: Float64 = 0.0,
+                       norme            :: Int64 = 0,
+                       percent_closest  :: Float64 = 0.2,
+                       observed         :: Array{Int64,1} = Array{Int64,1}())
 
     println("RUN ONE METHOD ON THE COMPLETE BENCHMARK ")
     println("\tMethod: ", method)
-    if (method == :joint)
+    println("\tRelaxation parameter: ", maxrelax)
+    if (method == joint)
        println("\tRegularization parameter: ", lambda_reg)
     end
 
@@ -256,6 +279,10 @@ function run_benchmark(path, method::METHOD, maxrelax::Float64=0.0,
         # if (dir != "SNL-3-5000") && (restart == false) continue
         # else restart = true end
 
+        if !isempty(observed)
+            splitstr = split(dir, "-");
+            dir = "SLA-" * splitstr[2];
+        end
         if (maxrelax == 0.0) && (norme == 0)
             outname = string("../outfiles/",dir,"-", method, "-basic.out");
         else
@@ -270,7 +297,7 @@ function run_benchmark(path, method::METHOD, maxrelax::Float64=0.0,
 
 
         run_directory(datasetpath, method, outname, maxrelax_scaled,
-                      lambda_reg, 0, norme, percent_closest)
+                      lambda_reg, 0, norme, percent_closest, observed)
     end
 end
 

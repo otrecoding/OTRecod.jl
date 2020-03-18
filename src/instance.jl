@@ -31,7 +31,9 @@ struct Instance
     DA      :: Array{Float64,2}
     DB      :: Array{Float64,2}
 
-    function Instance(data_file :: String, norme::Int64)
+    function Instance(data_file :: String,
+                      norme     :: Int64,
+                      observed  :: Array{Int64,1} = Array{Int64,1}())
 
 
       distance = Cityblock(); # WeightedCityblock([1.0, 2.0, 3.0])
@@ -45,7 +47,12 @@ struct Instance
       data = readdlm(data_file, ' ')
 
       # number of covariables
-      nbcvar = size(data,2) - 3
+      nbcvar = size(data,2) - 3;
+      if isempty(observed)
+          observed = Array(4:(4+nbcvar-1));
+      else
+          observed = observed .+ 3;
+      end
 
       # recover the sets of individuals in base 1 and 2
       base = data[2:end, 1]
@@ -55,7 +62,7 @@ struct Instance
       nB = length(indB)
 
       # recover the input data
-      Xobserv = Array{Float64,2}(data[2:end, 4:end])
+      Xobserv = Array{Float64,2}(data[2:end, observed])
       Yobserv = Array{Float64,1}(data[2:end, 2])
       Zobserv = Array{Float64,1}(data[2:end, 3])
 
