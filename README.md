@@ -12,6 +12,7 @@
 
 ## Installation
 
+The package runs on julia 1.1.0 and above.
 In a Julia session switch to `pkg>` mode to add `NPSMC`:
 
 ```julia
@@ -55,10 +56,24 @@ search: run_directory
                               norme=0,
                               percent_closest=0.2)
 
-  Run one given method on a given number of data files of a given directory The data files must be the only files with
-  extension ".txt" in the directory path: name of the directory nbfiles: number of files considered, 0 if all the data files
-  are tested norme : 1 or 2, norm used for distances in the space of covariates (see runallmethods for the description of other
-  parameters)
+  Run one given method on a given number of data files of a given directory. The data files must be the only files with
+  extension ".txt" in the directory.
+
+ - `path`   : name of the directory
+
+ - `method` : `group` or `joint`
+
+ - `maxrelax`: maximum percentage of deviation from expected probability masses
+
+ - `lambda_reg`: coefficient measuring the importance of the regularization term
+
+ - `nbfiles`: number of files considered, 0 if all the data files are tested
+
+ - `norme`  : 0, 1 or 2, norm used for distances in the space of covariates
+
+ - `percent_closest`: percent of closest neighbors taken in the computation of the costs (both distance and regularization related)
+ 
+ - `observed`: if nonempty, list of indices of the observed covariates; this allows to exclude some latent variables.
 ```
 
 Copyright © 2019 Jeremy Omer <jeremy.omer@insa-rennes.fr>.
