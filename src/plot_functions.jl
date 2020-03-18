@@ -86,7 +86,6 @@ Boxplot comparing several scenarios solved with one given method
 - `ymax`: maximum ordinate value
 
 """
-funct
 function plot_scenario(outputpath, scenario, method, ymin=0.0, ymax=0.4)
     outfilelist = readdir(outputpath);
     dataplots = [];
