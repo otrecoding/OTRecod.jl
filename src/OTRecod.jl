@@ -78,7 +78,7 @@ function empirical_estimator(path,
     Z = inst.Z
     indXA = inst.indXA
     indXB = inst.indXB
-    nbX = length(indXA[])
+    nbX = length(indXA)
 
     # Compute the cumulative cardinality of the joint occurences of
     # (X=x,Y=y,Z=z) in the two databases
