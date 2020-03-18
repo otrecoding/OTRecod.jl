@@ -298,4 +298,179 @@ function run_benchmark(path,
     end
 end
 
+
+
+"""
+    test_params_group(bench_path, nbfiles::Int64=1, norme::Int64=0)
+
+Run the relaxed group transport with a range of relaxation parameters
+- `bench_path`: name of the benchmark directory
+- `nbfiles`: number of files considered per directory of the bench, 0 for all
+-  `norme` : 0, 1 or 2, norm used for distances in the space of covariates
+"""
+function test_params_group(bench_path, nbfiles::Int64=1, norme::Int64=1)
+
+    println("\n#################################################################")
+    println("TEST THE RELAXATION PARAMETER ON THE WHOLE BENCHMARK ")
+    println("\n#################################################################\n")
+
+    res_file_name = "params_group.out"
+    println("Results written in ", res_file_name)
+    println("Open maxrelax_group_template.out for the descriptions of the entries")
+    resfile = open(res_file_name, "w");
+    @printf(resfile, "%-12s , %-4s , %-5s , %-6s , %-6s\n","dataname", "norm", "relax", "error", "cpu");
+    close(resfile);
+
+
+    dir_names = readdir(bench_path)
+    nbruns = 0
+    for dir in dir_names
+        if (!isdir(string(bench_path,"/",dir))) continue end
+
+        # Test only on the instances with 1000 individuals per base
+        if (dir == "Sn-5000") continue end
+        if (dir == "Sn-500") continue end
+        if (dir == "Sn-50") continue end
+        if (dir == "Sn-100") continue end
+        if (dir == "S_NO") continue end
+
+        println("\nDIRECTORY: ", dir);
+        empiricalZA,empiricalYB = empirical_estimator(string(bench_path,"/",dir), norme);
+        file_names = readdir(string(bench_path,"/",dir));
+        for maxrelax_group in 0.0:0.1:1.0
+            println("\n#################################################################")
+            println("MAXRELAX =  ", maxrelax_group)
+            println("\n#################################################################\n")
+
+            nbruns = 0 ;
+            error_avg = 0.;
+            tsolve = 0.;
+            for data_file in file_names
+                # stop if the requested number of runs has been performed
+                if ((nbfiles > 0) & (nbruns >= nbfiles)) break end
+                # continue if not a data file
+                if !(data_file[end-3:end]==".txt") continue end
+
+                # Reading the data file and preparing arrays
+                inst = Instance(string(bench_path,"/",dir,"/",data_file), norme)
+
+                # Run the group transport
+                sol = OT_group(inst,0.2,maxrelax_group,norme,optimal);
+                sol = compute_pred_error(inst, sol, false);
+                sol = compute_distrib_error(inst, sol, empiricalZA, empiricalYB);
+                error_avg += sol.errordistribavg/nbfiles;
+                tsolve += sol.tsolve;
+                nbruns += 1;
+            end
+
+            resfile = open(res_file_name, "a");
+            @printf(resfile, "%-12s , %-4d , %-5.2f , %-6.3f , %-6.2f\n", dir, norme, maxrelax_group, error_avg, tsolve/nbruns);
+            close(resfile);
+        end
+    end
+end
+
+
+"""
+    test_params_joint(bench_path, nbfiles::Int64=1, norme::Int64=0)
+
+Run the transport of covariates and outcomes with a range of parameters for relaxation and regularization
+- `bench_path`: name of the benchmark directory
+- `nbfiles`: number of files considered per directory of the bench, 0 for all
+-  `norme` : 0, 1 or 2, norm used for distances in the space of covariates
+"""
+function test_params_joint(bench_path, nbfiles::Int64=1, norme::Int64=0)
+
+    println("\n#################################################################")
+    println("TEST THE PARAMETERS OF THE JOINT TRANSPORT ON THE WHOLE BENCHMARK ")
+    println("\n#################################################################\n")
+
+    res_file_name = "params_test_joint.out"
+    println("Results written in ", res_file_name)
+    # resfile = open(res_file_name, "w");
+    # @printf(resfile, "%-12s , %-4s , %-5s , %-5s , %-6s , %-6s\n","dataname", "norm", "relax", "regul", "error", "cpu");
+    # close(resfile);
+
+
+    dir_names = readdir(bench_path)
+    nbruns = 0
+    restart = true
+    for dir in dir_names
+
+        if (!isdir(string(bench_path,"/",dir))) continue end
+        println(dir)
+        # Test only on the instances with 1000 individuals per base
+        if (dir == "Sn-5000") continue end
+        if (dir == "Sn-500") continue end
+        if (dir == "Sn-50") continue end
+        if (dir == "Sn-100") continue end
+        if (dir == "S_NO") continue end
+        if (dir == "Spi-4") continue end
+        if (dir != "Spi-4") && (restart == false) continue
+        else restart = true end
+
+        println("\nDIRECTORY: ", dir);
+        empiricalZA,empiricalYB = empirical_estimator(string(bench_path,"/",dir), norme);
+        file_names = readdir(string(bench_path,"/",dir));
+        reg_range = [0.0 0.01 0.05 0.1 0.5 1.0 5.0 10.0];
+        for maxrelax in 0.0:0.2:1.0
+            for lambda_reg in reg_range
+                println("\n#################################################################")
+                println("MAXRELAX =  ", maxrelax)
+                println("LAMBDA_REG = ", lambda_reg)
+                println("\n#################################################################\n")
+
+                nbruns = 0
+                error_avg = 0.;
+                tsolve = 0.;
+                for data_file in file_names
+                    # stop if the requested number of runs has been performed
+                    if ((nbfiles > 0) & (nbruns >= nbfiles)) break end
+                    # continue if not a data file
+                    if !(data_file[end-3:end]==".txt") continue end
+
+                    # Reading the data file and preparing arrays
+                    inst = Instance(string(bench_path,"/",dir,"/",data_file), norme)
+
+                    # Run the group transport
+                    sol = OT_joint(inst, maxrelax, lambda_reg, 0.2);
+                    sol = compute_pred_error(inst, sol, false);
+                    sol = compute_distrib_error(inst, sol, empiricalZA, empiricalYB);
+                    error_avg += sol.errordistribavg/nbfiles;
+                    tsolve += sol.tsolve;
+                    nbruns += 1;
+                end
+
+                resfile = open(res_file_name, "a");
+                @printf(resfile, "%-12s , %-4d , %-5.2f , %-5.2f , %-6.3f , %-6.2f\n", dir, norme, maxrelax, lambda_reg, error_avg, tsolve/nbruns);
+                close(resfile);
+            end
+        end
+    end
+end
+
+
+"""
+    test_ncds(file_name)
+
+Run every method on an input file generated from the real NCDS dataset
+"""
+function test_ncds(file_name)
+    inst= Instance(file_name,0)
+    solgroup=OT_group(inst)
+    solgrouprelax=OT_group(inst,0.2, 0.199)
+    soljoint=OT_joint(inst, 0.0, 0.0, 0.2)
+    soljointrelax=OT_joint(inst, 0.199, 0.1, 0.2)
+    effjoint = round.(Int,inst.nB*soljoint.jointYZB+inst.nA*soljoint.jointYZA);
+    effjointrelax = round.(Int,inst.nB*soljointrelax.jointYZB+inst.nA*soljointrelax.jointYZA);
+    effgroup = round.(Int,inst.nB*solgroup.jointYZB+inst.nA*solgroup.jointYZA);
+    effgrouprelax = round.(Int,inst.nB*solgrouprelax.jointYZB+inst.nA*solgrouprelax.jointYZA);
+    tab = [sum((inst.Yobserv.== y) .& (inst.Zobserv.==z)) for y in inst.Y, z in inst.Z];
+    println("Error with group = ", 1/2.0*sum(abs.(tab.-effgroup))/sum(tab));
+    println("Error with relaxed group = ",1/2.0*sum(abs.(tab.-effgrouprelax))/sum(tab));
+    println("Error with  joint = ",1/2.0*sum(abs.(tab.-effjoint))/sum(tab));
+    println("Error with relaxed joint = ",1/2.0*sum(abs.(tab.-effjointrelax))/sum(tab));
+    return tab,effgroup,effgrouprelax,effjoint,effjointrelax
+end
+
 end # module
