@@ -4,9 +4,6 @@ using Statistics
 using JuMP, Cbc, Clp
 using Printf
 
-@enum METHOD group joint
-
-
 include("utils.jl")
 include("ot_group.jl")
 include("ot_joint.jl")
@@ -138,7 +135,7 @@ end
  The data files must be the only files with extension ".txt" in the directory
 
  - `path`   : name of the directory
- - `method` : `group` or `joint`
+ - `method` : `:group` or `:joint`
  - `maxrelax`: maximum percentage of deviation from expected probability masses
  - `lambda_reg`: coefficient measuring the importance of the regularization term
  - `nbfiles`: number of files considered, 0 if all the data files are tested
@@ -149,7 +146,7 @@ end
 """
 
 function run_directory(path            :: String,
-                       method          :: METHOD,
+                       method          :: Symbol,
                        outname         :: String  = "result.out",
                        maxrelax        :: Float64 = 0.0,
                        lambda_reg      :: Float64 = 0.0,
@@ -170,7 +167,7 @@ function run_directory(path            :: String,
     end
 
     println("\tRelaxation parameter: ", maxrelax)
-    if (method == joint)
+    if (method == :joint)
        println("\tRegularization parameter: ", lambda_reg)
     end
 
@@ -208,11 +205,11 @@ function run_directory(path            :: String,
         nbX   = length(indXA)
 
         @info " File : $(joinpath(path,data_file)) "
-        if method == group
+        if method == :group
             indiv_method = maxrelax > 0.0 ? :optimal : :sequential
             sol = ot_group(inst,percent_closest,maxrelax,indiv_method)
             #PN lambda_reg = 0.0
-        elseif method == joint
+        elseif method == :joint
             sol = ot_joint(inst, maxrelax, lambda_reg, percent_closest)
         end
 
@@ -243,7 +240,7 @@ end
 
  Run one method on the complete benchmark
  - `path`   : name of the benchmark directory
- - `method` : `group` or `:joint`
+ - `method` : `:group` or `:joint`
  - `maxrelax`: maximum percentage of deviation from expected probability masses
  - `lambda_reg`: coefficient measuring the importance of the regularization term
  - `norme`  : 0, 1 or 2, norm used for distances in the space of covariates
@@ -253,7 +250,7 @@ end
 """
 
 function run_benchmark(path,
-                       method           :: METHOD,
+                       method           :: Symbol,
                        maxrelax         :: Float64 = 0.0,
                        lambda_reg       :: Float64 = 0.0,
                        norme            :: Int64 = 0,
@@ -263,7 +260,7 @@ function run_benchmark(path,
     println("RUN ONE METHOD ON THE COMPLETE BENCHMARK ")
     println("\tMethod: ", method)
     println("\tRelaxation parameter: ", maxrelax)
-    if (method == joint)
+    if (method == :joint)
        println("\tRegularization parameter: ", lambda_reg)
     end
 

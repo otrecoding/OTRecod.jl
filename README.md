@@ -60,23 +60,16 @@ search: run_directory
   extension ".txt" in the directory.
 
  - `path`   : name of the directory
-
- - `method` : `group` or `joint`
-
+ - `method` : `:group` or `:joint`
  - `maxrelax`: maximum percentage of deviation from expected probability masses
-
  - `lambda_reg`: coefficient measuring the importance of the regularization term
-
  - `nbfiles`: number of files considered, 0 if all the data files are tested
-
  - `norme`  : 0, 1 or 2, norm used for distances in the space of covariates
-
  - `percent_closest`: percent of closest neighbors taken in the computation of the costs (both distance and regularization related)
- 
  - `observed`: if nonempty, list of indices of the observed covariates; this allows to exclude some latent variables.
 ```
 
-Copyright © 2019 Jeremy Omer <jeremy.omer@insa-rennes.fr>.
+Copyright © 2020 Jeremy Omer <jeremy.omer@insa-rennes.fr>.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3 as published by
