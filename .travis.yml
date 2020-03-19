@@ -9,6 +9,9 @@ julia: 1.3
 notifications:
   email: true
 
+script:
+  - julia --project --compiled-modules=no -e 'import Pkg; Pkg.build(); Pkg.test("OTRecod"; coverage=true)'
+
 after_success:
   - julia -e 'using Pkg; cd(Pkg.dir("OTRecod")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())';
 
