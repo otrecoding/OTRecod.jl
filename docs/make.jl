@@ -1,3 +1,5 @@
+push!(LOAD_PATH, "../src/")
+
 using Documenter
 using OTRecod
 
@@ -7,6 +9,7 @@ makedocs(
     format   = Documenter.HTML(),
     modules  = [OTRecod],
     pages    = [ "Documentation" => "index.md",
+                 "OTRecod"       => "OTRecod.md",
                  "Group"         => "ot_group.md",
                  "Joint"         => "ot_joint.md",
                  "Logging"       => "PrintLog.md",
