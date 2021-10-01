@@ -21,30 +21,38 @@ struct Instance
     Yobserv :: Array{Int64,1}
     Zobserv :: Array{Int64,1}
     D       :: Array{Float64,2}
+    Xval    :: Array{Float64,2}
     Y       :: Array{Int64,1}
     Z       :: Array{Int64,1}
     indY    :: Dict{Int64,Array{Int64,1}}
     indZ    :: Dict{Int64,Array{Int64,1}}
-    indXA   :: Dict{Int64,Array{Int64}} 
-    indXB   :: Dict{Int64,Array{Int64}} 
+    indXA   :: Dict{Int64,Array{Int64}}
+    indXB   :: Dict{Int64,Array{Int64}}
     DA      :: Array{Float64,2}
     DB      :: Array{Float64,2}
 
-    function Instance(data_file :: String, norme::Int64)
+    function Instance(data_file :: String,
+                      norme     :: Int64,
+                      observed  :: Array{Int64,1} = Array{Int64,1}())
 
 
-      distance = Cityblock()
+      distance = Cityblock(); # WeightedCityblock([1.0, 2.0, 3.0])
 
       if norme == 2
           distance = Euclidean()
-      elseif norme == 3
-          distance = Hamming()
+      elseif norme == 0
+          distance = Hamming(); #WeightedHamming([2.0, 1.0])  #Hamming(); ##
       end
 
       data = readdlm(data_file, ' ')
 
       # number of covariables
-      nbcvar = size(data,2) - 3
+      nbcvar = size(data,2) - 3;
+      if isempty(observed)
+          observed = Array(4:(4+nbcvar-1));
+      else
+          observed = observed .+ 3;
+      end
 
       # recover the sets of individuals in base 1 and 2
       base = data[2:end, 1]
@@ -54,7 +62,7 @@ struct Instance
       nB = length(indB)
 
       # recover the input data
-      Xobserv = Array{Float64,2}(data[2:end, 4:end])
+      Xobserv = Array{Float64,2}(data[2:end, observed])
       Yobserv = Array{Float64,1}(data[2:end, 2])
       Zobserv = Array{Float64,1}(data[2:end, 3])
 
@@ -97,11 +105,6 @@ struct Instance
       nbX = 0
       indXA = Dict{Int64,Array{Int64}}()
       indXB = Dict{Int64,Array{Int64}}()
-
-      X1val = sort(unique(Xobserv[:, 1]))
-      X2val = sort(unique(Xobserv[:, 2]))
-      X3val = sort(unique(Xobserv[:, 3]))
-
       Xval = convert(Matrix,unique(DataFrame(Xobserv)))
 
       # aggregate both bases
@@ -109,7 +112,7 @@ struct Instance
       for i in  1:size(Xval,1)
           nbX = nbX + 1
           fill!(x,0)
-          x[:,1] .= Xval[i,:] 
+          x[:,1] .= Xval[i,:]
           distA = pairwise(distance, x, transpose(Xobserv[A,:]), dims=2)
           distB = pairwise(distance, x, transpose(Xobserv[B .+ nA,:]), dims=2)
           indXA[nbX] = findall(distA[1,:] .< 0.1)
@@ -117,8 +120,8 @@ struct Instance
       end
 
       file_name = basename(data_file)
-      new(file_name,nA, nB, Xobserv, Yobserv, Zobserv, 
-          D, Y, Z, indY, indZ, indXA, indXB, DA, DB)
+      new(file_name,nA, nB, Xobserv, Yobserv, Zobserv,
+          D, Xval, Y, Z, indY, indZ, indXA, indXB, DA, DB)
     end
 
     """
@@ -126,9 +129,9 @@ struct Instance
     - df : dataframe with column names : ident,Y1,Y2,X1,X2,X3
     - distance : Cityblock(), Euclidean() or Hamming()
     """
-    function Instance(df          :: DataFrame, 
-                      covariables :: Vector{Symbol}, 
-                      outcomes    :: Vector{Symbol}, 
+    function Instance(df          :: DataFrame,
+                      covariables :: Vector{Symbol},
+                      outcomes    :: Vector{Symbol},
                       distance    :: Distances.Metric )
 
       # number of covariables
@@ -191,10 +194,6 @@ struct Instance
       indXA = Dict{Int64,Array{Int64}}()
       indXB = Dict{Int64,Array{Int64}}()
 
-      X1val = sort(unique(Xobserv[:,1]))
-      X2val = sort(unique(Xobserv[:,2]))
-      X3val = sort(unique(Xobserv[:,3]))
-
       Xval  = convert(Matrix,unique(DataFrame(Xobserv)))
 
       # aggregate both bases
@@ -209,8 +208,8 @@ struct Instance
       end
 
       file_name = ""
-      new(file_name,nA, nB, Xobserv, Yobserv, Zobserv, 
-          D, Y, Z, indY, indZ, indXA, indXB, DA, DB)
+      new(file_name,nA, nB, Xobserv, Yobserv, Zobserv,
+          D, Xval, Y, Z, indY, indZ, indXA, indXB, DA, DB)
   end
 
 end
