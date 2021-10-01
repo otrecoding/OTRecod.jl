@@ -24,7 +24,7 @@ Alternatively, you can achieve the above using the `Pkg` API:
 
 ```julia
 julia> using Pkg
-julia> pkg"https://github.com/otrecoding/OTRecod.jl"
+julia> pkg"add https://github.com/otrecoding/OTRecod.jl"
 ```
 
 When finished, make sure that you're back to the Julian prompt (`julia>`)
