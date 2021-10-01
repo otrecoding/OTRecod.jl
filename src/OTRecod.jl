@@ -14,7 +14,8 @@ include("utils.jl")
 include("ot_group.jl")
 include("ot_joint.jl")
 include("plot_functions.jl")
-
+include("simulate.jl")
+include("write_datasets.jl")
 
 """
     compute_average_error_bound(path; norme=1)
