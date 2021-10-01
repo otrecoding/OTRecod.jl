@@ -4,3 +4,8 @@ Manifest.toml
 test/result.out
 result.out
 *.out
+data/*
+OutfilesFirstSubmission/
+Data*/
+outfiles/ 
+outsla/

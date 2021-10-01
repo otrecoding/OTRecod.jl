@@ -1,9 +1,19 @@
+using StatsPlots
+pgfplots()
+# gr()
+
 export plot_benchmark, plot_scenario
 
 """
     plot_benchmark(datapath,outputpath,ymin=0.0, ymax=0.8)
 
 Boxplot of each simulation with all methods
+
+- `datapath`: path of the folder where the data files are stored
+- `outputpath`: path of the folder where the result outputs are stored
+- `ymin`: minimum ordinate value
+- `ymax`: maximum ordinate value
+
 """
 function plot_benchmark(datapath, outputpath, ymin=0.0, ymax=0.8)
 
@@ -60,11 +70,22 @@ function plot_benchmark(datapath, outputpath, ymin=0.0, ymax=0.8)
         println(data_avg)
         titleplot = string("Compare every method on scenario ", dataset);
         plt=StatsPlots.boxplot(method_tex,dataplot,title=titleplot,notch=false,xlab="Method", ylab="Error in the distribution",legend=false,color_palette=:grays, ylims=(ymin,ymax))
-        Plots.savefig(plt, string(outputpath,"/",dataset,".tex"));
-        # Plots.savefig(plt, string(outputpath,"/",dataset,".pdf"));
+        #Plots.savefig(plt, string(outputpath,"/",dataset,".tex"));
+        Plots.savefig(plt, string(outputpath,"/",dataset,".pdf"));
     end
 end
 
+"""
+    plot_scenario(outputpath, scenario, method, ymin=0.0, ymax=0.4)
+
+Boxplot comparing several scenarios solved with one given method
+- `outputpath`: path of the folder where the result outputs are stored
+- `scenario`: beginning of the names of all the scenarios that are to be compared
+- `method`: name of the solution method; should be a string with following format "methodname-maxrelax-lambdareg", e.g., "joint-0.4-0.1"
+- `ymin`: minimum ordinate value
+- `ymax`: maximum ordinate value
+
+"""
 function plot_scenario(outputpath, scenario, method, ymin=0.0, ymax=0.4)
     outfilelist = readdir(outputpath);
     dataplots = [];
@@ -108,6 +129,7 @@ function plot_scenario(outputpath, scenario, method, ymin=0.0, ymax=0.4)
         elseif (datasets[1,i] == "SR-0.5") datasets[1,i]= "\\Sref{}"
         elseif (datasets[1,i] == "Sa-0") datasets[1,i]= "\\Sref{}"
         elseif (datasets[1,i] == "SX-2.5") datasets[1,i]= "\\Sref{}"
+        elseif (datasets[1,i] == "SLA-2.5") datasets[1,i]= "\\SLAref{}"
         elseif (datasets[1,i] == "Sn-1000") datasets[1,i]= "\\Sref{}"
         else datasets[1,i] = "\\text{" * datasets[1,i] * "}"
         end
@@ -122,41 +144,11 @@ function plot_scenario(outputpath, scenario, method, ymin=0.0, ymax=0.4)
     else  end
 
     titleplot = string("Results of ", method_tex);
-    plt=StatsPlots.boxplot(datasets,dataplots,size=(400,500),whisker_width=0.25,title=titleplot,notch=true,legend=false,color_palette=:grays, ylims=(ymin,ymax), tickfontsize=14, titlefontsize=18)
+    plt=StatsPlots.boxplot(datasets,dataplots,size=(400,500),whisker_width=0.25,title=titleplot,notch=true,legend=false,color_palette=:grays, ylims=(ymin,ymax), tickfontsize=14, titlefontsize=17)
     if scenario == "Sn"
         plt=StatsPlots.boxplot(datasets,dataplots,whisker_width=0.25,title=titleplot,notch=true,legend=false,color_palette=:grays, ylims=(ymin,ymax)) #xlab="Scenario", ylab="Error in the distribution",
     end
     Plots.savefig(plt, outputpath * "/" * scenario * '-' * method * ".tex");
-    # Plots.savefig(plt, outputpath * "/" * scenario * '-' * method * ".pdf");
-
-end
-
-function plot_all_scenarios()
-
-    mkpath("OutfilesJO")
-    plot_scenario("OutfilesJO", "SX", "group-basic", 0.0, 0.7)
-    plot_scenario("OutfilesJO", "SX", "group-0.4-0.0", 0.0, 0.7)
-    plot_scenario("OutfilesJO", "SX", "joint-basic", 0.0, 0.7)
-    plot_scenario("OutfilesJO", "SX", "joint-0.4-0.1", 0.0, 0.7)
-
-    plot_scenario("OutfilesJO", "SR", "group-basic", 0.0, 1.0)
-    plot_scenario("OutfilesJO", "SR", "group-0.4-0.0", 0.0, 1.0)
-    plot_scenario("OutfilesJO", "SR", "joint-basic", 0.0, 1.0)
-    plot_scenario("OutfilesJO", "SR", "joint-0.4-0.1", 0.0, 1.0)
-
-    plot_scenario("OutfilesJO", "Sa", "group-basic", 0.0, 0.6)
-    plot_scenario("OutfilesJO", "Sa", "group-0.4-0.0", 0.0, 0.6)
-    plot_scenario("OutfilesJO", "Sa", "joint-basic", 0.0, 0.6)
-    plot_scenario("OutfilesJO", "Sa", "joint-0.4-0.1", 0.0, 0.6)
-
-    plot_scenario("OutfilesJO", "SNL", "group-basic", 0.0, 0.7)
-    plot_scenario("OutfilesJO", "SNL", "group-0.4-0.0", 0.0, 0.7)
-    plot_scenario("OutfilesJO", "SNL", "joint-basic", 0.0, 0.7)
-    plot_scenario("OutfilesJO", "SNL", "joint-0.4-0.1", 0.0, 0.7)
-
-    plot_scenario("OutfilesJO/Sn", "Sn", "group-basic", 0.0, 0.8)
-    plot_scenario("OutfilesJO/Sn", "Sn", "group-0.4-0.0", 0.0, 0.8)
-    plot_scenario("OutfilesJO/Sn", "Sn", "joint-basic", 0.0, 0.8)
-    plot_scenario("OutfilesJO/Sn", "Sn", "joint-0.4-0.1", 0.0, 0.8)
+    #Plots.savefig(plt, outputpath * "/" * scenario * '-' * method * ".pdf");
 
 end
