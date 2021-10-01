@@ -26,14 +26,7 @@ function simulate(R2     = 0.5,
     t3 = quantile.(Normal(muA[1], sqrt(Sigma[1,1])), q3 );
     UA = rand(MvNormal(muA, PSigma), n);
     UB = rand(MvNormal(muB, PSigma), n);
-    # XA = zeros(3,n)
-    # XB = zeros(3,n)
-    # XA[1,:] = [(UA[1,j] < t1[1] ? 1 : 2) for j in 1:n]
-    # XA[2,:] = [(UA[2,j] < t2[1] ? 1 : (UA[2,j] < t2[2] ? 2 : 3)) for j in 1:n]
-    # XA[3,:] = [(UA[3,j] < t3[1] ? 1 : (UA[3,j] < t3[2] ? 2 : (UA[3,j] < t3[3] ? 3 : 4))) for j in 1:n]
-    # XB[1,:] = [(UB[1,j] < t1[1] ? 1 : 2) for j in 1:n]
-    # XB[2,:] = [(UB[2,j] < t2[1] ? 1 : (UB[2,j] < t2[2] ? 2 : 3)) for j in 1:n]
-    # XB[3,:] = [(UB[3,j] < t3[1] ? 1 : (UB[3,j] < t3[2] ? 2 : (UB[3,j] < t3[3] ? 3 : 4))) for j in 1:n]
+
     XA = ones(3, n);
     XB = ones(3, n);
     for j in 1:n
@@ -51,7 +44,8 @@ function simulate(R2     = 0.5,
         end
     end
 
-    varerror = (1/R2 -1)*sum(Sigma);
+	dimU = 3;
+    varerror = (1/R2 -1)*sum([alphaA[i]*alphaA[j]*Sigma[i,j] for i in 1:dimU, j in 1:dimU]);
     VA = transpose(alphaA * UA) .+ rand(Normal(0.0,sqrt(varerror)),n);
     VB = transpose(alphaB * UB) .+ rand(Normal(0.0,sqrt(varerror)),n);
     tY = quantile.(Normal((alphaA * muA)[1], sqrt(sum(alphaA * Sigma) + varerror)), [1.0/3.0, 2.0/3.0] );
@@ -67,40 +61,27 @@ end
 # Write the dataset given by covariates and outcomes in input
 function writedataset(outname,XA,YA,ZA,XB,YB,ZB)
     outfile = open(outname, "w");
-    @printf(outfile,"id Y Z X1 X2 X3");
-    n = length(YA);
-    for i in 1:n
-        @printf(outfile, "\n1 %d %d %d %d %d", YA[i], ZA[i], XA[1,i], XA[2,i], XA[3,i]);
-    end
-    for i in 1:n
-        @printf(outfile, "\n2 %d %d %d %d %d", YB[i], ZB[i], XB[1,i], XB[2,i], XB[3,i]);
-    end
-    close(outfile);
-end
-
-# Write the dataset where some of the input covariates are considered as "latent" variables, meaning that outcomes depend on them, but that those covariates are not observed
-# Instead of specifiying the latent variables, we provide the indices of those that are observed
-function writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,observed=[1,2,3])
-    outfile = open(outname, "w");
-    @printf(outfile,"id Y Z");
-    for i in observed
-        @printf(outfile," X%i", i);
-    end
-    n = length(YA);
-    for i in 1:n
+	n = length(YA);
+	ncovar = size(XA)[1]
+	@printf(outfile,"id Y Z");
+	for i in 1:ncovar
+		@printf(outfile," X%i", i);
+	end
+	for i in 1:n
         @printf(outfile, "\n1 %d %d", YA[i], ZA[i]);
-        for j in observed
+        for j in 1:ncovar
             @printf(outfile, " %d", XA[j,i]);
         end
     end
     for i in 1:n
         @printf(outfile, "\n2 %d %d", YB[i], ZB[i]);
-        for j in observed
+        for j in 1:ncovar
             @printf(outfile, " %d", XB[j,i]);
         end
     end
     close(outfile);
 end
+
 
 # Simulate default instance
 for k = 1:100
@@ -108,6 +89,28 @@ for k = 1:100
     outname = "data/tab" * string(k) * ".txt"
     writedataset(outname,XA,YA,ZA,XB,YB,ZB)
 end
+
+
+# Simulate data with varying number of categories
+mkpath( "../data/CAT-0")
+mkpath( "../data/CAT-1")
+mkpath( "../data/CAT-2")
+mkpath( "../data/CAT-3")
+for k = 1:100
+    XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0],[1.0, 0.0, 0.0],[1.0 1.0 1.0],[1.0 1.0 1.0], 1000, [0.5], [1.0/3.0, 2.0/3.0],[0.5]);
+    outname = "../data/CAT-0" * "/" * "tab" * string(k) * ".txt";
+    writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+    XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0],[1.0, 0.0, 0.0],[1.0 1.0 1.0],[1.0 1.0 1.0], 1000, [0.5], [0.5],[0.5]);
+    outname = "../data/CAT-1" * "/" * "tab" * string(k) * ".txt";
+    writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+    XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0],[1.0, 0.0, 0.0],[1.0 1.0 1.0],[1.0 1.0 1.0], 1000, [1.0/3.0, 2.0/3.0], [1.0/3.0, 2.0/3.0], [1.0/3.0, 2.0/3.0]);
+    outname = "../data/CAT-2" * "/" * "tab" * string(k) * ".txt";
+    writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+    XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0],[1.0, 0.0, 0.0],[1.0 1.0 1.0],[1.0 1.0 1.0], 1000, [0.25, 0.5, 0.75], [0.25, 0.5, 0.75], [0.25, 0.5, 0.75]);
+    outname = "../data/CAT-3" * "/" * "tab" * string(k) * ".txt";
+    writedataset(outname,XA,YA,ZA,XB,YB,ZB);
+end
+
 
 # Simulate R2 instances
 for k = 1:100
@@ -118,24 +121,6 @@ for k = 1:100
         outname = joinpath(path, "tab" * string(k) * ".txt")
         writedataset(outname,XA,YA,ZA,XB,YB,ZB)
     end
-end
-
-
-# Simulate instances with latent variables
-mkpath( "../data/LA-0")
-mkpath( "../data/LA-1")
-mkpath( "../data/LA-2")
-mkpath( "../data/LA-3")
-for k = 1:100
-    XA,YA,ZA,XB,YB,ZB = simulate(0.5,[0.0, 0.0 ,0.0],[1.0, 0.0, 0.0],[1.0 1.0 1.0],[1.0 1.0 1.0], 1000, [0.5], [1.0/3.0, 2.0/3.0],[0.5]);
-    outname = "../data/LA-0" * "/" * "tab" * string(k) * ".txt";
-    writedataset(outname,XA,YA,ZA,XB,YB,ZB);
-    outname = "../data/LA-1" * "/" * "tab" * string(k) * ".txt";
-    writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[2,3]);
-    outname = "../data/LA-2" * "/" * "tab" * string(k) * ".txt";
-    writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,3]);
-    outname = "../data/LA-3" * "/" * "tab" * string(k) * ".txt";
-    writedatasetlatent(outname,XA,YA,ZA,XB,YB,ZB,[1,2]);
 end
 
 # Simulate alpha instances
@@ -274,43 +259,3 @@ for k in 1:100
     end
     close(outfile)
 end
-
-
-# Plot all results
-mkpath("OutfilesJO")
-plot_scenario("OutfilesJO", "SX", "group-basic", 0.0, 0.7)
-plot_scenario("OutfilesJO", "SX", "group-0.4-0.0", 0.0, 0.7)
-plot_scenario("OutfilesJO", "SX", "joint-basic", 0.0, 0.7)
-plot_scenario("OutfilesJO", "SX", "joint-0.4-0.1", 0.0, 0.7)
-
-plot_scenario("OutfilesJO", "SR", "group-basic", 0.0, 0.7)
-plot_scenario("OutfilesJO", "SR", "group-0.4-0.0", 0.0, 0.7)
-plot_scenario("OutfilesJO", "SR", "joint-basic", 0.0, 0.7)
-plot_scenario("OutfilesJO", "SR", "joint-0.4-0.1", 0.0, 0.7)
-
-plot_scenario("OutfilesJO", "Sa", "group-basic", 0.0, 0.7)
-plot_scenario("OutfilesJO", "Sa", "group-0.4-0.0", 0.0, 0.7)
-plot_scenario("OutfilesJO", "Sa", "joint-basic", 0.0, 0.7)
-plot_scenario("OutfilesJO", "Sa", "joint-0.4-0.1", 0.0, 0.7)
-
-plot_scenario("OutfilesJO/Sn", "Sn", "group-basic", 0.0, 0.7)
-plot_scenario("OutfilesJO/Sn", "Sn", "group-0.4-0.0", 0.0, 0.7)
-plot_scenario("OutfilesJO/Sn", "Sn", "joint-basic", 0.0, 0.7)
-plot_scenario("OutfilesJO/Sn", "Sn", "joint-0.4-0.1", 0.0, 0.7)
-
-inst   = Instance("data/tab1.txt", 0)
-x      = Array{Float64,2}(inst.Xobserv[1001:2000,:])
-y      = Array{Float64,1}(inst.Yobserv[1001:2000])
-mean_y = sum(y)/length(y)
-
-sol    = MultivariateStats.llsq(x, y)
-a, b   = sol[1:end-1], sol[end]
-yp     = x * a .+ b
-
-sstot  = sum((y .- mean_y).^2)
-ssreg  = sum((yp .- mean_y).^2)
-ssres  = sum((yp .- y).^2)
-
-R2     = 1 - ssres/sstot
-
-println("R2 = " , R2)
