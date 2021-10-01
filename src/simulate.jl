@@ -2,14 +2,10 @@ using MultivariateStats
 using Distributions, PDMats
 
 
-"""
-    simulate
 
-
-Simulate one dataset with three covariates described by their mean in each database (muA and muB) and the quantiles used for discretization (q1,q2,q3)
-The dependency of outcomes on covariates is linear and given by the weights alpha1, alpha2 and by the R2 coefficient
-The instance contains n individuals in each base
-"""
+# Simulate one dataset with three covariates described by their mean in each database (muA and muB) and the quantiles used for discretization (q1,q2,q3)
+# The dependency of outcomes on covariates is linear and given by the weights alpha1, alpha2 and by the R2 coefficient
+# The instance contains n individuals in each base
 function simulate(R2     = 0.5,
                   muA    = [0.0, 0.0 ,0.0],
                   muB    = [1.0, 0.0, 0.0],
@@ -27,14 +23,7 @@ function simulate(R2     = 0.5,
     t3 = quantile.(Normal(muA[1], sqrt(Sigma[1,1])), q3 );
     UA = rand(MvNormal(muA, PSigma), n);
     UB = rand(MvNormal(muB, PSigma), n);
-    # XA = zeros(3,n)
-    # XB = zeros(3,n)
-    # XA[1,:] = [(UA[1,j] < t1[1] ? 1 : 2) for j in 1:n]
-    # XA[2,:] = [(UA[2,j] < t2[1] ? 1 : (UA[2,j] < t2[2] ? 2 : 3)) for j in 1:n]
-    # XA[3,:] = [(UA[3,j] < t3[1] ? 1 : (UA[3,j] < t3[2] ? 2 : (UA[3,j] < t3[3] ? 3 : 4))) for j in 1:n]
-    # XB[1,:] = [(UB[1,j] < t1[1] ? 1 : 2) for j in 1:n]
-    # XB[2,:] = [(UB[2,j] < t2[1] ? 1 : (UB[2,j] < t2[2] ? 2 : 3)) for j in 1:n]
-    # XB[3,:] = [(UB[3,j] < t3[1] ? 1 : (UB[3,j] < t3[2] ? 2 : (UB[3,j] < t3[3] ? 3 : 4))) for j in 1:n]
+
     XA = ones(3, n);
     XB = ones(3, n);
     for j in 1:n
@@ -52,7 +41,8 @@ function simulate(R2     = 0.5,
         end
     end
 
-    varerror = (1/R2 -1)*sum(Sigma);
+	dimU = 3;
+    varerror = (1/R2 -1)*sum([alphaA[i]*alphaA[j]*Sigma[i,j] for i in 1:dimU, j in 1:dimU]);
     VA = transpose(alphaA * UA) .+ rand(Normal(0.0,sqrt(varerror)),n);
     VB = transpose(alphaB * UB) .+ rand(Normal(0.0,sqrt(varerror)),n);
     tY = quantile.(Normal((alphaA * muA)[1], sqrt(sum(alphaA * Sigma) + varerror)), [1.0/3.0, 2.0/3.0] );
