@@ -4,8 +4,7 @@
   6 ![Lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)        7 ![Lifecycle](https://img.shields.io/badge/lifecycle-stable-green.svg)
   8 ![Lifecycle](https://img.shields.io/badge/lifecycle-retired-orange.svg)
   9 ![Lifecycle](https://img.shields.io/badge/lifecycle-archived-red.svg)        10 ![Lifecycle](https://img.shields.io/badge/lifecycle-dormant-blue.svg) -->
-[![Build Status](https://travis-ci.org/otrecoding/OTRecod.jl.svg?branch=master)](https://travis-ci.org/otrecoding/OTRecod.jl)
-[![codecov](https://codecov.io/gh/otrecoding/OTRecod.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/otrecoding/OTRecod.jl)
+[![Build status](https://github.com/otrecoding/OTRecod.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/otrecoding/OTRecod.jl/actions/workflows/ci.yml)[![codecov](https://codecov.io/gh/otrecoding/OTRecod.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/otrecoding/OTRecod.jl)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://otrecoding.github.io/OTRecod.jl/dev)
 
 [Regularized optimal transport of covariates and outcomes in data recoding](https://hal.archives-ouvertes.fr/hal-02123109/file/OTRecoding.pdf), Garès, Valérie and Omer, Jérémy, 2019.
