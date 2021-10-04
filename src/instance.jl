@@ -1,4 +1,4 @@
-using DataFrames
+using DelimitedFiles
 
 export Instance
 
@@ -105,7 +105,7 @@ struct Instance
       nbX = 0
       indXA = Dict{Int64,Array{Int64}}()
       indXB = Dict{Int64,Array{Int64}}()
-      Xval = convert(Matrix,unique(DataFrame(Xobserv)))
+      Xval = Matrix(unique(DataFrame(Xobserv, :auto)))
 
       # aggregate both bases
       x = zeros(size(Xval,2),1)
@@ -126,6 +126,7 @@ struct Instance
 
     """
         Instance( df, distance)
+
     - df : dataframe with column names : ident,Y1,Y2,X1,X2,X3
     - distance : Cityblock(), Euclidean() or Hamming()
     """
@@ -148,7 +149,7 @@ struct Instance
 
       nobs = size(df,1)
 
-      Xobserv = convert(Matrix, df[covariables])
+      Xobserv = Matrix(df[!, covariables])
       Yobserv = convert(Array, df.Y1)
       Zobserv = convert(Array, df.Y2)
 
@@ -194,7 +195,7 @@ struct Instance
       indXA = Dict{Int64,Array{Int64}}()
       indXB = Dict{Int64,Array{Int64}}()
 
-      Xval  = convert(Matrix,unique(DataFrame(Xobserv)))
+      Xval  = Matrix(unique(DataFrame(Xobserv, :auto)))
 
       # aggregate both bases
       for i in  1:size(Xval,1)

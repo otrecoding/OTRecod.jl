@@ -97,7 +97,8 @@ function individual_from_group_optimal(inst::Instance,
     nbindZ = [length(indZ[z]) for z in Z]
 
     # Create a model for the optimal transport of individuals
-    indiv = Model(with_optimizer(Clp.Optimizer,LogLevel=0))
+    indiv = Model(Clp.Optimizer)
+    set_optimizer_attribute(indiv, "LogLevel", 0)
 
     # Variables
     # - assignA[i][z] : fraction of individual i assigned to modality z
@@ -204,7 +205,9 @@ function ot_group(inst            :: Instance,
     if maxrelax == 0.0
         # Create a model for the optimal transport of individuals
         # group = Model(solver=GurobiSolver(Method=2, LogToConsole=0));
-        group = Model(with_optimizer(Clp.Optimizer,LogLevel=0))
+        group = Model(Clp.Optimizer)
+        set_optimizer_attribute(group, "LogLevel", 0)
+
 
         # Variables
         # - transport[y,z] : joint probability of modalities y and z
@@ -256,10 +259,12 @@ function ot_group(inst            :: Instance,
     # model can be decomposed by database
     else
        # Create a model for the optimal transport of individuals
-       groupA = Model(with_optimizer(Clp.Optimizer,LogLevel=0))
+       groupA = Model(Clp.Optimizer)
+       set_optimizer_attribute(groupA, "LogLevel", 0)
        # groupA = Model(solver=GurobiSolver(Method=2,LogToConsole=0))
        # Create a model for the optimal transport of individuals
-       groupB = Model(with_optimizer(Clp.Optimizer,LogLevel=0))
+       groupB = Model(Clp.Optimizer)
+       set_optimizer_attribute(groupB, "LogLevel", 0)
        # groupB = Model(solver=GurobiSolver(Method=2,LogToConsole=0))
        # - transportA[y,z] : joint probability of modalities y and z if in base A
        @variable(groupA, transportA[y in Y, z in Z] >= 0, base_name="transportA")

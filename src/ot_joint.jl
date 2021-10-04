@@ -41,8 +41,10 @@ function ot_joint(inst            :: Instance,
     Zobserv = inst.Zobserv
 
     # Create a model for the optimal transport of individuals
-    modelA = Model(with_optimizer(Clp.Optimizer,LogLevel = 0))
-    modelB = Model(with_optimizer(Clp.Optimizer,LogLevel = 0))
+    modelA = Model(Clp.Optimizer)
+    modelB = Model(Clp.Optimizer)
+    set_optimizer_attribute(modelA, "LogLevel", 0)
+    set_optimizer_attribute(modelB, "LogLevel", 0)
 
     # Compute data for aggregation of the individuals
     # println("... aggregating individuals")
@@ -51,7 +53,7 @@ function ot_joint(inst            :: Instance,
     nbX = length(indXA)
 
     # compute the neighbors of the covariates for regularization
-    Xvalues = convert(Matrix,unique(DataFrame(Xobserv)))
+    Xvalues = Matrix(unique(DataFrame(Xobserv, :auto)))
     dist_X = pairwise(norme, transpose(Xvalues),transpose(Xvalues), dims = 2)
     voisins_X = dist_X .<= 1
 
