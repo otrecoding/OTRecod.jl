@@ -1,3 +1,5 @@
+using Printf
+
 """
 Run the relaxed group transport with a range of relaxation parameters
 bench_path: name of the benchmark directory

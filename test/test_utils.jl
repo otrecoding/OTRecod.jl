@@ -1,10 +1,14 @@
-using CSV, Distances, MLDataUtils
+using CSV
+using DataFrames
+using Distances
+using MLDataUtils
+using Test
 
 @testset "CSV file tab.csv" begin
 
     path = joinpath("data","tab.csv")
     
-    df = CSV.read(path)
+    df = CSV.read(path, DataFrame)
     
     prob = [ 0.0834 0.0834 0.0832 ;
              0.0884 0.0826 0.0790 ;
@@ -68,21 +72,16 @@ using CSV, Distances, MLDataUtils
 
                indiv_method = maxrelax > 0.0 ? :optimal : :sequential
 
-               sol = ot_group(instance, percent_closest, 
-                              maxrelax, indiv_method)
+               sol = ot_group(instance, percent_closest, maxrelax, indiv_method)
 
             elseif method == :joint
 
-               sol = ot_joint(instance, maxrelax, 
-                              lambda_reg, percent_closest)
+               sol = ot_joint(instance, maxrelax, lambda_reg, percent_closest)
 
             end
     
             OTRecod.compute_pred_error!( sol, instance, false)
-            OTRecod.compute_distrib_error!(sol, instance, 
-                                           empiricalZA, 
-                                           empiricalYB)
-    
+            OTRecod.compute_distrib_error!(sol, instance, empiricalZA, empiricalYB)
 
             @show method, norme
 			@show sol

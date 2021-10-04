@@ -1,8 +1,8 @@
-using JuMP
-using Distances
-using Printf
-using DelimitedFiles
-using DataFrames
+#using JuMP
+#using Distances
+#using Printf
+#using DelimitedFiles
+#using DataFrames
 
 @enum DataBase baseA baseB
 include("instance.jl")
@@ -423,7 +423,7 @@ function compute_distrib_error_3covar(sol  :: Solution,
     Xval = inst.Xval
     nbX = length(inst.indXA)
 
-    Xval3  = convert(Matrix,unique(DataFrame(Xval[:,2:3])))
+    Xval3  = convert(Matrix,unique(DataFrame(Xval[:,2:3]), :auto))
     nbX3 = size(Xval3)[1]
     indX3 = Dict{Int64,Array{Int64,1}}()
     for i in 1:nbX3
