@@ -1,5 +1,9 @@
+export Solution
+
 """
 $(TYPEDEF)
+
+$(TYPEDSIGNATURES)
 
 - tsolve       : solution time
 - jointYZA     : joint distribution of Y and Z in A

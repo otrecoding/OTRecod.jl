@@ -41,3 +41,15 @@ run_directory
 ```julia
 julia> using OTRecod
 ```
+
+## Instance
+
+```@docs
+Instance
+```
+
+## Solution
+
+```@docs
+Solution
+```

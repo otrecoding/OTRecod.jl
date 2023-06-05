@@ -141,7 +141,6 @@ $(SIGNATURES)
  - `observed`: if nonempty, list of indices of the observed covariates; this allows to exclude some latent variables.
 
 """
-
 function run_directory(
     path::String,
     method::Symbol,

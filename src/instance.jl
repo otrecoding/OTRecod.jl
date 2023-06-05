@@ -5,6 +5,8 @@ export Instance
 """
 $(TYPEDEF)
 
+$(TYPEDSIGNATURES)
+
 Definition and initialization of an Instance structure
 
 - datafile : file name
