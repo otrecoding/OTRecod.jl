@@ -16,7 +16,7 @@ include("test_params_joint.jl")
 
         tcpu = @time run_directory("data", method, outfile)
 
-        open(outfile,"r") do f
+        open(outfile, "r") do f
             for line in eachline(f)
                 print(line)
             end

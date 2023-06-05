@@ -20,23 +20,25 @@ Compute a lower bound on the best average prediction error that one can
 obtain with a specific type of data sets
 path: path of the directory containing the data set
 """
-function compute_average_error_bound(path, norme::Int64=1)
+function compute_average_error_bound(path, norme::Int64 = 1)
 
     files = readdir(path)
-    dir_name = split(path,"/")[end]
+    dir_name = split(path, "/")[end]
     errorboundA = 0.0
     errorboundB = 0.0
     nbfiles = 0
 
     for data_file in files
         # continue if not a data file
-        if !(data_file[end - 3:end] == ".txt") continue end
+        if !(data_file[end-3:end] == ".txt")
+            continue
+        end
 
         # Reading the data file and preparing arrays
-        inst = Instance(string(path,"/",data_file), norme)
+        inst = Instance(string(path, "/", data_file), norme)
 
         # compute the bound and update the cumulative value
-        boundA,boundB = bound_prediction_error(inst,norme)
+        boundA, boundB = bound_prediction_error(inst, norme)
         errorboundA += boundA
         errorboundB += boundB
         nbfiles += 1
@@ -62,8 +64,7 @@ on base A and reciprocally on base B obtain with a specific type of data sets
 - `observed`: if nonempty, list of indices of the observed covariates; this allows to exclude some latent variables.
 
 """
-function empirical_estimator(path,
-                             observed   :: Array{Int64,1} = Array{Int64,1}())
+function empirical_estimator(path, observed::Array{Int64,1} = Array{Int64,1}())
 
     txt_files = filter(x -> endswith(x, ".txt"), readdir(path))
     # Initialize the necessary structures by treating the first file
@@ -81,36 +82,38 @@ function empirical_estimator(path,
 
     # Compute the cumulative cardinality of the joint occurences of
     # (X=x,Y=y,Z=z) in the two databases
-    cardA_c_mA_mB = zeros(nbX,length(Y),length(Z))
-    cardB_c_mA_mB = zeros(nbX,length(Y),length(Z))
+    cardA_c_mA_mB = zeros(nbX, length(Y), length(Z))
+    cardB_c_mA_mB = zeros(nbX, length(Y), length(Z))
     nbIndiv = 0
     for data_file in txt_files
 
         # read the data file and prepare arrays
-        inst = Instance(joinpath(path,data_file), 0, observed)
+        inst = Instance(joinpath(path, data_file), 0, observed)
 
         # update the cumulative count
-        countA, countB  = empirical_distribution(inst, 0)
+        countA, countB = empirical_distribution(inst, 0)
         cardA_c_mA_mB .+= countA
         cardB_c_mA_mB .+= countB
         nbIndiv += inst.nA
-        if (nbIndiv >= 100000) break end
+        if (nbIndiv >= 100000)
+            break
+        end
 
     end
 
     # Compute the empirical distribution of Z conditional to X and y in
     # base A and that of Y conditional to X and Z in base B
     # Z conditional to X and Y in base A
-    empiricalZA = ones(nbX,length(Y),length(Z)) ./ length(Z)
-    for x in 1:nbX, y in Y
+    empiricalZA = ones(nbX, length(Y), length(Z)) ./ length(Z)
+    for x = 1:nbX, y in Y
         cardA_c_mA = sum(cardA_c_mA_mB[x, y, z] for z in Z)
         if cardA_c_mA > 0
             empiricalZA[x, y, :] .= cardA_c_mA_mB[x, y, :] ./ cardA_c_mA
         end
     end
     # Y conditional to X and Z in base B
-    empiricalYB = ones(nbX,length(Y),length(Z)) ./ length(Y)
-    for x in 1:nbX, z in Z
+    empiricalYB = ones(nbX, length(Y), length(Z)) ./ length(Y)
+    for x = 1:nbX, z in Z
         cardB_c_mB = sum(cardB_c_mA_mB[x, y, z] for y in Y)
         if cardB_c_mB > 0
             empiricalYB[x, :, z] .= cardB_c_mA_mB[x, :, z] ./ cardB_c_mB
@@ -144,15 +147,17 @@ end
 
 """
 
-function run_directory(path            :: String,
-                       method          :: Symbol,
-                       outname         :: String  = "result.out",
-                       maxrelax        :: Float64 = 0.0,
-                       lambda_reg      :: Float64 = 0.0,
-                       nbfiles         :: Int64   = 0,
-                       norme           :: Int64   = 0,
-                       percent_closest :: Float64 = 0.2,
-                       observed        :: Array{Int64,1} = Array{Int64,1}())
+function run_directory(
+    path::String,
+    method::Symbol,
+    outname::String = "result.out",
+    maxrelax::Float64 = 0.0,
+    lambda_reg::Float64 = 0.0,
+    nbfiles::Int64 = 0,
+    norme::Int64 = 0,
+    percent_closest::Float64 = 0.2,
+    observed::Array{Int64,1} = Array{Int64,1}(),
+)
 
     @info " RUN ONE METHOD ON THE FILES OF ONE DIRECTORY "
     @info " Method      : $method   "
@@ -167,17 +172,32 @@ function run_directory(path            :: String,
 
     println("\tRelaxation parameter: ", maxrelax)
     if (method == :joint)
-       println("\tRegularization parameter: ", lambda_reg)
+        println("\tRegularization parameter: ", lambda_reg)
     end
 
     # initialize the output file
     outfile = open(outname, "w")
-    @printf(outfile, "%-12s , %-6s , %-5s , %-5s , %-5s , %-6s , %-6s , %-8s , %-7s , %-7s , %-9s , %-6s\n","filename", "method", "norme", "relax", "regul", "ePredA", "ePredB", "ePredavg", "eDistrA", "eDistrB", "eDistravg", "cpu")
+    @printf(
+        outfile,
+        "%-12s , %-6s , %-5s , %-5s , %-5s , %-6s , %-6s , %-8s , %-7s , %-7s , %-9s , %-6s\n",
+        "filename",
+        "method",
+        "norme",
+        "relax",
+        "regul",
+        "ePredA",
+        "ePredB",
+        "ePredavg",
+        "eDistrA",
+        "eDistrB",
+        "eDistravg",
+        "cpu"
+    )
     close(outfile)
 
     # compute the true empirical conditional distributions for comparison with results
     @info "compute the empirical distributions of outcomes"
-    empiricalZA,empiricalYB = empirical_estimator(path, observed)
+    empiricalZA, empiricalYB = empirical_estimator(path, observed)
 
 
     # compute a bound on the average prediction error in each base
@@ -185,28 +205,32 @@ function run_directory(path            :: String,
     # errorboundA, errorboundB = compute_average_error_bound(path, norme)
 
     # solve the instances corresponding to each file
-    files  = readdir(path)
+    files = readdir(path)
     nbruns = 0
     for data_file in files
         # stop if the requested number of runs has been performed
-        if ((nbfiles > 0) & (nbruns >= nbfiles)) break end
+        if ((nbfiles > 0) & (nbruns >= nbfiles))
+            break
+        end
         # continue if not a data file
-        if !(data_file[end-3:end]==".txt") continue end
+        if !(data_file[end-3:end] == ".txt")
+            continue
+        end
 
         # Reading the data file and preparing arrays
-        inst  = Instance(string(path,"/",data_file), norme, observed)
-        nA    = inst.nA
-        nB    = inst.nB
-        Y     = inst.Y
-        Z     = inst.Z
+        inst = Instance(string(path, "/", data_file), norme, observed)
+        nA = inst.nA
+        nB = inst.nB
+        Y = inst.Y
+        Z = inst.Z
         indXA = inst.indXA
         indXB = inst.indXB
-        nbX   = length(indXA)
+        nbX = length(indXA)
 
         @info " File : $(joinpath(path,data_file)) "
         if method == :group
             indiv_method = maxrelax > 0.0 ? :optimal : :sequential
-            sol = ot_group(inst,percent_closest,maxrelax,indiv_method)
+            sol = ot_group(inst, percent_closest, maxrelax, indiv_method)
             #PN lambda_reg = 0.0
         elseif method == :joint
             sol = ot_joint(inst, maxrelax, lambda_reg, percent_closest)
@@ -221,7 +245,22 @@ function run_directory(path            :: String,
         # end
 
         outfile = open(outname, "a")
-        @printf(outfile, "%-12s , %-6s , %-5d , %-5.2f , %-5.2f , %-6.3f , %-6.3f , %-8.3f , %-7.3f , %-7.3f , %-9.3f , %-6.2f\n", data_file, method, norme, maxrelax, lambda_reg, sol.errorpredZA, sol.errorpredYB, sol.errorpredavg, sol.errordistribZA, sol.errordistribYB, sol.errordistribavg, sol.tsolve)
+        @printf(
+            outfile,
+            "%-12s , %-6s , %-5d , %-5.2f , %-5.2f , %-6.3f , %-6.3f , %-8.3f , %-7.3f , %-7.3f , %-9.3f , %-6.2f\n",
+            data_file,
+            method,
+            norme,
+            maxrelax,
+            lambda_reg,
+            sol.errorpredZA,
+            sol.errorpredYB,
+            sol.errorpredavg,
+            sol.errordistribZA,
+            sol.errordistribYB,
+            sol.errordistribavg,
+            sol.tsolve
+        )
         close(outfile)
         nbruns += 1
     end

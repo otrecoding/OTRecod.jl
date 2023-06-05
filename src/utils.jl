@@ -7,9 +7,11 @@
 @enum DataBase baseA baseB
 include("instance.jl")
 
-function aggregate_per_covar_mixed(inst          :: Instance,
-                                   norme         :: Int64=1,
-                                   aggregate_tol :: Float64=0.5)
+function aggregate_per_covar_mixed(
+    inst::Instance,
+    norme::Int64 = 1,
+    aggregate_tol::Float64 = 0.5,
+)
 
     A = 1:inst.nA
     B = 1:inst.nB
@@ -28,7 +30,7 @@ function aggregate_per_covar_mixed(inst          :: Instance,
         isinset = inst.DA[ind, notaggA] .< aggregate_tol
         indXA[nbX] = notaggA[isinset]
         deleteat!(notaggA, isinset)
-        isinset = inst.D[ind,notaggB] .< aggregate_tol
+        isinset = inst.D[ind, notaggB] .< aggregate_tol
         indXB[nbX] = notaggB[isinset]
         deleteat!(notaggB, isinset)
     end
@@ -54,9 +56,11 @@ The bound is computed as the expected prediction error assuming that the
 distribution of Z in base A (and that of Y in base B) is known, and the
 prediction done with the value that maximizes the probability
 """
-function bound_prediction_error(inst          :: Instance,
-                                norme         :: Int64=1,
-                                aggregate_tol :: Float64=0.5)
+function bound_prediction_error(
+    inst::Instance,
+    norme::Int64 = 1,
+    aggregate_tol::Float64 = 0.5,
+)
 
     # Local redefinitions of parameters of  the instance
     nA = inst.nA
@@ -66,7 +70,7 @@ function bound_prediction_error(inst          :: Instance,
 
     # compute the bound in base A
     boundpredZA = 0.0
-    for x  in 1:length(inst.indXA)
+    for x = 1:length(inst.indXA)
         for mA in Y
             indwithmA = inst.indXA[x][findall(inst.Yobserv[inst.indXA[x]] .== mA)]
             nindiv = length(indwithmA)
@@ -75,7 +79,9 @@ function bound_prediction_error(inst          :: Instance,
             end
             for mB in Z
                 indwithmB = indwithmA[findall(inst.Zobserv[indwithmA] .== mB)]
-                boundpredZA += length(indwithmB)/nindiv * (1-length(indwithmB)/nindiv) * nindiv/ nA
+                boundpredZA +=
+                    length(indwithmB) / nindiv * (1 - length(indwithmB) / nindiv) * nindiv /
+                    nA
             end
         end
     end
@@ -83,16 +89,18 @@ function bound_prediction_error(inst          :: Instance,
 
     # compute the bound in base B
     boundpredYB = 0.0
-    for x  in 1:length(inst.indXB)
+    for x = 1:length(inst.indXB)
         for mB in Z
-            indwithmB = inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== mB)].+ nA
+            indwithmB = inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== mB)] .+ nA
             nindiv = length(indwithmB)
             if nindiv == 0
                 continue
             end
             for mA in Y
                 indwithmA = indwithmB[findall(inst.Yobserv[indwithmB] .== mA)]
-                boundpredYB += length(indwithmA)/nindiv * (1-length(indwithmA)/nindiv) * nindiv/ nB
+                boundpredYB +=
+                    length(indwithmA) / nindiv * (1 - length(indwithmA) / nindiv) * nindiv /
+                    nB
             end
         end
     end
@@ -107,9 +115,11 @@ end
 Return the empirical cardinality of the joint occurrences of (C=x,Y=mA,Z=mB)
 in both bases
 """
-function empirical_distribution(inst  ::Instance,
-                                norme :: Int64=0,
-                                aggregate_tol :: Float64=0.5)
+function empirical_distribution(
+    inst::Instance,
+    norme::Int64 = 0,
+    aggregate_tol::Float64 = 0.5,
+)
 
     # Local redefinitions of parameters of  the instance
     nA = inst.nA
@@ -132,7 +142,7 @@ function empirical_distribution(inst  ::Instance,
     cardB_c_mA_mB = zeros(nbX, length(Y), length(Z))
     for x = 1:nbX
         for i in inst.indXB[x]
-            cardB_c_mA_mB[x, inst.Yobserv[i + nA], inst.Zobserv[i + nA]] += 1
+            cardB_c_mA_mB[x, inst.Yobserv[i+nA], inst.Zobserv[i+nA]] += 1
         end
     end
 
@@ -168,7 +178,7 @@ function disp_inst_info(inst::Instance)
     print("Average distance between objects of base 2: ")
     @printf("%.2f\n", 10 * sum([DB[i, j] for i in B, j in B]) / (nB^2))
     print("Crossed average distance between objects of base 1 and 2: ")
-    @printf("%.2f\n", 10 * sum([inst.D[i, j] for i in A, j in B]) / (nA*nB))
+    @printf("%.2f\n", 10 * sum([inst.D[i, j] for i in A, j in B]) / (nA * nB))
 
     # restrict the average distance to the 10% closest individuals
     println("\nAverage distance between objects per modality")
@@ -179,10 +189,14 @@ function disp_inst_info(inst::Instance)
             if y1 > y2
                 continue
             end
-            avg = avg_distance_closest(inst,baseA,baseA,baseA,y1,y2,1.0)
+            avg = avg_distance_closest(inst, baseA, baseA, baseA, y1, y2, 1.0)
             @printf("\tModalities %d and %d : %.2f\n", y1, y2, 10 * avg)
-            avg = avg_distance_closest(inst,baseA,baseA,baseA,y1,y2,percent_closest)
-            @printf("\t\trestricted to the %.1f %% closest: %.2f\n", 100 * percent_closest, 10 * avg)
+            avg = avg_distance_closest(inst, baseA, baseA, baseA, y1, y2, percent_closest)
+            @printf(
+                "\t\trestricted to the %.1f %% closest: %.2f\n",
+                100 * percent_closest,
+                10 * avg
+            )
         end
     end
     println("\nModalities of Z, individuals of B:")
@@ -191,28 +205,40 @@ function disp_inst_info(inst::Instance)
             if z1 > z2
                 continue
             end
-            avg = avg_distance_closest(inst,baseB,baseB,baseB,z1,z2,1.0)
-            @printf("\tModalities %d and %d : %.2f\n", z1, z2, 10*avg)
-            avg = avg_distance_closest(inst,baseB,baseB,baseB,z1,z2,percent_closest)
-            @printf("\t\trestricted to the %.1f %% closest: %.2f\n", 100*percent_closest, 10*avg)
+            avg = avg_distance_closest(inst, baseB, baseB, baseB, z1, z2, 1.0)
+            @printf("\tModalities %d and %d : %.2f\n", z1, z2, 10 * avg)
+            avg = avg_distance_closest(inst, baseB, baseB, baseB, z1, z2, percent_closest)
+            @printf(
+                "\t\trestricted to the %.1f %% closest: %.2f\n",
+                100 * percent_closest,
+                10 * avg
+            )
         end
     end
     println("\nModalities of Y, crossed bases:")
     for y1 in Y
         for y2 in Y
-            avg = avg_distance_closest(inst,baseA,baseB,baseA,y1,y2,1.0)
-            @printf("\tModalities %d and %d : %.2f\n", y1, y2, 10*avg)
-            avg = avg_distance_closest(inst,baseA,baseB,baseA,y1,y2,percent_closest)
-            @printf("\t\trestricted to the %.1f %% closest: %.2f\n", 100*percent_closest, 10*avg)
+            avg = avg_distance_closest(inst, baseA, baseB, baseA, y1, y2, 1.0)
+            @printf("\tModalities %d and %d : %.2f\n", y1, y2, 10 * avg)
+            avg = avg_distance_closest(inst, baseA, baseB, baseA, y1, y2, percent_closest)
+            @printf(
+                "\t\trestricted to the %.1f %% closest: %.2f\n",
+                100 * percent_closest,
+                10 * avg
+            )
         end
     end
     println("\nModalities of Z, crossed bases:")
     for z1 in Z
         for z2 in Z
-            avg = avg_distance_closest(inst,baseA,baseB,baseB,z1,z2,1.0)
-            @printf("\tModalities %d and %d : %.2f\n", z1, z2, 10*avg)
-            avg = avg_distance_closest(inst,baseA,baseB,baseB,z1,z2,percent_closest)
-            @printf("\t\trestricted to the %.1f%% closest: %.2f\n", 100.0*percent_closest, 10*avg)
+            avg = avg_distance_closest(inst, baseA, baseB, baseB, z1, z2, 1.0)
+            @printf("\tModalities %d and %d : %.2f\n", z1, z2, 10 * avg)
+            avg = avg_distance_closest(inst, baseA, baseB, baseB, z1, z2, percent_closest)
+            @printf(
+                "\t\trestricted to the %.1f%% closest: %.2f\n",
+                100.0 * percent_closest,
+                10 * avg
+            )
         end
     end
 end
@@ -227,21 +253,35 @@ for outcome and individuals of base2 with modality m2 for outcome
 Consider only the percent_closest individuals in the computation of the
 distance
 """
-function avg_distance_closest(inst::Instance, base1::DataBase, base2::DataBase, outcome::DataBase, m1::Int, m2::Int, percent_closest::Float64)
+function avg_distance_closest(
+    inst::Instance,
+    base1::DataBase,
+    base2::DataBase,
+    outcome::DataBase,
+    m1::Int,
+    m2::Int,
+    percent_closest::Float64,
+)
 
     # indices of individuals of base A with given outcomes in base B (and reciprocally)
-    indZinA = Dict((z,findall(inst.Zobserv[1:inst.nA] .== z)) for z in inst.Z)
-    indYinB = Dict((m,findall(inst.Yobserv[inst.nA+1:end] .== y)) for y in inst.Y)
+    indZinA = Dict((z, findall(inst.Zobserv[1:inst.nA] .== z)) for z in inst.Z)
+    indYinB = Dict((m, findall(inst.Yobserv[inst.nA+1:end] .== y)) for y in inst.Y)
 
-    ind1 = base1 == baseA ? (outcome == baseA ? inst.indY[m1] : indZinA[m1]) : (outcome == baseA ? indYinB[m1] : inst.indZ[m1])
-    ind2 = base2 == baseA ? (outcome == baseA ? inst.indY[m2] : indZinA[m2]) : (outcome == baseA ? indYinB[m2] : inst.indZ[m2])
+    ind1 =
+        base1 == baseA ? (outcome == baseA ? inst.indY[m1] : indZinA[m1]) :
+        (outcome == baseA ? indYinB[m1] : inst.indZ[m1])
+    ind2 =
+        base2 == baseA ? (outcome == baseA ? inst.indY[m2] : indZinA[m2]) :
+        (outcome == baseA ? indYinB[m2] : inst.indZ[m2])
 
     # select the distance matrix depending on the base
-    D = base1 == baseA ? ( base2==baseA ? inst.DA : inst.D) : ( base2==baseA ? inst.D : inst.DB)
+    D =
+        base1 == baseA ? (base2 == baseA ? inst.DA : inst.D) :
+        (base2 == baseA ? inst.D : inst.DB)
 
     # swap the two sets of indices if base1=baseB and base2=baseA
-    if (base1==baseB && base2==baseA)
-        ind  = ind1
+    if (base1 == baseB && base2 == baseA)
+        ind = ind1
         ind1 = ind2
         ind2 = ind1
     end
@@ -250,14 +290,14 @@ function avg_distance_closest(inst::Instance, base1::DataBase, base2::DataBase, 
     # percent_closest in ind2 and reciprocally
     avg = 0.0
     for i in ind1
-        nbclose = round(Int,percent_closest*length(ind2))
-        distance = sort([D[i,j] for j in ind2])
-        avg += sum(distance[1:nbclose])/nbclose/length(ind1)/2
+        nbclose = round(Int, percent_closest * length(ind2))
+        distance = sort([D[i, j] for j in ind2])
+        avg += sum(distance[1:nbclose]) / nbclose / length(ind1) / 2
     end
     for j in ind2
-        nbclose = round(Int,percent_closest*length(ind1))
-        distance = sort([D[i,j] for i in ind1])
-        avg += sum(distance[1:nbclose])/nbclose/length(ind2)/2
+        nbclose = round(Int, percent_closest * length(ind1))
+        distance = sort([D[i, j] for i in ind1])
+        avg += sum(distance[1:nbclose]) / nbclose / length(ind2) / 2
     end
 
     return avg
@@ -271,57 +311,63 @@ include("solution.jl")
 
 Compute prediction errors in a solution
 """
-function compute_pred_error!( sol        :: Solution,
-                              inst       :: Instance,
-                              proba_disp :: Bool=false,
-                              mis_disp   :: Bool=false,
-                              full_disp  :: Bool=false)
+function compute_pred_error!(
+    sol::Solution,
+    inst::Instance,
+    proba_disp::Bool = false,
+    mis_disp::Bool = false,
+    full_disp::Bool = false,
+)
 
-    A     = 1:inst.nA
-    B     = 1:inst.nB
-    Y     = inst.Y
-    Z     = inst.Z
+    A = 1:inst.nA
+    B = 1:inst.nB
+    Y = inst.Y
+    Z = inst.Z
     indXA = inst.indXA
     indXB = inst.indXB
-    nbX   = length(indXA)
+    nbX = length(indXA)
 
     # display the transported and real modalities
     if full_disp
         println("Modalities of base 1 individuals:")
         for i in A
-            println("Index: $i real value: $(inst.Zobserv[i]) transported value: $(sol.predZA[i])")
+            println(
+                "Index: $i real value: $(inst.Zobserv[i]) transported value: $(sol.predZA[i])",
+            )
         end
         # display the transported and real modalities
         println("Modalities of base 2 individuals:")
         for j in B
-            println("Index: $j real value: $(inst.Yobserv[inst.nA+j]) transported value: $(sol.predYB[j])")
+            println(
+                "Index: $j real value: $(inst.Yobserv[inst.nA+j]) transported value: $(sol.predYB[j])",
+            )
         end
     end
 
     # Count the number of mistakes in the transport
     #deduce the individual distributions of probability for each individual from the distributions
-    probaZindivA = zeros(Float64,(inst.nA, length(Z)))
-    probaYindivB = zeros(Float64,(inst.nB, length(Y)))
+    probaZindivA = zeros(Float64, (inst.nA, length(Z)))
+    probaYindivB = zeros(Float64, (inst.nB, length(Y)))
     for x = 1:nbX
         for i in indXA[x]
-            probaZindivA[i,:] .= sol.estimatorZA[x,inst.Yobserv[i],:]
+            probaZindivA[i, :] .= sol.estimatorZA[x, inst.Yobserv[i], :]
         end
         for i in indXB[x]
-            probaYindivB[i,:] .= sol.estimatorYB[x,:,inst.Zobserv[i+inst.nA]]
+            probaYindivB[i, :] .= sol.estimatorYB[x, :, inst.Zobserv[i+inst.nA]]
         end
     end
 
     # Transport the modality that maximizes frequency
-    predZA = [findmax([probaZindivA[i,z]  for z in Z])[2] for i in A]
-    predYB = [findmax([probaYindivB[j,y]  for y in Y])[2] for j in B]
+    predZA = [findmax([probaZindivA[i, z] for z in Z])[2] for i in A]
+    predYB = [findmax([probaYindivB[j, y] for y in Y])[2] for j in B]
 
     # Base 1
     nbmisA = 0
     misA = Int64[]
     for i in A
         if predZA[i] != inst.Zobserv[i]
-          nbmisA += 1
-          push!(misA, i )
+            nbmisA += 1
+            push!(misA, i)
         end
     end
 
@@ -330,8 +376,8 @@ function compute_pred_error!( sol        :: Solution,
     misB = Int64[]
     for j in B
         if predYB[j] != inst.Yobserv[inst.nA+j]
-          nbmisB += 1
-          push!(misB, j)
+            nbmisB += 1
+            push!(misB, j)
         end
     end
 
@@ -348,17 +394,17 @@ function compute_pred_error!( sol        :: Solution,
         if nbmisB == 0
             println("No mistake in the transport of base B")
         else
-            @printf("Probability of error in base B: %.1f %%\n", 100.0 * nbmisB/inst.nB)
+            @printf("Probability of error in base B: %.1f %%\n", 100.0 * nbmisB / inst.nB)
             if mis_disp
                 println("Indices with mistakes in base 2:", misB)
             end
         end
     end
 
-    sol.errorpredZA   = nbmisA/inst.nA
-    sol.errorpredYB   = nbmisB/inst.nB
-    sol.errorpredavg  = (inst.nA*sol.errorpredZA
-                      +  inst.nB*sol.errorpredYB)/(inst.nA+inst.nB)
+    sol.errorpredZA = nbmisA / inst.nA
+    sol.errorpredYB = nbmisB / inst.nB
+    sol.errorpredavg =
+        (inst.nA * sol.errorpredZA + inst.nB * sol.errorpredYB) / (inst.nA + inst.nB)
 
 end
 
@@ -369,18 +415,26 @@ Compute errors in the conditional distributions of a solution
 """
 function compute_distrib_error(inst::Instance, sol::Solution, empiricalZA, empiricalYB)
 
-    nA  = inst.nA
-    nB  = inst.nB
-    Y   = copy(inst.Y)
-    Z   = copy(inst.Z)
+    nA = inst.nA
+    nB = inst.nB
+    Y = copy(inst.Y)
+    Z = copy(inst.Z)
     nbX = length(inst.indXA)
 
 
-    sol.errordistribZA = sum(length(inst.indXA[x][findall(inst.Yobserv[inst.indXA[x]] .== y)])/nA * sum(max.(sol.estimatorZA[x,y,:] .- empiricalZA[x,y,:],0)) for x in 1:nbX, y in Y)
+    sol.errordistribZA = sum(
+        length(inst.indXA[x][findall(inst.Yobserv[inst.indXA[x]] .== y)]) / nA *
+        sum(max.(sol.estimatorZA[x, y, :] .- empiricalZA[x, y, :], 0)) for x = 1:nbX,
+        y in Y
+    )
 
-    sol.errordistribYB = sum(length(inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== z)])/nB * sum(max.(sol.estimatorYB[x,:,z] .- empiricalYB[x,:,z],0)) for x in 1:nbX, z in Z)
+    sol.errordistribYB = sum(
+        length(inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== z)]) / nB *
+        sum(max.(sol.estimatorYB[x, :, z] .- empiricalYB[x, :, z], 0)) for x = 1:nbX,
+        z in Z
+    )
 
-    sol.errordistribavg = (nA * sol.errordistribZA + nB * sol.errordistribYB)/(nA+nB)
+    sol.errordistribavg = (nA * sol.errordistribZA + nB * sol.errordistribYB) / (nA + nB)
 
     sol
 
@@ -391,45 +445,51 @@ end
 
 Compute errors in the conditional distributions of a solution
 """
-function compute_distrib_error!(sol  :: Solution,
-                                inst :: Instance,
-                                empiricalZA,
-                                empiricalYB)
+function compute_distrib_error!(sol::Solution, inst::Instance, empiricalZA, empiricalYB)
 
-    nA  = inst.nA
-    nB  = inst.nB
-    Y   = inst.Y
-    Z   = inst.Z
+    nA = inst.nA
+    nB = inst.nB
+    Y = inst.Y
+    Z = inst.Z
     nbX = length(inst.indXA)
 
-    sol.errordistribZA = sum(length(inst.indXA[x][findall(inst.Yobserv[inst.indXA[x]] .== y)])/nA * sum(max.(sol.estimatorZA[x,y,:] .- empiricalZA[x,y,:],0)) for x in 1:nbX, y in Y)
+    sol.errordistribZA = sum(
+        length(inst.indXA[x][findall(inst.Yobserv[inst.indXA[x]] .== y)]) / nA *
+        sum(max.(sol.estimatorZA[x, y, :] .- empiricalZA[x, y, :], 0)) for x = 1:nbX,
+        y in Y
+    )
 
-    sol.errordistribYB = sum(length(inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== z)])/nB * sum(max.(sol.estimatorYB[x,:,z] .- empiricalYB[x,:,z],0)) for x in 1:nbX, z in Z)
+    sol.errordistribYB = sum(
+        length(inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== z)]) / nB *
+        sum(max.(sol.estimatorYB[x, :, z] .- empiricalYB[x, :, z], 0)) for x = 1:nbX,
+        z in Z
+    )
 
-    sol.errordistribavg = (   nA * sol.errordistribZA
-                            + nB * sol.errordistribYB ) / (nA+nB)
+    sol.errordistribavg = (nA * sol.errordistribZA + nB * sol.errordistribYB) / (nA + nB)
 
 end
 
-function compute_distrib_error_3covar(sol  :: Solution,
-                                inst :: Instance,
-                                empiricalZA,
-                                empiricalYB)
+function compute_distrib_error_3covar(
+    sol::Solution,
+    inst::Instance,
+    empiricalZA,
+    empiricalYB,
+)
 
-    nA  = inst.nA
-    nB  = inst.nB
-    Y   = inst.Y
-    Z   = inst.Z
+    nA = inst.nA
+    nB = inst.nB
+    Y = inst.Y
+    Z = inst.Z
     Xval = inst.Xval
     nbX = length(inst.indXA)
 
-    Xval3  = convert(Matrix,unique(DataFrame(Xval[:,2:3]), :auto))
+    Xval3 = convert(Matrix, unique(DataFrame(Xval[:, 2:3]), :auto))
     nbX3 = size(Xval3)[1]
     indX3 = Dict{Int64,Array{Int64,1}}()
-    for i in 1:nbX3
+    for i = 1:nbX3
         indlist = []
-        for j in 1:size(inst.Xval)[1]
-            if inst.Xval[j,2:3] == Xval3[i,:]
+        for j = 1:size(inst.Xval)[1]
+            if inst.Xval[j, 2:3] == Xval3[i, :]
                 indlist = [indlist; j]
             end
         end
@@ -459,12 +519,27 @@ function compute_distrib_error_3covar(sol  :: Solution,
     # end
     print(indX3)
 
-    sol.errordistribZA = sum(max(sum(length(inst.indXA[x][findall(inst.Yobserv[inst.indXA[x]] .== y)])/nA * (sol.estimatorZA[x,y,z] - empiricalZA[x,y,z]) for x in indX3[x3]),0) for x3 in 1:nbX3, y in Y, z in Z)
+    sol.errordistribZA = sum(
+        max(
+            sum(
+                length(inst.indXA[x][findall(inst.Yobserv[inst.indXA[x]] .== y)]) / nA *
+                (sol.estimatorZA[x, y, z] - empiricalZA[x, y, z]) for x in indX3[x3]
+            ),
+            0,
+        ) for x3 = 1:nbX3, y in Y, z in Z
+    )
 
-    sol.errordistribYB = sum(max(sum(length(inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== z)])/nB * (sol.estimatorYB[x,y,z] - empiricalYB[x,y,z]) for x in indX3[x3]),0) for x3 in 1:nbX3, y in Y, z in Z)
+    sol.errordistribYB = sum(
+        max(
+            sum(
+                length(inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== z)]) / nB * (sol.estimatorYB[x, y, z] - empiricalYB[x, y, z]) for
+                x in indX3[x3]
+            ),
+            0,
+        ) for x3 = 1:nbX3, y in Y, z in Z
+    )
 
-    sol.errordistribavg = (   nA * sol.errordistribZA
-                            + nB * sol.errordistribYB ) / (nA+nB)
+    sol.errordistribavg = (nA * sol.errordistribZA + nB * sol.errordistribYB) / (nA + nB)
 
     sol
 
@@ -477,37 +552,36 @@ Compute the cost between pairs of outcomes as the average distance between
 covariations of individuals with these outcomes, but considering only the
 percent closest neighbors
 """
-function average_distance_to_closest(inst            :: Instance,
-                                     percent_closest :: Float64)
+function average_distance_to_closest(inst::Instance, percent_closest::Float64)
 
     # Redefine A and B for the model
-    A    = 1:inst.nA
-    B    = 1:inst.nB
-    Y    = inst.Y
-    Z    = inst.Z
+    A = 1:inst.nA
+    B = 1:inst.nB
+    Y = inst.Y
+    Z = inst.Z
     indY = inst.indY
     indZ = inst.indZ
 
     # Compute average distances as described in the above
-    Davg    = zeros(Float64,(length(Y),length(Z)))
-    DindivA = zeros(Float64,(inst.nA,length(Z)))
-    DindivB = zeros(Float64,(inst.nB,length(Y)))
+    Davg = zeros(Float64, (length(Y), length(Z)))
+    DindivA = zeros(Float64, (inst.nA, length(Z)))
+    DindivB = zeros(Float64, (inst.nB, length(Y)))
 
     for y in Y, i in indY[y], z in Z
 
-        nbclose = max(round(Int,percent_closest*length(indZ[z])),1)
-        distance = sort([inst.D[i,j] for j in indZ[z]])
-        DindivA[i,z] =  sum(distance[1:nbclose])/nbclose
-        Davg[y,z] += sum(distance[1:nbclose])/nbclose/length(indY[y])/2.0
+        nbclose = max(round(Int, percent_closest * length(indZ[z])), 1)
+        distance = sort([inst.D[i, j] for j in indZ[z]])
+        DindivA[i, z] = sum(distance[1:nbclose]) / nbclose
+        Davg[y, z] += sum(distance[1:nbclose]) / nbclose / length(indY[y]) / 2.0
 
     end
 
     for z in Z, j in indZ[z], y in Y
 
-        nbclose = max(round(Int,percent_closest*length(indY[y])),1)
-        distance = sort([inst.D[i,j] for i in indY[y]])
-        DindivB[j,y] = sum(distance[1:nbclose])/nbclose
-        Davg[y,z] += sum(distance[1:nbclose])/nbclose/length(indZ[z])/2.0
+        nbclose = max(round(Int, percent_closest * length(indY[y])), 1)
+        distance = sort([inst.D[i, j] for i in indY[y]])
+        DindivB[j, y] = sum(distance[1:nbclose]) / nbclose
+        Davg[y, z] += sum(distance[1:nbclose]) / nbclose / length(indZ[z]) / 2.0
 
     end
 
@@ -520,30 +594,36 @@ end
 
 Compute prediction errors in a solution
 """
-function compute_pred_error(inst       :: Instance,
-                            sol        :: Solution,
-                            proba_disp :: Bool=false,
-                            mis_disp   :: Bool=false,
-                            full_disp  :: Bool=false)
+function compute_pred_error(
+    inst::Instance,
+    sol::Solution,
+    proba_disp::Bool = false,
+    mis_disp::Bool = false,
+    full_disp::Bool = false,
+)
 
-    A     = 1:inst.nA
-    B     = 1:inst.nB
-    Y     = inst.Y
-    Z     = inst.Z
+    A = 1:inst.nA
+    B = 1:inst.nB
+    Y = inst.Y
+    Z = inst.Z
     indXA = inst.indXA
     indXB = inst.indXB
-    nbX   = length(indXA)
+    nbX = length(indXA)
 
     # display the transported and real modalities
     if full_disp
         println("Modalities of base 1 individuals:")
         for i in A
-            println("Index: $i real value: $(inst.Zobserv[i]) transported value: $(sol.predZA[i])")
+            println(
+                "Index: $i real value: $(inst.Zobserv[i]) transported value: $(sol.predZA[i])",
+            )
         end
         # display the transported and real modalities
         println("Modalities of base 2 individuals:")
         for j in B
-            println("Index: $j real value: $(inst.Yobserv[inst.nA+j]) transported value: $(sol.predYB[j])")
+            println(
+                "Index: $j real value: $(inst.Yobserv[inst.nA+j]) transported value: $(sol.predYB[j])",
+            )
         end
     end
 
@@ -553,24 +633,24 @@ function compute_pred_error(inst       :: Instance,
     probaYindivB = Array{Float64,2}(undef, inst.nB, length(Y))
     for x = 1:nbX
         for i in indXA[x]
-            probaZindivA[i,:] = sol.estimatorZA[x,inst.Yobserv[i],:]
+            probaZindivA[i, :] = sol.estimatorZA[x, inst.Yobserv[i], :]
         end
         for i in indXB[x]
-            probaYindivB[i,:] = sol.estimatorYB[x,:,inst.Zobserv[i+inst.nA]]
+            probaYindivB[i, :] = sol.estimatorYB[x, :, inst.Zobserv[i+inst.nA]]
         end
     end
 
     # Transport the modality that maximizes frequency
-    predZA = [findmax([probaZindivA[i,z]  for z in Z])[2] for i in A]
-    predYB = [findmax([probaYindivB[j,y]  for y in Y])[2] for j in B]
+    predZA = [findmax([probaZindivA[i, z] for z in Z])[2] for i in A]
+    predYB = [findmax([probaYindivB[j, y] for y in Y])[2] for j in B]
 
     # Base 1
     nbmisA = 0
     misA = []
     for i in A
         if predZA[i] != inst.Zobserv[i]
-          nbmisA += 1
-          push!(misA, i )
+            nbmisA += 1
+            push!(misA, i)
         end
     end
 
@@ -579,8 +659,8 @@ function compute_pred_error(inst       :: Instance,
     misB = []
     for j in B
         if predYB[j] != inst.Yobserv[inst.nA+j]
-          nbmisB += 1
-          push!(misB, j)
+            nbmisB += 1
+            push!(misB, j)
         end
     end
 
@@ -597,15 +677,16 @@ function compute_pred_error(inst       :: Instance,
         if nbmisB == 0
             println("No mistake in the transport of base B")
         else
-            @printf("Probability of error in base B: %.1f %%\n", 100.0 * nbmisB/inst.nB)
+            @printf("Probability of error in base B: %.1f %%\n", 100.0 * nbmisB / inst.nB)
             if mis_disp
                 println("Indices with mistakes in base 2:", misB)
             end
         end
     end
 
-    sol.errorpredZA, sol.errorpredYB = nbmisA/inst.nA, nbmisB/inst.nB
-    sol.errorpredavg = (inst.nA*sol.errorpredZA + inst.nB*sol.errorpredYB)/(inst.nA+inst.nB)
+    sol.errorpredZA, sol.errorpredYB = nbmisA / inst.nA, nbmisB / inst.nB
+    sol.errorpredavg =
+        (inst.nA * sol.errorpredZA + inst.nB * sol.errorpredYB) / (inst.nA + inst.nB)
 
     sol
 
