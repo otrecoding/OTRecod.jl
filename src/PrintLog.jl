@@ -5,6 +5,9 @@ import Suppressor.@suppress
 export @printlog, @noprintlog
 
 """
+$(SIGNATURES)
+
+
     @printlog "file.log"
 
 Enable `printlog`.
@@ -30,6 +33,8 @@ macro printlog(file, silent = false)
 end
 
 """
+$(SIGNATURES)
+
     @noprintlog
 
 Disable `printlog`.

@@ -3,7 +3,7 @@ using DelimitedFiles
 export Instance
 
 """
-    Instance(data_file, norme)
+$(TYPEDEF)
 
 Definition and initialization of an Instance structure
 

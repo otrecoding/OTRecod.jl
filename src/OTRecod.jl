@@ -5,6 +5,7 @@ using JuMP, Cbc, Clp
 using Printf
 using DataFrames
 using Distances
+using DocStringExtensions
 
 include("utils.jl")
 include("ot_group.jl")
@@ -14,7 +15,7 @@ export run_directory
 export ot_group, ot_joint
 
 """
-    compute_average_error_bound(path; norme=1)
+$(SIGNATURES)
 
 Compute a lower bound on the best average prediction error that one can
 obtain with a specific type of data sets
@@ -55,7 +56,7 @@ function compute_average_error_bound(path, norme::Int64 = 1)
 end
 
 """
-    empirical_estimator(path; observed = [])
+$(SIGNATURES)
 
 Get an empirical estimator of the distribution of Z conditional to Y and X
 on base A and reciprocally on base B obtain with a specific type of data sets
@@ -125,13 +126,7 @@ function empirical_estimator(path, observed::Array{Int64,1} = Array{Int64,1}())
 end
 
 """
-    run_directory(path, method; outname = "result.out",
-                                maxrelax = 0.0,
-                                lambda_reg = 0.0,
-                                nbfiles = 0,
-                                norme = 0,
-                                percent_closest = 0.2,
-                                observed = [])
+$(SIGNATURES)
 
  Run one given method on a given number of data files of a given directory
  The data files must be the only files with extension ".txt" in the directory

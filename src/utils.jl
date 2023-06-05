@@ -7,6 +7,9 @@
 @enum DataBase baseA baseB
 include("instance.jl")
 
+"""
+$(SIGNATURES)
+"""
 function aggregate_per_covar_mixed(
     inst::Instance,
     norme::Int64 = 1,
@@ -49,7 +52,7 @@ function aggregate_per_covar_mixed(
 end
 
 """
-    bound_prediction_error(instance, norme, aggregate_tol)
+$(SIGNATURES)
 
 Compute a bound on the average prediction error in each base.
 The bound is computed as the expected prediction error assuming that the
@@ -110,7 +113,7 @@ function bound_prediction_error(
 end
 
 """
-    empirical_distribution(instance, norme, aggregate_tol)
+$(SIGNATURES)
 
 Return the empirical cardinality of the joint occurrences of (C=x,Y=mA,Z=mB)
 in both bases
@@ -151,7 +154,7 @@ end
 
 
 """
-    disp_inst_info(instance)
+$(SIGNATURES)
 
 Display information about the distance between the modalities
 """
@@ -244,8 +247,7 @@ function disp_inst_info(inst::Instance)
 end
 
 """
-    avg_distance_closest(instance, database1, database2,
-outcome, m1, m2, percent_closest)
+$(SIGNATURES)
 
 Compute the average distance between individuals of base1 with modality m1
 for outcome and individuals of base2 with modality m2 for outcome
@@ -306,8 +308,7 @@ end
 include("solution.jl")
 
 """
-    compute_pred_error(instance, sol, proba_disp=false,
-                       mis_disp=false, full_disp=false)
+$(SIGNATURES)
 
 Compute prediction errors in a solution
 """
@@ -409,7 +410,7 @@ function compute_pred_error!(
 end
 
 """
-    compute_distrib_error(instance, solution, empiricalZA, empiricalYB)
+$(SIGNATURES)
 
 Compute errors in the conditional distributions of a solution
 """
@@ -441,7 +442,7 @@ function compute_distrib_error(inst::Instance, sol::Solution, empiricalZA, empir
 end
 
 """
-    compute_distrib_error!(solution, instance, empiricalZA, empiricalYB)
+$(SIGNATURES)
 
 Compute errors in the conditional distributions of a solution
 """
@@ -469,6 +470,9 @@ function compute_distrib_error!(sol::Solution, inst::Instance, empiricalZA, empi
 
 end
 
+"""
+$(SIGNATURES)
+"""
 function compute_distrib_error_3covar(
     sol::Solution,
     inst::Instance,
@@ -546,7 +550,7 @@ function compute_distrib_error_3covar(
 end
 
 """
-    average_distance_to_closest(instance, percent_closest)
+$(SIGNATURES)
 
 Compute the cost between pairs of outcomes as the average distance between
 covariations of individuals with these outcomes, but considering only the
@@ -590,7 +594,7 @@ function average_distance_to_closest(inst::Instance, percent_closest::Float64)
 end
 
 """
-    compute_pred_error(inst, sol, proba_disp, mis_disp, full_disp)
+$(SIGNATURES)
 
 Compute prediction errors in a solution
 """

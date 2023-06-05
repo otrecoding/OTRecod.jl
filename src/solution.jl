@@ -1,7 +1,5 @@
 """
-    Solution(t, jointYZA, jointYZB)
-
-    Solution(t, jointYZA, jointYZB, estimatorZA, estimatorYB)
+$(TYPEDEF)
 
 - tsolve       : solution time
 - jointYZA     : joint distribution of Y and Z in A

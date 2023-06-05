@@ -1,6 +1,8 @@
 export ot_joint
 
 """
+$(SIGNATURES)
+
 Model where we directly compute the distribution of the outcomes for each
 individual or for sets of indviduals that similar values of covariates
 

@@ -1,5 +1,5 @@
 """
-    individual_from_group_closest(inst, jointprobaA, jointprobaB, percent_closest=1.0)
+$(SIGNATURES)
 
 Sequentially assign the modality of the individuals to that of the closest
 neighbor in the other base until the joint probability values are met
@@ -80,8 +80,7 @@ function individual_from_group_closest(
 end
 
 """
-    individual_from_group_optimal(inst, jointprobaA,
-         jointprobaB; percent_closest=1.0)
+$(SIGNATURES)
 
 Solve an optimization problem to get the individual transport that minimizes
 total distance while satisfying the joint probability computed by the model by
@@ -176,8 +175,7 @@ end
 export ot_group
 
 """
-    ot_group(inst, percent_closest=0.2, maxrelax=0.0,
-             indiv_method=sequential, full_disp=false, solver_disp=false)
+$(SIGNATURES)
 
 # Model of group transport
 
