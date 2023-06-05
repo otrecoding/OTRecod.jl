@@ -9,8 +9,8 @@
 
 ## Installation
 
-The package runs on julia 1.1.0 and above.
-In a Julia session switch to `pkg>` mode to add `NPSMC`:
+The package runs on julia 1.1 and above.
+In a Julia session switch to `pkg>` mode to add the package:
 
 ```julia
 julia>] # switch to pkg> mode
