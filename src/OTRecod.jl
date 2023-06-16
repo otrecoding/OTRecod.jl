@@ -12,6 +12,7 @@ export ot_group, ot_joint
 
 include("instance.jl")
 include("solution.jl")
+include("simulate.jl")
 include("utils.jl")
 include("average_distance_closest.jl")
 include("distrib_error.jl")
