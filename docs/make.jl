@@ -14,7 +14,6 @@ makedocs(
         "Group" => "ot_group.md",
         "Joint" => "ot_joint.md",
         "Logging" => "PrintLog.md",
-        "Plotting" => "plot_functions.md",
         "Utilities" => "utils.md",
     ],
 )
