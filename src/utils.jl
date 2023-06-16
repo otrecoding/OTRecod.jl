@@ -1,11 +1,4 @@
-#using JuMP
-#using Distances
-#using Printf
-#using DelimitedFiles
-#using DataFrames
-
 @enum DataBase baseA baseB
-include("instance.jl")
 
 """
 $(SIGNATURES)
@@ -68,8 +61,8 @@ function bound_prediction_error(
     # Local redefinitions of parameters of  the instance
     nA = inst.nA
     nB = inst.nB
-    Y = copy(inst.Y)
-    Z = copy(inst.Z)
+    Y = inst.Y
+    Z = inst.Z
 
     # compute the bound in base A
     boundpredZA = 0.0
@@ -110,6 +103,7 @@ function bound_prediction_error(
     # @printf("Bound on average prediction error in B : %.1f %%\n", 100.*boundpredYB)
 
     return boundpredZA, boundpredYB
+
 end
 
 """
@@ -125,12 +119,8 @@ function empirical_distribution(
 )
 
     # Local redefinitions of parameters of  the instance
-    nA = inst.nA
-    nB = inst.nB
-    A = 1:inst.nA
-    B = 1:inst.nB
-    Y = copy(inst.Y)
-    Z = copy(inst.Z)
+    Y = inst.Y
+    Z = inst.Z
 
     # aggregate the individuals per covariate
     nbX = length(inst.indXA)
@@ -145,7 +135,7 @@ function empirical_distribution(
     cardB_c_mA_mB = zeros(nbX, length(Y), length(Z))
     for x = 1:nbX
         for i in inst.indXB[x]
-            cardB_c_mA_mB[x, inst.Yobserv[i+nA], inst.Zobserv[i+nA]] += 1
+            cardB_c_mA_mB[x, inst.Yobserv[i+inst.nA], inst.Zobserv[i+inst.nA]] += 1
         end
     end
 
@@ -165,10 +155,10 @@ function disp_inst_info(inst::Instance)
     nB = inst.nB
     A = 1:inst.nA
     B = 1:inst.nB
-    Y = copy(inst.Y)
-    Z = copy(inst.Z)
-    indY = copy(inst.indY)
-    indZ = copy(inst.indZ)
+    Y = inst.Y
+    Z = inst.Z
+    indY = inst.indY
+    indZ = inst.indZ
 
 
     println("\n#################################################################")
@@ -305,7 +295,6 @@ function avg_distance_closest(
     return avg
 end
 
-include("solution.jl")
 
 """
 $(SIGNATURES)
@@ -499,29 +488,6 @@ function compute_distrib_error_3covar(
         end
         indX3[i] = indlist
     end
-
-    # d_empiricalZA= Dict{Array{Int64,1},Array{Float64,2}}()
-    # d_empiricalYB= Dict{Array{Int64,1},Array{Float64,2}}()
-    # d3_empiricalZA= Dict{Array{Int64,1},Array{Float64,2}}()
-    # d3_empiricalYB= Dict{Array{Int64,1},Array{Float64,2}}()
-    # d_estimatorZA= Dict{Array{Int64,1},Array{Float64,2}}()
-    # d_estimatorYB= Dict{Array{Int64,1},Array{Float64,2}}()
-    # d3_estimatorZA= Dict{Array{Int64,1},Array{Float64,2}}()
-    # d3_estimatorYB= Dict{Array{Int64,1},Array{Float64,2}}()
-    # for i in 1:nbX
-    #     d_empiricalZA[Int.(inst.Xval[i,:])]= empiricalZA[i,:,:]
-    #     d_empiricalYB[Int.(inst.Xval[i,:])]= empiricalYB[i,:,:]
-    #     d_estimatorZA[Int.(inst.Xval[i,:])]= sol.estimatorZA[i,:,:]
-    #     d_estimatorYB[Int.(inst.Xval[i,:])]= sol.estimatorYB[i,:,:]
-    # end
-    # for i in 1:nbX
-    #     x = Int.(inst.Xval[i,1:3])
-    #     d3_empiricalZA[x] = d_empiricalZA[[x;1]] .+ d_empiricalZA[[x;2]] .+ d_empiricalZA[[x;3]]
-    #     d3_empiricalYB[x] = d_empiricalYB[[x;1]] .+ d_empiricalYB[[x;2]] .+ d_empiricalYB[[x;3]]
-    #     d3_estimatorZA[x] = d_estimatorZA[[x;1]] .+ d_estimatorZA[[x;2]] .+ d_estimatorZA[[x;3]]
-    #     d3_estimatorYB[x] = d_estimatorYB[[x;1]] .+ d_estimatorYB[[x;2]] .+ d_estimatorYB[[x;3]]
-    # end
-    print(indX3)
 
     sol.errordistribZA = sum(
         max(

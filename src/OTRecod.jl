@@ -7,6 +7,8 @@ using DataFrames
 using Distances
 using DocStringExtensions
 
+include("instance.jl")
+include("solution.jl")
 include("utils.jl")
 include("ot_group.jl")
 include("ot_joint.jl")
