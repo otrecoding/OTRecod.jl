@@ -4,8 +4,6 @@
 [![codecov](https://codecov.io/gh/otrecoding/OTRecod.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/otrecoding/OTRecod.jl)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://otrecoding.github.io/OTRecod.jl/dev)
 
-[Regularized optimal transport of covariates and outcomes in data recoding](https://hal.archives-ouvertes.fr/hal-02123109/file/OTRecoding.pdf), Garès, Valérie and Omer, Jérémy, 2019.
-
 Valérie Garès & Jérémy Omer, 2022.  "Regularized Optimal Transport of Covariates and Outcomes in Data Recoding," Journal of the American Statistical Association, Taylor & Francis Journals, vol. 117(537), pages 320-333, January.
 
 Abstract:  When databases are constructed from heterogeneous sources,
@@ -29,6 +27,8 @@ applied to a real dataset.
 
 Keywords: 
 <https://ideas.repec.org/a/taf/jnlasa/v117y2022i537p320-333.html>
+
+[pdf](https://hal.archives-ouvertes.fr/hal-02123109/file/OTRecoding.pdf)
 
 ## Installation
 
