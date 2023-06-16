@@ -1,3 +1,5 @@
+@enum DataBase baseA baseB
+
 """
 $(SIGNATURES)
 

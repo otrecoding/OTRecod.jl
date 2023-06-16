@@ -3,38 +3,6 @@ $(SIGNATURES)
 
 Compute errors in the conditional distributions of a solution
 """
-function compute_distrib_error(inst::Instance, sol::Solution, empiricalZA, empiricalYB)
-
-    nA = inst.nA
-    nB = inst.nB
-    Y = copy(inst.Y)
-    Z = copy(inst.Z)
-    nbX = length(inst.indXA)
-
-
-    sol.errordistribZA = sum(
-        length(inst.indXA[x][findall(inst.Yobserv[inst.indXA[x]] .== y)]) / nA *
-        sum(max.(sol.estimatorZA[x, y, :] .- empiricalZA[x, y, :], 0)) for x = 1:nbX,
-        y in Y
-    )
-
-    sol.errordistribYB = sum(
-        length(inst.indXB[x][findall(inst.Zobserv[inst.indXB[x].+nA] .== z)]) / nB *
-        sum(max.(sol.estimatorYB[x, :, z] .- empiricalYB[x, :, z], 0)) for x = 1:nbX,
-        z in Z
-    )
-
-    sol.errordistribavg = (nA * sol.errordistribZA + nB * sol.errordistribYB) / (nA + nB)
-
-    sol
-
-end
-
-"""
-$(SIGNATURES)
-
-Compute errors in the conditional distributions of a solution
-"""
 function compute_distrib_error!(sol::Solution, inst::Instance, empiricalZA, empiricalYB)
 
     nA = inst.nA

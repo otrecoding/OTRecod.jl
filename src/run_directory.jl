@@ -102,8 +102,9 @@ function run_directory(
             sol = ot_joint(inst, maxrelax, lambda_reg, percent_closest)
         end
 
-        sol = compute_pred_error(inst, sol, false)
-        sol = compute_distrib_error(inst, sol, empiricalZA, empiricalYB)
+        compute_pred_error!(sol, inst, false)
+        compute_distrib_error!(sol, inst, empiricalZA, empiricalYB)
+
         @show sol
         # if (size(inst.Xval)[2] >= 3)
         #     sol = compute_distrib_error_3covar(sol, inst, empiricalZA, empiricalYB)
