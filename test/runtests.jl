@@ -3,6 +3,7 @@ using MultivariateStats
 using Distributions, PDMats
 using Printf
 
+#include("test_statmatch.jl")
 include("test_utils.jl")
 include("test_params_group.jl")
 include("test_params_joint.jl")

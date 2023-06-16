@@ -20,8 +20,8 @@ pkg> add https://github.com/otrecoding/OTRecod.jl
 Alternatively, you can achieve the above using the `Pkg` API:
 
 ```julia
-julia> using Pkg
-julia> pkg"add https://github.com/otrecoding/OTRecod.jl"
+julia> import Pkg
+julia> Pkg.add(url = "https://github.com/otrecoding/OTRecod.jl")
 ```
 
 When finished, make sure that you're back to the Julian prompt (`julia>`)
