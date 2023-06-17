@@ -1,18 +1,20 @@
+using OTRecod
+using Test, DataFrames
 using CSV, Distances, MLDataUtils
 using CategoricalArrays
 
 @testset "StatMatch" begin
 
-    df = CSV.read("statmatch.csv", copycols = true)
-    df = df[[6, 8, 9, 14, 15]]
+    data = DataFrame(CSV.File(joinpath(@__DIR__, "statmatch.csv")))
+    df = data[!, [6, 8, 9, 14, 15]]
 
     covariables = [:age, :hsize, :sex]
     outcomes = [:Y, :Z]
 
     # rename columns
-    names!(df, vcat(covariables, outcomes))
+    rename!(df, vcat(covariables, outcomes))
 
-    categorical!(df, compress = true)
+    transform!(df, names(df, AbstractString) .=> categorical, renamecols=false)
     # clean data
 
     maxrelax = 0.0
@@ -23,9 +25,9 @@ using CategoricalArrays
 
         for distance in [Cityblock(), Euclidean(), Hamming()]
 
-            instance = Instance(df, covariables, outcomes, distance)
 
             #=
+            instance = Instance(df, covariables, outcomes, distance)
                         nA    = instance.nA
                         nB    = instance.nB
                         Y     = instance.Y

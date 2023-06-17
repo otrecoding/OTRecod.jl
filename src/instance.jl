@@ -154,7 +154,7 @@ struct Instance
     """
         Instance( df, distance)
 
-    - df : dataframe with column names : ident,Y1,Y2,X1,X2,X3
+    - df : dataframe with column names : ident, covariables, outcomes
     - distance : Cityblock(), Euclidean() or Hamming()
     """
     function Instance(

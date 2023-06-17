@@ -1,8 +1,6 @@
 using StatsPlots
 pgfplots()
-# gr()
 
-export plot_benchmark, plot_scenario
 
 """
     plot_benchmark(datapath,outputpath,ymin=0.0, ymax=0.8)
