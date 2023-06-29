@@ -24,10 +24,12 @@ function ot_joint(
     solver_disp::Bool = false,
 )
 
-    @info " AGGREGATE INDIVIDUALS WRT COVARIATES               "
-    @info " Reg. weight           = $(lambda_reg)              "
-    @info " Percent closest       = $(100.0 * percent_closest) % "
-    @info " Aggregation tolerance = $(aggregate_tol)           "
+    if full_disp
+        @info " AGGREGATE INDIVIDUALS WRT COVARIATES               "
+        @info " Reg. weight           = $(lambda_reg)              "
+        @info " Percent closest       = $(100.0 * percent_closest) % "
+        @info " Aggregation tolerance = $(aggregate_tol)           "
+    end
 
     tstart = time()
 
