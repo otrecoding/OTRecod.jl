@@ -256,6 +256,10 @@ function ot_joint(
     # println("Distance cost = ", sum(C[y,z] * (gammaA_val[x,y,z]+gammaB_val[x,y,z]) for y in Y, z in Z, x in 1:nbX))
     # println("Regularization cost = ", lambda_reg * value(regterm))
 
+    if full_disp
+        solution_summary(modelA; verbose = solver_disp)
+        solution_summary(modelB; verbose = solver_disp)
+    end
 
     Solution(
         time() - tstart,
