@@ -10,7 +10,6 @@ makedocs(
     modules = [OTRecod],
     pages = [
         "Documentation" => "index.md",
-        "OTRecod" => "OTRecod.md",
         "Group" => "ot_group.md",
         "Joint" => "ot_joint.md",
         "Logging" => "PrintLog.md",
