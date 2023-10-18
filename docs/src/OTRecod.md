@@ -19,5 +19,7 @@ distributions and adding an L1 regularization term. The performances
 of the models are evaluated in a simulation study, and they are
 applied to a real dataset. 
 
+Valérie Garès & Jérémy Omer (2022) Regularized Optimal Transport of Covariates and Outcomes in Data Recoding, Journal of the American Statistical Association, 117:537, 320-333, DOI: [10.1080/01621459.2020.1775615](https://doi.org/10.1080/01621459.2020.1775615)
+
 [pdf](https://hal.archives-ouvertes.fr/hal-02123109/file/OTRecoding.pdf)
 
