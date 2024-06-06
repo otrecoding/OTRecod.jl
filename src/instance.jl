@@ -53,11 +53,11 @@ struct Instance
         # Modify Y and Z so that they go from 1 to the number of modalities
         Y = sort(unique(Yobserv[Yobserv.!=-1]))
         Z = sort(unique(Zobserv[Zobserv.!=-1]))
-        for i = 1:length(Y)
+        for i = eachindex(Y)
             Yobserv[Yobserv.==Y[i]] .= i
         end
         Y = [i for i = 1:length(Y)]
-        for i = 1:length(Z)
+        for i = eachindex(Z)
             Zobserv[Zobserv.==Z[i]] .= i
         end
         Z = [i for i = 1:length(Z)]
@@ -82,7 +82,7 @@ struct Instance
         nbX = 0
         indXA = Dict{Int64,Array{Int64}}()
         indXB = Dict{Int64,Array{Int64}}()
-        Xval = Matrix(unique(DataFrame(Xobserv, :auto)))
+        Xval = collect(stack(sort(unique(eachrow(Xobserv))))')
 
         # aggregate both bases
         x = zeros(size(Xval, 2), 1)
