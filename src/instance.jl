@@ -152,7 +152,7 @@ struct Instance
     end
 
     """
-        Instance( df, distance)
+    $(SIGNATURES)
 
     - df : dataframe with column names : ident, covariables, outcomes
     - distance : Cityblock(), Euclidean() or Hamming()
