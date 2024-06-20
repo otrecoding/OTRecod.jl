@@ -1,7 +1,7 @@
 name = "OTRecod"
 uuid = "ff01ed82-8208-11e9-3323-37e231d82657"
 authors = ["Jeremy Omer <jeremy.omer@insa-rennes.fr>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
