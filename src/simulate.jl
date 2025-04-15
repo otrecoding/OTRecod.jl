@@ -29,29 +29,17 @@ function simulate(
     XA = ones(3, n)
     XB = ones(3, n)
     for j = 1:n
-        for i = 1:length(t1)
-            if UA[1, j] >= t1[i]
-                XA[1, j] = i + 1
-            end
-            if UB[1, j] >= t1[i]
-                XB[1, j] = i + 1
-            end
+        for i = eachindex(t1)
+            UA[1, j] >= t1[i] && (XA[1, j] = i + 1)
+            UB[1, j] >= t1[i] && (XB[1, j] = i + 1)
         end
-        for i = 1:length(t2)
-            if UA[2, j] >= t2[i]
-                XA[2, j] = i + 1
-            end
-            if UB[2, j] >= t2[i]
-                XB[2, j] = i + 1
-            end
+        for i = eachindex(t2)
+            UA[2, j] >= t2[i] && (XA[2, j] = i + 1)
+            UB[2, j] >= t2[i] && (XB[2, j] = i + 1)
         end
-        for i = 1:length(t3)
-            if UA[3, j] >= t3[i]
-                XA[3, j] = i + 1
-            end
-            if UB[3, j] >= t3[i]
-                XB[3, j] = i + 1
-            end
+        for i = eachindex(t3)
+            UA[3, j] >= t3[i] && (XA[3, j] = i + 1)
+            UB[3, j] >= t3[i] && (XB[3, j] = i + 1)
         end
     end
 
